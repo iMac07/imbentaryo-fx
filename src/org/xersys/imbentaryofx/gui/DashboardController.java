@@ -7,8 +7,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
-import org.xersys.kumander.base.Nautilus;
-import org.xersys.kumander.iface.XNautilus;
+import org.xersys.commander.base.Nautilus;
+import org.xersys.commander.iface.XNautilus;
 
 public class DashboardController implements Initializable, ControlledScreen {
     @FXML

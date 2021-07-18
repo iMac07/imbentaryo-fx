@@ -29,20 +29,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.benta.bo.Sales;
-import org.xersys.lib.dto.Temp_Transactions;
-import org.xersys.kumander.contants.SearchEnum;
+import org.xersys.sales.base.Sales;
+import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
-import org.xersys.kumander.iface.LMasDetTrans;
-import org.xersys.kumander.iface.XNautilus;
-import org.xersys.kumander.util.FXUtil;
-import org.xersys.kumander.util.MsgBox;
-import org.xersys.kumander.util.SQLUtil;
-import org.xersys.kumander.util.StringUtil;
+import org.xersys.commander.iface.LMasDetTrans;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.MsgBox;
+import org.xersys.commander.util.SQLUtil;
+import org.xersys.commander.util.StringUtil;
+import org.xersys.inventory.search.InvSearchEngine;
 
 public class POSController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
@@ -213,7 +213,7 @@ public class POSController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtSeeks01":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    quickSearch(txtField, SearchEnum.Type.searchInvBranchComplex, lsValue, "sBarCodex", "", 15, false);
+                    quickSearch(txtField, InvSearchEngine.Type.searchInvBranchComplex, lsValue, "sBarCodex", "", 15, false);
                     event.consume();
                     return;
             }
@@ -438,7 +438,7 @@ public class POSController implements Initializable, ControlledScreen{
         }
     }
     
-    private void quickSearch(TextField foField, SearchEnum.Type foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
+    private void quickSearch(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
         //pass the initial value do initial search
         JSONObject loJSON = _trans.Search(foType, fsValue, fsKey, fsFilter, fnMax, fbExact);
         

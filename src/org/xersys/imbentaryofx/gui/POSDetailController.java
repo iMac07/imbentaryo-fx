@@ -13,7 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -21,11 +20,10 @@ import javafx.scene.layout.VBox;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
-import org.xersys.kumander.contants.SearchEnum;
-import org.xersys.kumander.iface.XNautilus;
-import org.xersys.kumander.util.FXUtil;
-import org.xersys.kumander.util.MsgBox;
-import org.xersys.kumander.util.StringUtil;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.MsgBox;
+import org.xersys.commander.util.StringUtil;
 
 public class POSDetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;

@@ -20,9 +20,9 @@ import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
-import org.xersys.kumander.base.Nautilus;
-import org.xersys.kumander.iface.XNautilus;
-import org.xersys.kumander.util.CommonUtil;
+import org.xersys.commander.base.Nautilus;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
 
 public class PartsCatalogueController implements Initializable, ControlledScreen{
     @FXML

@@ -1,7 +1,7 @@
 package org.xersys.imbentaryofx.gui.handler;
 
 import org.xersys.imbentaryofx.gui.MainScreenController;
-import org.xersys.kumander.iface.XNautilus;
+import org.xersys.commander.iface.XNautilus;
 
 public interface ControlledScreen {
     public void setNautilus(XNautilus foValue);

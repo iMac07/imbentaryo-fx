@@ -2,10 +2,10 @@ package org.xersys.imbentaryofx.app;
 
 import javafx.application.Application;
 import org.xersys.imbentaryofx.gui.Imbentaryo;
-import org.xersys.kumander.base.Nautilus;
-import org.xersys.kumander.base.Property;
-import org.xersys.kumander.base.SQLConnection;
-import org.xersys.kumander.crypt.CryptFactory;
+import org.xersys.commander.base.Nautilus;
+import org.xersys.commander.base.Property;
+import org.xersys.commander.base.SQLConnection;
+import org.xersys.commander.crypt.CryptFactory;
 
 public class Login {
     public static void main (String [] args){

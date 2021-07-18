@@ -22,9 +22,9 @@ import org.json.simple.parser.ParseException;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.CartCallback;
-import org.xersys.kumander.base.Nautilus;
-import org.xersys.kumander.iface.XNautilus;
-import org.xersys.kumander.util.StringUtil;
+import org.xersys.commander.base.Nautilus;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.StringUtil;
 
 public class CartController implements Initializable, ControlledScreen {
     @FXML

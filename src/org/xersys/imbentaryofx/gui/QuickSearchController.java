@@ -25,9 +25,8 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
-import org.xersys.kumander.contants.SearchEnum;
-import org.xersys.kumander.iface.XMasDetTrans;
-import org.xersys.kumander.iface.XNautilus;
+import org.xersys.commander.iface.XMasDetTrans;
+import org.xersys.commander.iface.XNautilus;
 
 public class QuickSearchController implements Initializable, ControlledScreen {
     @FXML
@@ -135,7 +134,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
         _trans = foValue;
     }
     
-    public void setSearchType(SearchEnum.Type foType){
+    public void setSearchType(Enum foType){
         _type = foType;
     }
     
@@ -519,7 +518,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     
     private XMasDetTrans _trans;
 
-    private SearchEnum.Type _type;
+    private Enum _type;
     private String _value;
     private String _key;
     private String _filter;

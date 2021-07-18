@@ -14,7 +14,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
-import org.xersys.kumander.iface.XNautilus;
+import org.xersys.commander.iface.XNautilus;
 
 public class Imbentaryo extends Application {
     private final String FORM_TITLE = "Imbentaryo v1.0";

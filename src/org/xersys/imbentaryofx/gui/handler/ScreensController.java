@@ -11,7 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 import org.xersys.imbentaryofx.gui.MainScreenController;
-import org.xersys.kumander.base.Nautilus;
+import org.xersys.commander.base.Nautilus;
 
 /**
  * 

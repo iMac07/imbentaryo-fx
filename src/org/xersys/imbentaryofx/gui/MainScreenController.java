@@ -14,8 +14,8 @@ import javafx.scene.layout.StackPane;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
-import org.xersys.kumander.iface.XNautilus;
-import org.xersys.kumander.util.CommonUtil;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
 
 public class MainScreenController implements Initializable {
     @FXML
