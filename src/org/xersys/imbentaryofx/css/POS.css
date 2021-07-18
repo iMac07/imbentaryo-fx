@@ -1,0 +1,17 @@
+#lblOrderNo{
+    -fx-font-weight: bold;
+}
+
+#lblTransSummary{
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;   
+}
+
+
+.combo-box-base{
+    -fx-background-color: #c4cdda;
+}
+
+.label{
+    -fx-font-size: 11px;   
+}

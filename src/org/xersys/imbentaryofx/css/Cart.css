@@ -1,0 +1,59 @@
+#CartChild{
+    -fx-background-color: #E9E9E9;
+}
+
+.label{
+    -fx-font-family: "Verdana";
+    -fx-font-size: 11px;
+    -fx-text-fill: #000000; 
+    -fx-background-color: transparent;
+}
+
+#lblOther{
+    -fx-text-fill: #696969; 
+}
+
+#lblTotal, #lblSummary{
+    -fx-font-weight: bold; 
+    -fx-font-size: 13px;
+}
+
+.textfield{
+    -fx-font-family: "Verdana";
+    -fx-font-size: 12px;
+    -fx-text-fill: #000000; 
+}
+
+#btnChild01, #btnChild02, #btnChild03{
+    -fx-font-family: "Verdana";
+    -fx-font-size: 10px;
+    -fx-text-fill: #ffffff; 
+    
+    -fx-border-width: 0px 0px 0px 1px;
+    -fx-border-radius: 0px;
+    -fx-background-radius: 5px;
+    -fx-background-color: #465a7d;
+}
+
+#btnChild01:hover, #btnChild02:hover{
+    -fx-background-color: #b6c1d2;
+    -fx-text-fill: #000000;
+    -fx-cursor: hand;
+}
+
+#btnChild03{    
+    -fx-background-color: transparent;
+}
+
+#fxTrash{
+   -fx-fill: #000000; 
+}
+
+#fxTrash:hover{
+   -fx-fill: #ffffff; 
+   -fx-cursor: hand;
+}
+
+#HBoxSummary{
+    -fx-background-color:  #E9E9E9;
+}
