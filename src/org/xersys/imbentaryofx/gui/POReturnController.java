@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -29,7 +30,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.purchasing.base.PurchaseOrder;
+import org.xersys.purchasing.base.POReturn;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
@@ -45,9 +46,9 @@ import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.inventory.search.InvSearchEngine;
 
-public class PurchaseOrderController implements Initializable, ControlledScreen{
+public class POReturnController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private PurchaseOrder _trans;
+    private POReturn _trans;
     private LMasDetTrans _listener;
     
     private MainScreenController _main_screen_controller;
@@ -122,21 +123,17 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     @FXML
     private ComboBox cmbOrders;
     @FXML
-    private TextField txtField06;
-    @FXML
-    private TextField txtField07;
-    @FXML
     private Label lblPayable;
     @FXML
     private TableView _table;
-    @FXML
-    private TextField txtField10;
     @FXML
     private TextField txtField05;
     @FXML
     private TextField txtField16;
     @FXML
-    private TextField txtField08;
+    private TextField txtField12;
+    @FXML
+    private TextField txtField18;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -155,7 +152,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new POReturn(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -233,8 +230,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         initGrid();
         
         txtSeeks01.setText("");
-        txtField06.setText("");
-        txtField07.setText("");
+        txtField05.setText("");
+        txtField12.setText("");
+        txtField16.setText("");
+        txtField18.setText("");
 
         lblPayable.setText("0.00");
         
@@ -261,12 +260,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     
     private void loadTransaction(){
         txtField05.setText("");
-        txtField06.setText("");
-        txtField07.setText((String) _trans.getMaster("sReferNox"));
-        txtField08.setText("");
-        txtField10.setText((String) _trans.getMaster("sRemarksx"));
+        txtField12.setText("");
         txtField16.setText("");
-        
+        txtField18.setText("");
+       
         computeSummary();
         
         loadDetail();
@@ -515,13 +512,13 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09": //PO Receiving
-                loadScreen(ScreenInfo.NAME.PO_RECEIVING);
+            case "btn09": //Purchase Order
+                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
                 break;
             case "btn10": //PO Return
-                loadScreen(ScreenInfo.NAME.PO_RETURN);
+                loadScreen(ScreenInfo.NAME.PO_RECEIVING);
                 break;
-            case "btn11": //History
+            case "btn11": //history
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -680,8 +677,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("Receiving");
-        btn10.setText("Return");
+        btn09.setText("Order");
+        btn10.setText("Receiving");
         btn11.setText("History");
         btn12.setText("Close");              
         
@@ -716,16 +713,16 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField08.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
         txtField16.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField18.setOnKeyPressed(this::txtField_KeyPressed);
+
         
         txtField05.focusedProperty().addListener(txtField_Focus);
-        txtField06.focusedProperty().addListener(txtField_Focus);
-        txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField08.focusedProperty().addListener(txtField_Focus);
-        txtField10.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
         txtField16.focusedProperty().addListener(txtField_Focus);
+        txtField18.focusedProperty().addListener(txtField_Focus);
+        
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override

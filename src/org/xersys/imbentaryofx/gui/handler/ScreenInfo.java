@@ -16,7 +16,9 @@ public class ScreenInfo {
         CART, 
         QUICK_SEARCH,
         POS_DETAIL_UPDATE,
-        PURCHASE_ORDER
+        PURCHASE_ORDER,
+        PO_RECEIVING,
+        PO_RETURN
     }
     
     public static JSONObject get(NAME foModule){
@@ -62,6 +64,14 @@ public class ScreenInfo {
             case PURCHASE_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "PurchaseOrder.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PurchaseOrderController");
+                return loJSON;
+            case PO_RECEIVING:
+                loJSON.put("resource", RESOURCE_URL + "POReceiving.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReceivingController");
+                return loJSON;
+            case PO_RETURN:
+                loJSON.put("resource", RESOURCE_URL + "POReturn.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReturnController");
                 return loJSON;
         }
         
