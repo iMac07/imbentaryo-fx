@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -29,7 +30,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.purchasing.base.PurchaseOrder;
+import org.xersys.purchasing.base.POReceiving;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
@@ -45,9 +46,9 @@ import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.inventory.search.InvSearchEngine;
 
-public class PurchaseOrderController implements Initializable, ControlledScreen{
+public class POReceivingController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private PurchaseOrder _trans;
+    private POReceiving _trans;
     private LMasDetTrans _listener;
     
     private MainScreenController _main_screen_controller;
@@ -130,13 +131,13 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     @FXML
     private TableView _table;
     @FXML
-    private TextField txtField10;
-    @FXML
     private TextField txtField05;
     @FXML
     private TextField txtField16;
     @FXML
-    private TextField txtField08;
+    private TextField txtField20;
+    @FXML
+    private TextField txtField17;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -155,7 +156,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new POReceiving(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -261,12 +262,13 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     
     private void loadTransaction(){
         txtField05.setText("");
-        txtField06.setText("");
-        txtField07.setText((String) _trans.getMaster("sReferNox"));
-        txtField08.setText("");
-        txtField10.setText((String) _trans.getMaster("sRemarksx"));
-        txtField16.setText("");
+        txtField06.setText((String) _trans.getMaster("sReferNox"));
+        txtField07.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dRefernce"), SQLUtil.FORMAT_MEDIUM_DATE));
         
+        txtField16.setText((String) _trans.getMaster("sRemarksx"));
+        txtField17.setText((String) _trans.getMaster("sSourceNo"));
+        txtField20.setText("");
+       
         computeSummary();
         
         loadDetail();
@@ -515,13 +517,13 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09": //PO Receiving
-                loadScreen(ScreenInfo.NAME.PO_RECEIVING);
+            case "btn09": //Purchase Order
+                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
                 break;
             case "btn10": //PO Return
                 loadScreen(ScreenInfo.NAME.PO_RETURN);
                 break;
-            case "btn11": //History
+            case "btn11": //history
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -680,7 +682,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("Receiving");
+        btn09.setText("Order");
         btn10.setText("Return");
         btn11.setText("History");
         btn12.setText("Close");              
@@ -717,15 +719,17 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField08.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField07.setOnKeyPressed(this::txtField_KeyPressed);        
         txtField16.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField17.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField20.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField08.focusedProperty().addListener(txtField_Focus);
-        txtField10.focusedProperty().addListener(txtField_Focus);
         txtField16.focusedProperty().addListener(txtField_Focus);
+        txtField17.focusedProperty().addListener(txtField_Focus);
+        txtField20.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
