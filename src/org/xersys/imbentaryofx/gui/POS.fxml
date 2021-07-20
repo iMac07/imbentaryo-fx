@@ -39,7 +39,7 @@
                                     <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                                     <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                        <children>
-                                          <ComboBox fx:id="cmbOrders" layoutX="-27.0" prefWidth="200.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
+                                          <ComboBox id="cmbOrder" fx:id="cmbOrders" layoutX="-27.0" prefWidth="200.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
                                           <Label id="lblOrderNo" text="Order No." AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="0.0" />
                                        </children>
                                     </AnchorPane>
