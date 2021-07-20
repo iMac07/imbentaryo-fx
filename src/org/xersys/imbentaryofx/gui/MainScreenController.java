@@ -122,6 +122,12 @@ public class MainScreenController implements Initializable {
         btnOther02.setOnMouseClicked(this::cmdMouse_Click);
         btnOther03.setOnMouseClicked(this::cmdMouse_Click);
         btnOther04.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther05.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther06.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther07.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther08.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther09.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther10.setOnMouseClicked(this::cmdMouse_Click);
     }
     
     private void cmdMouse_Click(MouseEvent event) {
@@ -152,6 +158,7 @@ public class MainScreenController implements Initializable {
             case "btnOther09": //reports
                 break;
             case "btnOther10": //parameters
+                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);
                 break;
             case "btnOther11":
                 break;
