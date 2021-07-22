@@ -3,6 +3,8 @@ package org.xersys.imbentaryofx.gui;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -11,44 +13,41 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.purchasing.base.POReturn;
+import org.xersys.clients.base.Clients;
+import org.xersys.clients.base.LClients;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
-import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
-import org.xersys.commander.util.StringUtil;
-import org.xersys.inventory.search.InvSearchEngine;
+import java.util.Date;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private POReturn _trans;
-    private LMasDetTrans _listener;
+    private Clients _trans;
+    private LClients _listener;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -58,6 +57,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     
     private TableModel _table_model;
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
+    
+    ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
+    ObservableList<String> _clienttp = FXCollections.observableArrayList("Individual", "Institution");
+    ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Marrie", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
     
     private boolean _loaded = false;
     private int _index;
@@ -120,36 +123,38 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     @FXML
     private ComboBox cmbOrders;
     @FXML
-    private TextField txtField16;
+    private ComboBox cmbClientTp;
+    @FXML
+    private ComboBox cmbCvilStat;
+    @FXML
+    private ComboBox cmbGenderCd;
+    @FXML
+    private TextField txtField03;
+    @FXML
+    private TextField txtField04;
+    @FXML
+    private TextField txtField05;
+    @FXML
+    private TextField txtField06;
+    @FXML
+    private TextField txtField07;
+    @FXML
+    private TextField txtField10;
+    @FXML
     private TextField txtField12;
     @FXML
-    private TextField txtField18;
+    private TextField txtField101;
     @FXML
-    private TextField txtField161;
+    private TextField txtField102;
     @FXML
-    private TextField txtField1611;
+    private TextField txtField103;
     @FXML
-    private TextField txtField181;
+    private TextField txtField14;
     @FXML
-    private TextField txtField16111;
+    private TextField txtField13;
     @FXML
-    private TextField txtField161111;
-    @FXML
-    private TextField txtField161112;
-    @FXML
-    private TextField txtField1611111;
-    @FXML
-    private TextField txtField16111111;
-    @FXML
-    private TextField txtField161111111;
-    @FXML
-    private TextField txtField1611111111;
-    @FXML
-    private TextField txtField16112;
-    @FXML
-    private TextField txtField161121;
-    @FXML
-    private TextField txtField161122;
+    private DatePicker dpBirthDte;
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -168,7 +173,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new POReturn(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new Clients(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -203,7 +208,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     }
     
     private void createNew(String fsOrderNox){
-        if (!_trans.NewTransaction(fsOrderNox)){
+        if (!_trans.NewRecord(fsOrderNox)){
             System.err.println(_trans.getMessage());
             MsgBox.showOk(_trans.getMessage(), "Warning");
             System.exit(1);
@@ -220,15 +225,15 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
-                case "txtSeeks01":
+                case "txtField10":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    quickSearch(txtField, InvSearchEngine.Type.searchInvBranchComplex, lsValue, "sBarCodex", "", 15, false);
-                    event.consume();
-                    return;
-                case "txtField05":
-                case "txtField06":
-                case "txtField08":
-                case "txtField16":
+                    break;
+                case "txtField12":
+                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
+                    break;
+                case "txtField14":
+                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
+                    break;
             }
         }
         
@@ -258,6 +263,19 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     
     
     private void loadTransaction(){
+        txtField03.setText((String) _trans.getMaster("sLastName"));
+        txtField04.setText((String) _trans.getMaster("sFrstName"));
+        txtField05.setText((String) _trans.getMaster("sMiddName"));
+        txtField06.setText((String) _trans.getMaster("sSuffixNm"));
+        txtField07.setText((String) _trans.getMaster("sClientNm"));
+        txtField13.setText((String) _trans.getMaster("sAddlInfo"));
+        
+        if (_trans.getMaster("dBirthDte") != null){
+            LocalDate date = ((Date) _trans.getMaster("dBirthDte")).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            dpBirthDte.setValue(date);
+        }
+
+        cmbGenderCd.requestFocus();
     }
     
 
@@ -282,10 +300,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         //only one record was retreived, load the data
         if (loArr.size() == 1) {
-//            loJSON = (JSONObject) loArr.get(0);
-//            _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
-//            loadDetail();
-//            return;
         }
         
         //multiple result, load the quick search to display records
@@ -345,7 +359,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                _loaded = true;
                 break;
             case "btn03": //save
-                if (_trans.SaveTransaction(true)){
+                if (_trans.SaveRecord(true)){
                     MsgBox.showOk("Transaction saved successfully.", "Success");
                     
                     _loaded = false;
@@ -370,11 +384,9 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09": //Purchase Order
-                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
+            case "btn09":
                 break;
-            case "btn10": //PO Return
-                loadScreen(ScreenInfo.NAME.PO_RECEIVING);
+            case "btn10":
                 break;
             case "btn11": //history
                 break;
@@ -436,31 +448,47 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     }
     
     private void initListener(){
-        _listener = new LMasDetTrans() {
+        _listener = new LClients() {
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
-                switch(fsFieldNm){
-                    case "nTranTtal":
-                    case "nDiscount":
-                    case "nAddDiscx":
-                    case "nFreightx":
+                switch (fsFieldNm){
+                    case "sLastName":
+                        txtField03.setText((String) foValue); break;
+                    case "sFrstName":
+                        txtField04.setText((String) foValue); break;
+                    case "sMiddName":
+                        txtField05.setText((String) foValue); break;
+                    case "sSuffixNm":
+                        txtField06.setText((String) foValue); break;
+                    case "sClientNm":
+                        txtField07.setText((String) foValue); break;
+                    case "dBirthDte":
                         break;
+                    case "sAddlInfo":
+                        txtField13.setText((String) foValue); break;
+                    
                 }
             }
 
             @Override
-            public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
+            public void MobileRetreive(int fnRow, String fsFieldNm, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void AddressRetreive(int fnRow, String fsFieldNm, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void EMailRetreive(int fnRow, String fsFieldNm, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
         
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
-                switch (foField.getId()){
-                    case "txtSeeks01":
-                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
-                        break;
-                }
             }
 
             @Override
@@ -471,18 +499,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _detail_update_callback = new DetailUpdateCallback() {
             @Override
             public void Result(int fnRow, int fnIndex, Object foValue) {
-                switch(fnIndex){
-                    case 5:
-                    case 8:
-                    case 9:
-                        _trans.setDetail(fnRow, fnIndex, foValue);
-                        break;
-                }
             }
 
             @Override
             public void RemovedItem(int fnRow) {
-                _trans.delDetail(fnRow);
             }
 
             @Override
@@ -527,8 +547,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("Order");
-        btn10.setText("Receiving");
+        btn09.setText("");
+        btn10.setText("");
         btn11.setText("History");
         btn12.setText("Close");              
         
@@ -541,8 +561,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
-        btn09.setVisible(true);
-        btn10.setVisible(true);
+        btn09.setVisible(false);
+        btn10.setVisible(false);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
@@ -558,6 +578,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         glyph10.setIcon(FontAwesomeIcon.ANCHOR);
         glyph11.setIcon(FontAwesomeIcon.ANCHOR);
         glyph12.setIcon(FontAwesomeIcon.ANCHOR);
+        
+        cmbGenderCd.setItems(_gendercd);
+        cmbClientTp.setItems(_clienttp);
+        cmbCvilStat.setItems(_cvilstat);
+        
+        cmbGenderCd.getSelectionModel().select(0);
+        cmbClientTp.getSelectionModel().select(0);
+        cmbCvilStat.getSelectionModel().select(0);
     }
     
     private void initFields(){       
@@ -567,6 +595,33 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
             }
         });
+        
+        dpBirthDte.setEditable(false);
+        
+        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField10.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField14.setOnKeyPressed(this::txtField_KeyPressed);
+        
+        txtField03.focusedProperty().addListener(txtField_Focus);
+        txtField04.focusedProperty().addListener(txtField_Focus);
+        txtField05.focusedProperty().addListener(txtField_Focus);
+        txtField06.focusedProperty().addListener(txtField_Focus);
+        txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField13.focusedProperty().addListener(txtField_Focus);
+        
+        dpBirthDte.setOnAction(new EventHandler() {
+            public void handle(Event t) {
+                _trans.setMaster("dBirthDte", dpBirthDte.getValue());
+            }
+        });
+
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
@@ -579,15 +634,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
-                case 6: //po number
-                case 10: //remarks
+                case 3: //last name
+                case 4: //first name
+                case 5: //middle name
+                case 6: //suffix name
+                case 7: //full name/company name
+                case 11: //birth date
+                case 13: //other info
                     _trans.setMaster(lnIndex, lsValue);
-                    break;
-                case 5:
-                case 7:
-                case 8:
-                case 9:
-                case 16:
                     break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
