@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -80,43 +81,43 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Middle Name:" GridPane.rowIndex="3" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Client Type:" />
+                                          <ComboBox id="cmbClientTp" fx:id="cmbClientTp" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Last Name:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField18" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField03" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="First Name:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField16" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField161" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField04" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Middle Name:" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField05" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Suffix Name:" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField1611" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField06" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField181" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="5" />
+                                          <TextField fx:id="txtField07" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Gender:" GridPane.rowIndex="7" />
-                                          <TextField fx:id="txtField16111" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Civil Status:" GridPane.rowIndex="8" />
-                                          <TextField fx:id="txtField161111" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                          <ComboBox id="cmbClientTp" fx:id="cmbGenderCd" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                           <Label alignment="CENTER_RIGHT" prefHeight="41.0" prefWidth="100.0" text="Citizenship:" GridPane.columnIndex="3" GridPane.rowIndex="7">
                                              <GridPane.margin>
                                                 <Insets right="10.0" />
                                              </GridPane.margin>
                                           </Label>
-                                          <TextField fx:id="txtField161112" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                                          <TextField fx:id="txtField10" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Civil Status:" GridPane.rowIndex="8" />
+                                          <ComboBox id="cmbClientTp" fx:id="cmbCvilStat" prefHeight="25.0" prefWidth="230.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="8" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Birth Date:" GridPane.rowIndex="10" />
-                                          <TextField fx:id="txtField1611111" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" />
+                                          <DatePicker fx:id="dpBirthDte" prefHeight="25.0" prefWidth="237.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="10" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Birth Place:" GridPane.rowIndex="11" />
-                                          <TextField fx:id="txtField16111111" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="11" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Spouse:" GridPane.rowIndex="17" />
-                                          <TextField fx:id="txtField161111111" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="17" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Adtl. Info:" GridPane.rowIndex="18" />
-                                          <TextField fx:id="txtField1611111111" prefHeight="57.0" prefWidth="330.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="18" GridPane.rowSpan="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Address:" GridPane.rowIndex="14" />
-                                          <TextField fx:id="txtField16112" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="14" />
+                                          <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="11" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Mobile No:" GridPane.rowIndex="13" />
-                                          <TextField fx:id="txtField161121" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="13" />
+                                          <TextField fx:id="txtField101" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="13" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Address:" GridPane.rowIndex="14" />
+                                          <TextField fx:id="txtField102" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="14" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="E-Mail Add:" GridPane.rowIndex="15" />
-                                          <TextField fx:id="txtField161122" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="15" />
+                                          <TextField fx:id="txtField103" editable="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="15" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Spouse:" GridPane.rowIndex="17" />
+                                          <TextField fx:id="txtField14" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="17" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Adtl. Info:" GridPane.rowIndex="18" />
+                                          <TextField fx:id="txtField13" prefHeight="57.0" prefWidth="330.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="18" GridPane.rowSpan="2" />
                                           <CheckBox mnemonicParsing="false" prefHeight="17.0" prefWidth="123.0" text="Is Supplier" GridPane.columnIndex="1" GridPane.rowIndex="20" />
-                                          <ComboBox id="cmbClientTp" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                        </children>
                                     </GridPane>
                                  </children>

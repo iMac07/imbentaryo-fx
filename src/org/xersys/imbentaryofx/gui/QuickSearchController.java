@@ -27,6 +27,7 @@ import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.iface.XSearchTran;
 
 public class QuickSearchController implements Initializable, ControlledScreen {
     @FXML
@@ -130,7 +131,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     public void setDashboardScreensController(ScreensController foValue) {
     }
     
-    public void setTransObject(XMasDetTrans foValue){
+    public void setTransObject(XSearchTran foValue){
         _trans = foValue;
     }
     
@@ -516,7 +517,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     
     private int pnSelectd = -1;
     
-    private XMasDetTrans _trans;
+    private XSearchTran _trans;
 
     private Enum _type;
     private String _value;
