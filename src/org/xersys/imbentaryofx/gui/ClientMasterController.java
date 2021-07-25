@@ -43,6 +43,9 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
+import org.xersys.parameters.search.ParameterSearchEngine;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
@@ -53,14 +56,13 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private ScreensController _screens_controller;
     private ScreensController _screens_dashboard_controller;
     private QuickSearchCallback _search_callback;
-    private DetailUpdateCallback _detail_update_callback;
     
     private TableModel _table_model;
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
     ObservableList<String> _clienttp = FXCollections.observableArrayList("Individual", "Institution");
-    ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Marrie", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
+    ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Married", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
     
     private boolean _loaded = false;
     private int _index;
@@ -151,9 +153,11 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField14;
     @FXML
-    private TextField txtField13;
+    private TextArea txtField13;
     @FXML
     private DatePicker dpBirthDte;
+    @FXML
+    private CheckBox chkSupplier;
     
     
     @Override
@@ -218,6 +222,23 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         loadTransaction();
     }
     
+    private void txtArea_KeyPressed(KeyEvent event) {
+        TextArea txtField = (TextArea) event.getSource();
+        String lsTxt = txtField.getId();
+        String lsValue = txtField.getText();
+        
+        if (event.getCode() == KeyCode.ENTER) event.consume();
+        
+        switch (event.getCode()){
+        case ENTER:
+        case DOWN:
+            FXUtil.SetNextFocus(txtField);
+            break;
+        case UP:
+            FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
         String lsTxt = txtField.getId();
@@ -227,10 +248,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtField10":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    break;
+                    quickSearch(txtField, ParameterSearchEngine.Type.searchCountry, lsValue, "sCntryNme", "", 15, false);
+                    event.consume();
+                    return;
                 case "txtField12":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    break;
+                    quickSearch(txtField, ParameterSearchEngine.Type.searchTownCity, lsValue, "sTownName", "", 15, false);
+                    event.consume();
+                    return;
                 case "txtField14":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
                     break;
@@ -259,6 +284,9 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
         
         cmbOrders.setItems(lsOrderNox);  
+        cmbClientTp.getSelectionModel().select(0);
+        cmbGenderCd.getSelectionModel().select(0);
+        cmbCvilStat.getSelectionModel().select(0);
     }
     
     
@@ -270,15 +298,36 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         txtField07.setText((String) _trans.getMaster("sClientNm"));
         txtField13.setText((String) _trans.getMaster("sAddlInfo"));
         
+        if(!"".equals((String) _trans.getMaster("sCitizenx")))
+            quickSearch(txtField10, ParameterSearchEngine.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryCde", "", 1, true);
+        
+        if(!"".equals((String) _trans.getMaster("sBirthPlc")))
+            quickSearch(txtField12, ParameterSearchEngine.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
+        
         if (_trans.getMaster("dBirthDte") != null){
             LocalDate date = ((Date) _trans.getMaster("dBirthDte")).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             dpBirthDte.setValue(date);
         }
-
-        cmbGenderCd.requestFocus();
-    }
-    
-
+        
+        if (!"".equals((String) _trans.getMaster("cClientTp")))
+            cmbClientTp.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cClientTp")));
+        else
+            cmbClientTp.getSelectionModel().select(0);
+        
+        if (!"".equals((String) _trans.getMaster("cGenderCd")))
+            cmbGenderCd.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cGenderCd")));
+        else
+            cmbGenderCd.getSelectionModel().select(0);
+        
+        if (!"".equals((String) _trans.getMaster("cCvilStat")))
+            cmbCvilStat.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cCvilStat")));
+        else
+            cmbCvilStat.getSelectionModel().select(0);
+        
+        chkSupplier.setSelected("1".equals((String) _trans.getMaster("cSupplier")));
+        
+        cmbClientTp.requestFocus();
+    }    
 
     private void quickSearch(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
         //pass the initial value do initial search
@@ -293,13 +342,39 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         //error result, return to callee
         if ("error".equals((String) loJSON.get("result"))) {
             System.err.println((String) loJSON.get("message"));
-            return;
+            
+            switch (foField.getId()){
+                case "txtField10":
+                    _trans.setMaster("sCitizenx", "");
+                    foField.setText("");
+                    FXUtil.SetNextFocus(foField);
+                    return;
+                case "txtField12":
+                    _trans.setMaster("sBirthPlc", "");
+                    foField.setText((String) "");
+                    FXUtil.SetNextFocus(foField);
+                    return;
+            }
         }
         
         JSONArray loArr = (JSONArray) loJSON.get("payload");
         
         //only one record was retreived, load the data
         if (loArr.size() == 1) {
+            loJSON = (JSONObject) loArr.get(0);
+            
+            switch (foField.getId()){
+                case "txtField10":
+                    _trans.setMaster("sCitizenx", (String) loJSON.get("sCntryCde"));
+                    foField.setText((String) loJSON.get("sCntryNme"));
+                    FXUtil.SetNextFocus(foField);
+                    return;
+                case "txtField12":
+                    _trans.setMaster("sBirthPlc", (String) loJSON.get("sTownIDxx"));
+                    foField.setText((String) loJSON.get("sTownName"));
+                    FXUtil.SetNextFocus(foField);
+                    return;
+            }
         }
         
         //multiple result, load the quick search to display records
@@ -489,30 +564,31 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
+                switch (foField.getId()){
+                    case "txtField10":
+                        _trans.setMaster("sCitizenx", (String) foValue.get("sCntryCde"));
+                        foField.setText((String) foValue.get("sCntryNme"));
+                        break;
+                    case "txtField12":
+                        _trans.setMaster("sBirthPlc", (String) foValue.get("sTownIDxx"));
+                        foField.setText((String) foValue.get("sTownName"));
+                        break;
+                }
             }
 
             @Override
-            public void FormClosing() {
-            }
-        };
-        
-        _detail_update_callback = new DetailUpdateCallback() {
-            @Override
-            public void Result(int fnRow, int fnIndex, Object foValue) {
-            }
-
-            @Override
-            public void RemovedItem(int fnRow) {
-            }
-
-            @Override
-            public void FormClosing() {
- 
+            public void FormClosing(TextField foField) {
+                FXUtil.SetNextFocus(foField);
             }
         };
     }
     
     private void initButton(){
+        cmbClientTp.setOnAction(this::cmbClientTp_Click);
+        cmbGenderCd.setOnAction(this::cmbGenderCd_Click);
+        cmbCvilStat.setOnAction(this::cmbCvilStat_Click);
+        chkSupplier.setOnAction(this::chkClicked);
+        
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
         btn03.setOnAction(this::cmdButton_Click);
@@ -586,6 +662,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         cmbGenderCd.getSelectionModel().select(0);
         cmbClientTp.getSelectionModel().select(0);
         cmbCvilStat.getSelectionModel().select(0);
+        chkSupplier.setSelected(false);
     }
     
     private void initFields(){       
@@ -606,15 +683,15 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         txtField14.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtArea_KeyPressed);
         
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField13.focusedProperty().addListener(txtField_Focus);
+        txtField13.focusedProperty().addListener(txtArea_Focus);
         
         dpBirthDte.setOnAction(new EventHandler() {
             public void handle(Event t) {
@@ -623,6 +700,56 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         });
 
     }
+    
+    private void cmbGenderCd_Click(Event event) {
+        ComboBox loButton = (ComboBox) event.getSource();
+        
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
+    }
+    
+    private void cmbCvilStat_Click(Event event) {
+        ComboBox loButton = (ComboBox) event.getSource();
+        
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
+    }
+    
+    private void cmbClientTp_Click(Event event) {
+        ComboBox loButton = (ComboBox) event.getSource();
+        
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) _trans.setMaster("cClientTp", String.valueOf(lnIndex));
+    }
+    
+    private void chkClicked(ActionEvent event) {
+        CheckBox loButton = (CheckBox) event.getSource();
+        
+        _trans.setMaster("cSupplier", loButton.isSelected() ? "1" : "0");
+    }
+    
+    final ChangeListener<? super Boolean> txtArea_Focus = (o,ov,nv)->{
+        if (!_loaded) return;
+        
+        TextArea txtField = (TextArea)((ReadOnlyBooleanPropertyBase)o).getBean();
+        int lnIndex = Integer.parseInt(txtField.getId().substring(8, 10));
+        String lsValue = txtField.getText();
+        
+        if (lsValue == null) return;
+        if(!nv){ //Lost Focus           
+            switch (lnIndex){
+                case 13: //additional info
+                    _trans.setMaster(lnIndex, lsValue);
+                    break;
+                default:
+                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+            }
+            _index = lnIndex;
+        } else{ //Got Focus
+            _index = lnIndex;
+            txtField.selectAll();
+        }
+    };
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
         if (!_loaded) return;
@@ -640,7 +767,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 case 6: //suffix name
                 case 7: //full name/company name
                 case 11: //birth date
-                case 13: //other info
                     _trans.setMaster(lnIndex, lsValue);
                     break;
                 default:
@@ -651,6 +777,5 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             _index = lnIndex;
             txtField.selectAll();
         }
-        
     };    
 }

@@ -25,7 +25,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
-import org.xersys.commander.iface.XMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XSearchTran;
 
@@ -482,7 +481,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
                 break;
             case "btn12": //close screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                _search_callback.FormClosing();
+                _search_callback.FormClosing(_text_field);
                 break;
         }
     }
@@ -496,7 +495,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
 
         //load the data
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-        _search_callback.FormClosing();
+        _search_callback.FormClosing(_text_field);
     }
     
     private void mouseClicked(MouseEvent event) {
