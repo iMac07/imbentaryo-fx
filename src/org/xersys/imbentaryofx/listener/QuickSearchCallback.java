@@ -5,5 +5,5 @@ import org.json.simple.JSONObject;
 
 public interface QuickSearchCallback {
     public void Result(TextField foField,JSONObject foValue);
-    public void FormClosing();
+    public void FormClosing(TextField foField);
 }

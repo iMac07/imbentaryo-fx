@@ -614,8 +614,8 @@ public class POReceivingController implements Initializable, ControlledScreen{
             }
 
             @Override
-            public void FormClosing() {
-                txtSeeks01.requestFocus();
+            public void FormClosing(TextField foField) {
+                foField.requestFocus();
             }
         };
         
