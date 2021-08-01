@@ -19,7 +19,9 @@ public class ScreenInfo {
         PURCHASE_ORDER,
         PO_RECEIVING,
         PO_RETURN,
-        CLIENT_MASTER
+        CLIENT_MASTER,
+        CLIENT_MOBILE,
+        CLIENT_EMAIL
     }
     
     public static JSONObject get(NAME foModule){
@@ -77,6 +79,14 @@ public class ScreenInfo {
             case CLIENT_MASTER:
                 loJSON.put("resource", RESOURCE_URL + "ClientMaster.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ClientMasterController");
+                return loJSON;
+            case CLIENT_MOBILE:
+                loJSON.put("resource", RESOURCE_URL + "ClientMobile.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ClientMobileController");
+                return loJSON;
+            case CLIENT_EMAIL:
+                loJSON.put("resource", RESOURCE_URL + "ClientEMail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ClientEMailController");
                 return loJSON;
         }
         

@@ -35,14 +35,10 @@
     -fx-background-color: #465a7d;
 }
 
-#btnChild01:hover, #btnChild02:hover{
+#btnChild01:hover, #btnChild02:hover, #btnChild03:hover{
     -fx-background-color: #b6c1d2;
     -fx-text-fill: #000000;
     -fx-cursor: hand;
-}
-
-#btnChild03{    
-    -fx-background-color: transparent;
 }
 
 #fxTrash{

@@ -3,8 +3,7 @@ package org.xersys.imbentaryofx.gui;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -14,12 +13,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
@@ -29,28 +26,36 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.clients.base.Clients;
-import org.xersys.clients.base.LClients;
-import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
-import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
+import org.xersys.clients.base.NeoClient;
+import org.xersys.commander.util.StringUtil;
+import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.parameters.search.ParameterSearchEngine;
+import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
+import javax.sql.rowset.CachedRowSet;
+import org.xersys.commander.iface.LRecordMas;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
+    private ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
+    private ObservableList<String> _clienttp = FXCollections.observableArrayList("Individual", "Institution");
+    private ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Married", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
+    private CUSTOMER_TYPE _customer_type = CUSTOMER_TYPE.CUSTOMER;
+    
     private XNautilus _nautilus;
-    private Clients _trans;
-    private LClients _listener;
+    private NeoClient _trans;
+    private LRecordMas _listener;
+    private CachedRowsetCallback _mobile_listener;
+    private CachedRowsetCallback _address_listener;
+    private CachedRowsetCallback _email_listener;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -60,14 +65,22 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private TableModel _table_model;
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
-    ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
-    ObservableList<String> _clienttp = FXCollections.observableArrayList("Individual", "Institution");
-    ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Married", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
-    
-    private boolean _loaded = false;
     private int _index;
     private int _detail_row;
     
+    private boolean _loaded = false;
+    @FXML
+    private Button btnChild01;
+    @FXML
+    private Button btnChild02;
+    @FXML
+    private Button btnChild03;
+    
+    public enum CUSTOMER_TYPE{
+        CUSTOMER,
+        SUPPLIER
+    }
+
     @FXML
     private AnchorPane AnchorMain;
     @FXML
@@ -143,6 +156,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField10;
     @FXML
+    private TextField txtField11;
+    @FXML
     private TextField txtField12;
     @FXML
     private TextField txtField101;
@@ -154,11 +169,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private TextField txtField14;
     @FXML
     private TextArea txtField13;
-    @FXML
-    private DatePicker dpBirthDte;
-    @FXML
-    private CheckBox chkSupplier;
-    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -177,16 +187,16 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new Clients(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new NeoClient(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
         if (_trans.TempTransactions().isEmpty())
             createNew("");
         else
-            createNew(_trans.TempTransactions().get(0).getOrderNo());
+            createNew(_trans.TempTransactions().get(_trans.TempTransactions().size()-1).getOrderNo());
         
-        cmbOrders.getSelectionModel().select(0);
+        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size()-1);
         
         _loaded = true;
     }    
@@ -209,6 +219,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     @Override
     public void setDashboardScreensController(ScreensController foValue) {
         _screens_dashboard_controller = foValue;
+    }
+    
+    public void setCustomerType(CUSTOMER_TYPE foValue){
+        _customer_type = foValue;
     }
     
     private void createNew(String fsOrderNox){
@@ -291,42 +305,52 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     
     
     private void loadTransaction(){
-        txtField03.setText((String) _trans.getMaster("sLastName"));
-        txtField04.setText((String) _trans.getMaster("sFrstName"));
-        txtField05.setText((String) _trans.getMaster("sMiddName"));
-        txtField06.setText((String) _trans.getMaster("sSuffixNm"));
-        txtField07.setText((String) _trans.getMaster("sClientNm"));
-        txtField13.setText((String) _trans.getMaster("sAddlInfo"));
-        
-        if(!"".equals((String) _trans.getMaster("sCitizenx")))
-            quickSearch(txtField10, ParameterSearchEngine.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryCde", "", 1, true);
-        
-        if(!"".equals((String) _trans.getMaster("sBirthPlc")))
-            quickSearch(txtField12, ParameterSearchEngine.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
-        
-        if (_trans.getMaster("dBirthDte") != null){
-            LocalDate date = ((Date) _trans.getMaster("dBirthDte")).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            dpBirthDte.setValue(date);
+        try {
+            txtField03.setText((String) _trans.getMaster("sLastName"));
+            txtField04.setText((String) _trans.getMaster("sFrstName"));
+            txtField05.setText((String) _trans.getMaster("sMiddName"));
+            txtField06.setText((String) _trans.getMaster("sSuffixNm"));
+            txtField07.setText((String) _trans.getMaster("sClientNm"));
+            txtField13.setText((String) _trans.getMaster("sAddlInfo"));
+            
+            txtField101.setText((String) _trans.getMaster("xMobileNo"));
+
+            if(!"".equals((String) _trans.getMaster("sCitizenx")))
+                quickSearch(txtField10, ParameterSearchEngine.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryCde", "", 1, true);
+            else 
+                txtField10.setText("");
+
+            if(!"".equals((String) _trans.getMaster("sBirthPlc")))
+                quickSearch(txtField12, ParameterSearchEngine.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
+            else 
+                txtField12.setText("");
+
+            if (_trans.getMaster("dBirthDte") != null)
+                txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
+            else
+                txtField11.setText(SQLUtil.dateFormat(_nautilus.getServerDate(), SQLUtil.FORMAT_MEDIUM_DATE));
+
+            if (!"".equals((String) _trans.getMaster("cClientTp")))
+                cmbClientTp.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cClientTp")));
+            else
+                cmbClientTp.getSelectionModel().select(0);
+
+            if (!"".equals((String) _trans.getMaster("cGenderCd")))
+                cmbGenderCd.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cGenderCd")));
+            else
+                cmbGenderCd.getSelectionModel().select(0);
+
+            if (!"".equals((String) _trans.getMaster("cCvilStat")))
+                cmbCvilStat.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cCvilStat")));
+            else
+                cmbCvilStat.getSelectionModel().select(0);
+
+            cmbClientTp.requestFocus();
+        } catch (NumberFormatException | SQLException ex) {
+            MsgBox.showOk(ex.getMessage(), "Warning");
+            ex.printStackTrace();
+            System.exit(1);
         }
-        
-        if (!"".equals((String) _trans.getMaster("cClientTp")))
-            cmbClientTp.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cClientTp")));
-        else
-            cmbClientTp.getSelectionModel().select(0);
-        
-        if (!"".equals((String) _trans.getMaster("cGenderCd")))
-            cmbGenderCd.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cGenderCd")));
-        else
-            cmbGenderCd.getSelectionModel().select(0);
-        
-        if (!"".equals((String) _trans.getMaster("cCvilStat")))
-            cmbCvilStat.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cCvilStat")));
-        else
-            cmbCvilStat.getSelectionModel().select(0);
-        
-        chkSupplier.setSelected("1".equals((String) _trans.getMaster("cSupplier")));
-        
-        cmbClientTp.requestFocus();
     }    
 
     private void quickSearch(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
@@ -339,42 +363,48 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             return;
         }
         
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
-            
-            switch (foField.getId()){
-                case "txtField10":
-                    _trans.setMaster("sCitizenx", "");
-                    foField.setText("");
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField12":
-                    _trans.setMaster("sBirthPlc", "");
-                    foField.setText((String) "");
-                    FXUtil.SetNextFocus(foField);
-                    return;
+        try {
+            //error result, return to callee
+            if ("error".equals((String) loJSON.get("result"))) {
+                System.err.println((String) loJSON.get("message"));
+
+                switch (foField.getId()){
+                    case "txtField10":
+                        _trans.setMaster("sCitizenx", "");
+                        foField.setText("");
+                        FXUtil.SetNextFocus(foField);
+                        return;
+                    case "txtField12":
+                        _trans.setMaster("sBirthPlc", "");
+                        foField.setText((String) "");
+                        FXUtil.SetNextFocus(foField);
+                        return;
+                }
             }
-        }
-        
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-        
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-            
-            switch (foField.getId()){
-                case "txtField10":
-                    _trans.setMaster("sCitizenx", (String) loJSON.get("sCntryCde"));
-                    foField.setText((String) loJSON.get("sCntryNme"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField12":
-                    _trans.setMaster("sBirthPlc", (String) loJSON.get("sTownIDxx"));
-                    foField.setText((String) loJSON.get("sTownName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
+
+            JSONArray loArr = (JSONArray) loJSON.get("payload");
+
+            //only one record was retreived, load the data
+            if (loArr.size() == 1) {
+                loJSON = (JSONObject) loArr.get(0);
+
+                switch (foField.getId()){
+                    case "txtField10":
+                        _trans.setMaster("sCitizenx", (String) loJSON.get("sCntryCde"));
+                        foField.setText((String) loJSON.get("sCntryNme"));
+                        FXUtil.SetNextFocus(foField);
+                        return;
+                    case "txtField12":
+                        _trans.setMaster("sBirthPlc", (String) loJSON.get("sTownIDxx"));
+                        foField.setText((String) loJSON.get("sTownName"));
+                        FXUtil.SetNextFocus(foField);
+                        return;
+                }
             }
+        } catch (SQLException ex) {
+            MsgBox.showOk(ex.getMessage(), "Warning");
+            ex.printStackTrace();
+            System.exit(1);
         }
         
         //multiple result, load the quick search to display records
@@ -407,6 +437,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
+            case "btnChild01": //mobile
+                loadMobile();
+                break;
+            case "btnChild02": //address
+                break;
+            case "btnChild03": //email
+                loadEMail();
+                break;
             case "btn01": //clear
                 if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
                     _loaded = false;
@@ -416,7 +454,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         cmbOrders.getSelectionModel().select(0);
                     } else {
                         createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                         cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
+                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
                     }
                         
                     _loaded = true;
@@ -507,23 +545,42 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
     }
     
-    private void loadScreen(ScreenInfo.NAME  foValue){
-        JSONObject loJSON = ScreenInfo.get(foValue);
-        ControlledScreen instance;
-        
+    private void loadMobile(){
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CLIENT_MOBILE);
+
         if (loJSON != null){
-            instance = (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller"));
+            ClientMobileController instance = new ClientMobileController();
             instance.setNautilus(_nautilus);
             instance.setParentController(_main_screen_controller);
             instance.setScreensController(_screens_controller);
             instance.setDashboardScreensController(_screens_dashboard_controller);
-            
-            _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
+            instance.setDataListener(_mobile_listener);
+
+            instance.setData(_trans.getMobile());
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
+    private void loadEMail(){
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CLIENT_EMAIL);
+
+        if (loJSON != null){
+            ClientEMailController instance = new ClientEMailController();
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setDataListener(_email_listener);
+
+            instance.setData(_trans.getEMail());
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
         }
     }
     
     private void initListener(){
-        _listener = new LClients() {
+        _listener = new LRecordMas() {
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch (fsFieldNm){
@@ -538,41 +595,37 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                     case "sClientNm":
                         txtField07.setText((String) foValue); break;
                     case "dBirthDte":
-                        break;
+                        txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
                     case "sAddlInfo":
                         txtField13.setText((String) foValue); break;
-                    
+                    case "xMobileNo":
+                        txtField101.setText((String) foValue); break;
+                    case "xAddressx":
+                        txtField102.setText((String) foValue); break;
+                    case "xEmailAdd":
+                        txtField103.setText((String) foValue); break;                    
                 }
-            }
-
-            @Override
-            public void MobileRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void AddressRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void EMailRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
         
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
-                switch (foField.getId()){
-                    case "txtField10":
-                        _trans.setMaster("sCitizenx", (String) foValue.get("sCntryCde"));
-                        foField.setText((String) foValue.get("sCntryNme"));
-                        break;
-                    case "txtField12":
-                        _trans.setMaster("sBirthPlc", (String) foValue.get("sTownIDxx"));
-                        foField.setText((String) foValue.get("sTownName"));
-                        break;
+                try {
+                    switch (foField.getId()){
+                        case "txtField10":
+                            _trans.setMaster("sCitizenx", (String) foValue.get("sCntryCde"));
+                            foField.setText((String) foValue.get("sCntryNme"));
+                            break;
+                        case "txtField12":
+                            _trans.setMaster("sBirthPlc", (String) foValue.get("sTownIDxx"));
+                            foField.setText((String) foValue.get("sTownName"));
+                            break;
+                    }
+                } catch (SQLException ex) {
+                    MsgBox.showOk(ex.getMessage(), "Warning");
+                    ex.printStackTrace();
+                    System.exit(1);
                 }
             }
 
@@ -581,13 +634,52 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 FXUtil.SetNextFocus(foField);
             }
         };
+        
+        _mobile_listener = new CachedRowsetCallback() {
+            @Override
+            public void Result(CachedRowSet foValue) {
+                try {
+                    _trans.setMaster("xMobileNo", foValue);
+                } catch (SQLException ex) {
+                    MsgBox.showOk(ex.getMessage(), "Warning");
+                    ex.printStackTrace();
+                    System.exit(1);
+                }
+            }
+
+            @Override
+            public void FormClosing() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        
+        _email_listener = new CachedRowsetCallback() {
+            @Override
+            public void Result(CachedRowSet foValue) {
+                try {
+                    _trans.setMaster("xEmailAdd", foValue);
+                } catch (SQLException ex) {
+                    MsgBox.showOk(ex.getMessage(), "Warning");
+                    ex.printStackTrace();
+                    System.exit(1);
+                }
+            }
+
+            @Override
+            public void FormClosing() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
     }
     
     private void initButton(){
         cmbClientTp.setOnAction(this::cmbClientTp_Click);
         cmbGenderCd.setOnAction(this::cmbGenderCd_Click);
         cmbCvilStat.setOnAction(this::cmbCvilStat_Click);
-        chkSupplier.setOnAction(this::chkClicked);
+        
+        cmbClientTp.setOnKeyPressed(this::cmbBox_KeyPressed);
+        cmbGenderCd.setOnKeyPressed(this::cmbBox_KeyPressed);
+        cmbCvilStat.setOnKeyPressed(this::cmbBox_KeyPressed);
         
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
@@ -601,6 +693,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn10.setOnAction(this::cmdButton_Click);
         btn11.setOnAction(this::cmdButton_Click);
         btn12.setOnAction(this::cmdButton_Click);
+        
+        btnChild01.setOnAction(this::cmdButton_Click);
+        btnChild02.setOnAction(this::cmdButton_Click);
+        btnChild03.setOnAction(this::cmdButton_Click);
         
         btn01.setTooltip(new Tooltip("F1"));
         btn02.setTooltip(new Tooltip("F2"));
@@ -662,7 +758,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         cmbGenderCd.getSelectionModel().select(0);
         cmbClientTp.getSelectionModel().select(0);
         cmbCvilStat.getSelectionModel().select(0);
-        chkSupplier.setSelected(false);
     }
     
     private void initFields(){       
@@ -673,59 +768,79 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             }
         });
         
-        dpBirthDte.setEditable(false);
-        
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         txtField07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
         txtField14.setOnKeyPressed(this::txtField_KeyPressed);
         txtField13.setOnKeyPressed(this::txtArea_KeyPressed);
+        
+        txtField101.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField102.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField103.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField11.focusedProperty().addListener(txtField_Focus);
         txtField13.focusedProperty().addListener(txtArea_Focus);
         
-        dpBirthDte.setOnAction(new EventHandler() {
-            public void handle(Event t) {
-                _trans.setMaster("dBirthDte", dpBirthDte.getValue());
-            }
-        });
-
+        txtField07.setEditable(false);
     }
     
     private void cmbGenderCd_Click(Event event) {
-        ComboBox loButton = (ComboBox) event.getSource();
+        try {
+            ComboBox loButton = (ComboBox) event.getSource();
         
-        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-        if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
+            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+            if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
+        } catch (SQLException ex) {
+            MsgBox.showOk(ex.getMessage(), "Warning");
+            ex.printStackTrace();
+            System.exit(1);
+        }
     }
     
     private void cmbCvilStat_Click(Event event) {
-        ComboBox loButton = (ComboBox) event.getSource();
+        try {
+            ComboBox loButton = (ComboBox) event.getSource();
         
-        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-        if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
+            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+            if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
+        } catch (SQLException ex) {
+            MsgBox.showOk(ex.getMessage(), "Warning");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+    }
+        
+    private void cmbBox_KeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER){
+            ComboBox loButton = (ComboBox) event.getSource();
+            FXUtil.SetNextFocus(loButton);
+        }
     }
     
     private void cmbClientTp_Click(Event event) {
-        ComboBox loButton = (ComboBox) event.getSource();
+        try {
+            ComboBox loButton = (ComboBox) event.getSource();
         
-        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-        if (lnIndex >= 0) _trans.setMaster("cClientTp", String.valueOf(lnIndex));
-    }
-    
-    private void chkClicked(ActionEvent event) {
-        CheckBox loButton = (CheckBox) event.getSource();
-        
-        _trans.setMaster("cSupplier", loButton.isSelected() ? "1" : "0");
+            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+            if (lnIndex >= 0) {
+                _trans.setMaster("cClientTp", String.valueOf(lnIndex));
+                txtField07.setEditable(lnIndex == 1);
+            }
+        } catch (SQLException ex) {
+            MsgBox.showOk(ex.getMessage(), "Warning");
+            ex.printStackTrace();
+            System.exit(1);
+        }
     }
     
     final ChangeListener<? super Boolean> txtArea_Focus = (o,ov,nv)->{
@@ -736,15 +851,22 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         String lsValue = txtField.getText();
         
         if (lsValue == null) return;
-        if(!nv){ //Lost Focus           
-            switch (lnIndex){
-                case 13: //additional info
-                    _trans.setMaster(lnIndex, lsValue);
-                    break;
-                default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+        if(!nv){ //Lost Focus      
+            try {
+                switch (lnIndex){
+                    case 13: //additional info
+                        _trans.setMaster("sAddlInfo", lsValue);
+                        break;
+                    default:
+                        MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                }
+                _index = lnIndex;
+            } catch (SQLException ex) {
+                MsgBox.showOk(ex.getMessage(), "Warning");
+                ex.printStackTrace();
+                System.exit(1);
             }
-            _index = lnIndex;
+            
         } else{ //Got Focus
             _index = lnIndex;
             txtField.selectAll();
@@ -759,21 +881,54 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         String lsValue = txtField.getText();
         
         if (lsValue == null) return;
-        if(!nv){ //Lost Focus           
-            switch (lnIndex){
-                case 3: //last name
-                case 4: //first name
-                case 5: //middle name
-                case 6: //suffix name
-                case 7: //full name/company name
-                case 11: //birth date
-                    _trans.setMaster(lnIndex, lsValue);
-                    break;
-                default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+        if(!nv){ //Lost Focus          
+            try {
+                switch (lnIndex){
+                    case 3: //last name
+                        _trans.setMaster("sLastName", lsValue);
+                        break;
+                    case 4: //first name
+                        _trans.setMaster("sFrstName", lsValue);
+                        break;
+                    case 5: //middle name
+                        _trans.setMaster("sMiddName", lsValue);
+                        break;
+                    case 6: //suffix name
+                        _trans.setMaster("sSuffixNm", lsValue);
+                        break;
+                    case 7: //full name/company name
+                        _trans.setMaster("sClientNm", lsValue);
+                        break;
+                    case 11: //birthday                        
+                        if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
+                            _trans.setMaster("dBirthDte", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
+                        } else {
+                            MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
+                            txtField.requestFocus();
+                        }
+                        break;
+                    default:
+                        MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                }
+                _index = lnIndex;
+            } catch (SQLException ex) {
+                MsgBox.showOk(ex.getMessage(), "Warning");
+                ex.printStackTrace();
+                System.exit(1);
             }
-            _index = lnIndex;
         } else{ //Got Focus
+            try{
+                switch (lnIndex){
+                    case 11:
+                        txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_SHORT_DATE));
+                        break;
+                }
+            } catch (SQLException ex) {
+                MsgBox.showOk(ex.getMessage(), "Warning");
+                ex.printStackTrace();
+                System.exit(1);
+            }
+            
             _index = lnIndex;
             txtField.selectAll();
         }

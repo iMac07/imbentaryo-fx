@@ -148,7 +148,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                 
                 PartsCatalogueChildController controller = new PartsCatalogueChildController();
                 controller.setData(_listener);
-                controller.setImagePath("org/xersys/imbentaryo/images/e-" + (i+1) + ".png");
+                controller.setImagePath("org/xersys/imbentaryofx/images/e-" + (i+1) + ".png");
                 
                 fxmlLoader.setController(controller);
                 
