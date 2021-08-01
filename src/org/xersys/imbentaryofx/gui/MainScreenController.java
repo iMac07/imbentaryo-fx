@@ -148,6 +148,7 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
                 break;
             case "btnOther05": //wholesale
+                loadScreen(ScreenInfo.NAME.PARTS_CATALOGUE);
                 break;
             case "btnOther06": //inventory
                 break;
@@ -202,6 +203,7 @@ public class MainScreenController implements Initializable {
                     case "PartsInquiry":
                     case "PartsCatalogue":
                     case "PartsCatalogueDetail":
+                    case "ClientMobile":
                         System.err.println("Request rejected.");
                         break;
                     default:
