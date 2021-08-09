@@ -204,6 +204,9 @@ public class MainScreenController implements Initializable {
                     case "PartsCatalogue":
                     case "PartsCatalogueDetail":
                     case "ClientMobile":
+                    case "ClientEMail":
+                    case "Cashiering":
+                    case "Payment":                        
                         System.err.println("Request rejected.");
                         break;
                     default:

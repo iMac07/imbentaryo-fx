@@ -325,9 +325,9 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     
     private void loadData(){
         //load the data
-        _callback.Result(_row, 5, _order);
-        _callback.Result(_row, 8, _discount);
-        _callback.Result(_row, 9, _additional);
+        _callback.Result(_row, "nQuantity", _order);
+        _callback.Result(_row, "nDiscount", _discount);
+        _callback.Result(_row, "nAddDiscx", _additional);
         
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         _callback.FormClosing();
@@ -341,7 +341,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     }
     
     private void computeTotal(){        
-        double lnTranTotl = (_order * (_srp - (_srp * _discount))) - _additional;
+        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - _additional;
         
         lblTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
     }
@@ -392,8 +392,8 @@ public class POSDetailController implements Initializable, ControlledScreen  {
                     if (StringUtil.isNumeric(lsValue)){
                         double lnValue = Double.valueOf(lsValue);
                         
-                        if (lnValue > 1)
-                            txtField.setText("1.00");
+                        if (lnValue > 100)
+                            txtField.setText("100.00");
                         else
                             txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));
                     } else {

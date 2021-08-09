@@ -29,7 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.sales.base.Sales;
+import org.xersys.commander.contants.EditMode;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
@@ -38,15 +38,17 @@ import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.inventory.search.InvSearchEngine;
+import org.xersys.sales.base.NeoSales;
 
 public class POSController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private Sales _trans;
+    private NeoSales _trans;
     private LMasDetTrans _listener;
     
     private MainScreenController _main_screen_controller;
@@ -154,21 +156,21 @@ public class POSController implements Initializable, ControlledScreen{
             System.exit(1);
         }
         
-        initButton();
+        initGrid();
         initFields();
         initListener();
-
         
-        _trans = new Sales(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new NeoSales(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
-        if (_trans.TempTransactions().isEmpty())
-            createNew("");
-        else
+        if (!_trans.TempTransactions().isEmpty())
             createNew(_trans.TempTransactions().get(0).getOrderNo());
         
         cmbOrders.getSelectionModel().select(0);
+        
+        clearFields();
+        initButton();
         
         _loaded = true;
     }    
@@ -255,6 +257,7 @@ public class POSController implements Initializable, ControlledScreen{
         }
         
         cmbOrders.setItems(lsOrderNox);  
+        _table_data.clear();
         
         txtSeeks01.requestFocus();
     }
@@ -264,9 +267,9 @@ public class POSController implements Initializable, ControlledScreen{
         double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
         double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
-        double lnTotlDisc = lnTranTotl * lnDiscount + lnAddDiscx;
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
-        txtField11.setText(StringUtil.NumberFormat(lnDiscount, "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
         txtField12.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
         txtField13.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
@@ -297,28 +300,28 @@ public class POSController implements Initializable, ControlledScreen{
         double lnTranTotl;
         int lnQuantity;
         
-        for(lnCtr = 0; lnCtr <= lnRow -1; lnCtr++){           
-            lnQuantity = (int) _trans.getDetail(lnCtr, "nQuantity");
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue();
+            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
             lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
-                        (String) _trans.getDetail(lnCtr, 100),
-                        (String) _trans.getDetail(lnCtr, 101), 
-                        (String) _trans.getDetail(lnCtr, 102),
+                        (String) _trans.getDetail(lnCtr, "sBarCodex"),
+                        (String) _trans.getDetail(lnCtr, "sDescript"), 
+                        (String) _trans.getDetail(lnCtr, "xOthrInfo"),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
-                        String.valueOf(_trans.getDetail(lnCtr, 103)),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnDiscount, "#,##0.00"),
+                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
         }
 
         if (!_table_data.isEmpty()){
-            _table.getSelectionModel().select(_detail_row);
-            _table.getFocusModel().focus(_detail_row); 
+            _table.getSelectionModel().select(lnRow - 1);
+            _table.getFocusModel().focus(lnRow - 1); 
             _detail_row = _table.getSelectionModel().getSelectedIndex();           
         }
         
@@ -343,13 +346,13 @@ public class POSController implements Initializable, ControlledScreen{
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(true);
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index09.setSortable(false); index09.setResizable(true); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(true); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false);
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -424,14 +427,14 @@ public class POSController implements Initializable, ControlledScreen{
                 instance.setCallback(_detail_update_callback);
                 
                 instance.setDetailRow(_detail_row);
-                instance.setPartNumber((String) _trans.getDetail(_detail_row, 100));
-                instance.setDescription((String) _trans.getDetail(_detail_row, 101));
-                instance.setOtherInfo((String) _trans.getDetail(_detail_row, 102));
-                instance.setOnHand((int) _trans.getDetail(_detail_row, 103));
-                instance.setQtyOrder((int) _trans.getDetail(_detail_row, "nQuantity"));
-                instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
-                instance.setDiscount((double) _trans.getDetail(_detail_row, "nDiscount"));
-                instance.setAdditional((double) _trans.getDetail(_detail_row, "nAddDiscx"));
+                instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
+                instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
+                instance.setOtherInfo((String) _trans.getDetail(_detail_row, "xOthrInfo"));
+                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQuantity"))));
+                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
+                instance.setDiscount(Double.valueOf(String.valueOf((double) _trans.getDetail(_detail_row, "nDiscount"))));
+                instance.setAdditional(Double.valueOf(String.valueOf((double) _trans.getDetail(_detail_row, "nAddDiscx"))));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
@@ -494,25 +497,11 @@ public class POSController implements Initializable, ControlledScreen{
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01": //clear
-                if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
-                    _loaded = false;
-                    
-                    if (_trans.TempTransactions().isEmpty()){
-                        createNew("");
-                        cmbOrders.getSelectionModel().select(0);
-                    } else {
-                        createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                         cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
-                    }
-                        
-                    _loaded = true;
-                }
-                break;
-            case "btn02": //new
+            case "btn01": //new
                 _loaded = false;
                 
                 createNew("");
+                initButton();
                 clearFields();
                 loadTransaction();
                 
@@ -520,17 +509,35 @@ public class POSController implements Initializable, ControlledScreen{
                
                _loaded = true;
                 break;
+            case "btn02": //clear
+                if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
+                    _loaded = false;
+                    
+                    if (!_trans.TempTransactions().isEmpty()){
+                        createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
+                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
+                    } else {
+                        initGrid();
+                        initButton();
+                        clearFields();
+
+                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                    }
+                        
+                    _loaded = true;
+                }
+                break;
             case "btn03": //save
                 if (_trans.SaveTransaction(true)){
                     MsgBox.showOk("Transaction saved successfully and ready for paying.", "Success");
                     
                     _loaded = false;
 
-                    createNew("");
+                    initGrid();
+                    initButton();
                     clearFields();
-                    loadTransaction();
 
-                   cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                    cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
 
                    _loaded = true;
                 } else 
@@ -544,13 +551,16 @@ public class POSController implements Initializable, ControlledScreen{
                 break;
             case "btn07":
                 break;
-            case "btn08":
+            case "btn08": //cashiering
+                loadScreen(ScreenInfo.NAME.CASHIERING);
                 break;
-            case "btn09":
+            case "btn09": //parts inquiry
                 break;
-            case "btn10":
+            case "btn10": //parts catalogue
+                loadScreen(ScreenInfo.NAME.PARTS_CATALOGUE);
                 break;
-            case "btn11":
+            case "btn11": //history
+                loadScreen(ScreenInfo.NAME.POS_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -619,7 +629,7 @@ public class POSController implements Initializable, ControlledScreen{
             public void Result(TextField foField, JSONObject foValue) {
                 switch (foField.getId()){
                     case "txtSeeks01":
-                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
+                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", foValue.toJSONString());
                         loadDetail();
                         break;
                 }
@@ -639,6 +649,18 @@ public class POSController implements Initializable, ControlledScreen{
                     case 8:
                     case 9:
                         _trans.setDetail(fnRow, fnIndex, foValue);
+                        break;
+                }
+                loadDetail();
+            }
+            
+            @Override
+            public void Result(int fnRow, String fsIndex, Object foValue){
+                switch(fsIndex){
+                    case "nQuantity":
+                    case "nDiscount":
+                    case "nAddDiscx":
+                        _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
                 }
                 loadDetail();
@@ -686,19 +708,18 @@ public class POSController implements Initializable, ControlledScreen{
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("Clear");
-        btn02.setText("New");
+        btn01.setText("New");
+        btn02.setText("Clear");
         btn03.setText("Save");
         btn04.setText("Search");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("");
-        btn09.setText("");
-        btn10.setText("Cashier");
+        btn08.setText("Cashiering");
+        btn09.setText("Inquiry");
+        btn10.setText("Catalogue");
         btn11.setText("History");
-        btn12.setText("Close");              
-        
+        btn12.setText("Close");
         
         btn01.setVisible(true);
         btn02.setVisible(true);
@@ -707,8 +728,8 @@ public class POSController implements Initializable, ControlledScreen{
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(false);
-        btn09.setVisible(false);
+        btn08.setVisible(true);
+        btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
@@ -725,6 +746,18 @@ public class POSController implements Initializable, ControlledScreen{
         glyph10.setIcon(FontAwesomeIcon.ANCHOR);
         glyph11.setIcon(FontAwesomeIcon.ANCHOR);
         glyph12.setIcon(FontAwesomeIcon.ANCHOR);
+        
+        int lnEditMode = _trans.getEditMode();
+        btn02.setVisible(lnEditMode == EditMode.ADDNEW);
+        btn03.setVisible(lnEditMode == EditMode.ADDNEW);
+        btn04.setVisible(lnEditMode == EditMode.ADDNEW);
+        
+        txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField13.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
@@ -736,7 +769,6 @@ public class POSController implements Initializable, ControlledScreen{
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField06.focusedProperty().addListener(txtField_Focus);
-        txtField07.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
         txtField13.focusedProperty().addListener(txtField_Focus);
@@ -747,6 +779,21 @@ public class POSController implements Initializable, ControlledScreen{
                 if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
             }
         });
+    }
+    
+    private void loadScreen(ScreenInfo.NAME  foValue){
+        JSONObject loJSON = ScreenInfo.get(foValue);
+        ControlledScreen instance;
+        
+        if (loJSON != null){
+            instance = (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller"));
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            
+            _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
+        }
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
@@ -760,8 +807,7 @@ public class POSController implements Initializable, ControlledScreen{
         if(!nv){ //Lost Focus           
             switch (lnIndex){
                 case 6: //remarks
-                case 7: //salesman
-                    _trans.setMaster(lnIndex, lsValue);
+                    _trans.setMaster("sRemarksx", lsValue);
                     break;
                 case 11: //discount rate
                 case 12: //additional discount
@@ -775,7 +821,18 @@ public class POSController implements Initializable, ControlledScreen{
                         txtField.requestFocus(); 
                         break;
                     }
-                    _trans.setMaster(lnIndex, x);
+                    
+                    switch (lnIndex) {
+                        case 11:
+                            _trans.setMaster("nDiscount", x);
+                            break;
+                        case 12:
+                            _trans.setMaster("nAddDiscx", x);
+                            break;
+                        default:
+                            _trans.setMaster("nFreightx", x);
+                            break;
+                    }
                     break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");

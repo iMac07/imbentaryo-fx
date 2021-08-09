@@ -36,7 +36,7 @@ import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
 import javafx.scene.control.TextArea;
-import org.xersys.clients.base.NeoClient;
+import org.xersys.clients.base.ClientMaster;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.parameters.search.ParameterSearchEngine;
@@ -51,7 +51,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private CUSTOMER_TYPE _customer_type = CUSTOMER_TYPE.CUSTOMER;
     
     private XNautilus _nautilus;
-    private NeoClient _trans;
+    private ClientMaster _trans;
     private LRecordMas _listener;
     private CachedRowsetCallback _mobile_listener;
     private CachedRowsetCallback _address_listener;
@@ -187,7 +187,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new NeoClient(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new ClientMaster(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         

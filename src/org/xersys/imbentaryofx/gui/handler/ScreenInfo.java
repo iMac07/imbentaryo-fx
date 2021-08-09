@@ -11,6 +11,7 @@ public class ScreenInfo {
         PARTS_INQUIRY,
         PARTS_CATALOGUE,
         POS,
+        POS_HISTORY,
         CUSTOMER_ORDER,
         DASHBOARD,
         CART, 
@@ -21,7 +22,9 @@ public class ScreenInfo {
         PO_RETURN,
         CLIENT_MASTER,
         CLIENT_MOBILE,
-        CLIENT_EMAIL
+        CLIENT_EMAIL,
+        CASHIERING,
+        PAYMENT
     }
     
     public static JSONObject get(NAME foModule){
@@ -87,6 +90,18 @@ public class ScreenInfo {
             case CLIENT_EMAIL:
                 loJSON.put("resource", RESOURCE_URL + "ClientEMail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ClientEMailController");
+                return loJSON;
+            case POS_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "POSHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POSHistoryController");
+                return loJSON;
+            case CASHIERING:
+                loJSON.put("resource", RESOURCE_URL + "Cashiering.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "CashieringController");
+                return loJSON;
+            case PAYMENT:
+                loJSON.put("resource", RESOURCE_URL + "Payment.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PaymentController");
                 return loJSON;
         }
         

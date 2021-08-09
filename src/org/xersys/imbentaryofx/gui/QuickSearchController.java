@@ -26,7 +26,7 @@ import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.iface.XSearchTran;
+import org.xersys.commander.iface.XSearchRecord;
 
 public class QuickSearchController implements Initializable, ControlledScreen {
     @FXML
@@ -92,8 +92,8 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     public void initialize(URL url, ResourceBundle rb) {
         if (_json == null){
             System.err.println("No initial search result was passed.");
-            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-            return;
+            //_screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //return;
         }
         
         //set the main anchor pane fit the size of its parent anchor pane
@@ -130,7 +130,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     public void setDashboardScreensController(ScreensController foValue) {
     }
     
-    public void setTransObject(XSearchTran foValue){
+    public void setTransObject(XSearchRecord foValue){
         _trans = foValue;
     }
     
@@ -355,7 +355,13 @@ public class QuickSearchController implements Initializable, ControlledScreen {
         switch (lsTxt){
             case "txtSeeks01":
                 _value = lsValue;
-                _json = _trans.Search(_type, _value, _key, _filter, _maxrow, _exact);
+                
+                if (_type == null){
+                    _json = _trans.SearchRecord(_value, _key, _filter, _maxrow, _exact);
+                } else {
+                    _json = _trans.Search(_type, _value, _key, _filter, _maxrow, _exact);
+                }
+                
                 loadDetail();
                 break;
         }
@@ -489,9 +495,19 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     
     private void loadData(){
         JSONArray loArray = (JSONArray) _json.get("payload");
+        JSONObject loJSON;
         
-        if (loArray.size() > 0)
+        if (loArray.size() > 0){
+            loJSON = (JSONObject) loArray.get(pnSelectd);
+            loJSON.put("result", "success");
             _search_callback.Result(_text_field, (JSONObject) loArray.get(pnSelectd));
+        } else {
+            loJSON = new JSONObject();
+            loJSON.put("result", "success");
+            loJSON.put("message", "No record to load.");
+            _search_callback.Result(_text_field, (JSONObject) loArray.get(pnSelectd));
+        }    
+            
 
         //load the data
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
@@ -516,7 +532,7 @@ public class QuickSearchController implements Initializable, ControlledScreen {
     
     private int pnSelectd = -1;
     
-    private XSearchTran _trans;
+    private XSearchRecord _trans;
 
     private Enum _type;
     private String _value;

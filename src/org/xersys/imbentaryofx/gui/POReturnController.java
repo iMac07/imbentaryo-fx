@@ -4,7 +4,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -614,32 +613,32 @@ public class POReturnController implements Initializable, ControlledScreen{
             }
         };
         
-        _detail_update_callback = new DetailUpdateCallback() {
-            @Override
-            public void Result(int fnRow, int fnIndex, Object foValue) {
-                switch(fnIndex){
-                    case 5:
-                    case 8:
-                    case 9:
-                        _trans.setDetail(fnRow, fnIndex, foValue);
-                        break;
-                }
-                loadDetail();
-            }
-
-            @Override
-            public void RemovedItem(int fnRow) {
-                _trans.delDetail(fnRow);
-                loadDetail();
-                computeSummary();
-                txtSeeks01.requestFocus();
-            }
-
-            @Override
-            public void FormClosing() {
-                txtSeeks01.requestFocus();
-            }
-        };
+//        _detail_update_callback = new DetailUpdateCallback() {
+//            @Override
+//            public void Result(int fnRow, int fnIndex, Object foValue) {
+//                switch(fnIndex){
+//                    case 5:
+//                    case 8:
+//                    case 9:
+//                        _trans.setDetail(fnRow, fnIndex, foValue);
+//                        break;
+//                }
+//                loadDetail();
+//            }
+//
+//            @Override
+//            public void RemovedItem(int fnRow) {
+//                _trans.delDetail(fnRow);
+//                loadDetail();
+//                computeSummary();
+//                txtSeeks01.requestFocus();
+//            }
+//
+//            @Override
+//            public void FormClosing() {
+//                txtSeeks01.requestFocus();
+//            }
+//        };
     }
     
     private void initButton(){
