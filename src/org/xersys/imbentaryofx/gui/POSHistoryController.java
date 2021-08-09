@@ -7,14 +7,12 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -27,9 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.purchasing.base.PurchaseOrder;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
@@ -38,16 +34,15 @@ import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.inventory.search.InvSearchEngine;
+import org.xersys.sales.base.NeoSales;
 
-public class PurchaseOrderController implements Initializable, ControlledScreen{
+public class POSHistoryController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private PurchaseOrder _trans;
+    private NeoSales _trans;
     private LMasDetTrans _listener;
     
     private MainScreenController _main_screen_controller;
@@ -118,25 +113,31 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     @FXML
     private FontAwesomeIconView glyph12;
     @FXML
-    private TextField txtSeeks01;
+    private TextField txtField11;
     @FXML
-    private ComboBox cmbOrders;
+    private TextField txtField12;
+    @FXML
+    private TextField txtField13;
     @FXML
     private TextField txtField06;
     @FXML
     private TextField txtField07;
     @FXML
+    private Label lblTranTotal;
+    @FXML
+    private Label lblTotalDisc;
+    @FXML
     private Label lblPayable;
     @FXML
     private TableView _table;
     @FXML
-    private TextField txtField10;
+    private Label lblFreight;
     @FXML
-    private TextField txtField05;
+    private TextField txtSeeks01;
     @FXML
-    private TextField txtField16;
+    private Label lblTranStat;
     @FXML
-    private TextField txtField08;
+    private Label lblPaymTotl;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -151,20 +152,16 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             System.exit(1);
         }
         
-        initButton();
         initFields();
+        initGrid();
         initListener();
         
-        _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
+        _trans = new NeoSales(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
-        
-        if (_trans.TempTransactions().isEmpty())
-            createNew("");
-        else
-            createNew(_trans.TempTransactions().get(0).getOrderNo());
-        
-        cmbOrders.getSelectionModel().select(0);
+
+        clearFields();
+        initButton();
         
         _loaded = true;
     }    
@@ -189,33 +186,18 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
-    private void createNew(String fsOrderNox){
-        if (!_trans.NewTransaction(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
-            System.exit(1);
-        }
-        
-        clearFields();
-        loadTransaction();
-    }
-    
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
-                
+        
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    quickSearch(txtField, InvSearchEngine.Type.searchInvBranchComplex, lsValue, "sBarCodex", "", 15, false);
+                    quickSearch(lsValue, "IFNULL(b.sClientNm, '')", "", 50, false);
                     event.consume();
                     return;
-                case "txtField05":
-                case "txtField06":
-                case "txtField08":
-                case "txtField16":
             }
         }
         
@@ -232,10 +214,15 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     private void clearFields(){
         initGrid();
         
-        txtSeeks01.setText("");
         txtField06.setText("");
         txtField07.setText("");
-
+        txtField11.setText("0.00");
+        txtField12.setText("0.00");
+        txtField13.setText("0.00");
+        
+        lblTranTotal.setText("0.00");
+        lblTotalDisc.setText("0.00");
+        lblFreight.setText("0.00");
         lblPayable.setText("0.00");
         
         //load temporary transactions
@@ -248,28 +235,38 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             }
         }
         
-        cmbOrders.setItems(lsOrderNox);  
+        _table_data.clear();
         
-        txtSeeks01.requestFocus();
+        setTranStat("-1");
     }
     
     private void computeSummary(){
         double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
+        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
         
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField12.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField13.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
     }
     
     private void loadTransaction(){
-        txtField05.setText("");
-        txtField06.setText("");
-        txtField07.setText((String) _trans.getMaster("sReferNox"));
-        txtField08.setText("");
-        txtField10.setText((String) _trans.getMaster("sRemarksx"));
-        txtField16.setText("");
+        txtField06.setText((String) _trans.getMaster("sRemarksx"));
+        txtField07.setText((String) _trans.getMaster("sSalesman"));
         
         computeSummary();
         
         loadDetail();
+        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
     }
     
     private void loadDetail(){
@@ -279,36 +276,62 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         _table_data.clear();
         
         double lnUnitPrce;
+        double lnDiscount;
+        double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
         
-        for(lnCtr = 0; lnCtr <= lnRow -1; lnCtr++){           
-            lnQuantity = (int) _trans.getDetail(lnCtr, "nQuantity");
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnTranTotl = lnQuantity * lnUnitPrce;
+            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
+            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
-                        (String) _trans.getDetail(lnCtr, 100),
-                        (String) _trans.getDetail(lnCtr, 101), 
-                        (String) _trans.getDetail(lnCtr, 102),
+                        (String) _trans.getDetail(lnCtr, "sBarCodex"),
+                        (String) _trans.getDetail(lnCtr, "sDescript"), 
+                        (String) _trans.getDetail(lnCtr, "xOthrInfo"),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
-                        String.valueOf(_trans.getDetail(lnCtr, 103)),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
-                        ""));
+                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
+                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
         }
 
         if (!_table_data.isEmpty()){
-            _table.getSelectionModel().select(_detail_row);
-            _table.getFocusModel().focus(_detail_row); 
+            _table.getSelectionModel().select(lnRow - 1);
+            _table.getFocusModel().focus(lnRow - 1); 
             _detail_row = _table.getSelectionModel().getSelectedIndex();           
         }
         
         computeSummary();
-        
-        txtSeeks01.setText("");
-        txtSeeks01.requestFocus();
+    }
+    
+    private void initListener(){        
+        _search_callback = new QuickSearchCallback() {
+            @Override
+            public void Result(TextField foField, JSONObject foValue) {
+                switch (foField.getId()){
+                    case "txtSeeks01":
+                        if ("success".equals((String) foValue.get("result"))){
+                            if (_trans.OpenTransaction((String) foValue.get("sTransNox"))){
+                                loadTransaction();
+                                loadDetail();
+                            }
+                        } else 
+                            MsgBox.showOk((String) foValue.get("message"), "Warning");
+                        
+                        break;
+                }
+            }
+
+            @Override
+            public void FormClosing(TextField foField) {
+                foField.requestFocus();
+            }
+        };
     }
     
     private void initGrid(){
@@ -320,6 +343,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
+        TableColumn index09 = new TableColumn("");
+        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
@@ -329,6 +354,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index09.setSortable(false); index09.setResizable(true); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(true); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -360,9 +387,17 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
-        index08.setText("Total"); 
+        index08.setText("Disc."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(85);
+        index08.prefWidthProperty().set(60);
+        
+        index09.setText("Adtl."); 
+        index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
+        index09.prefWidthProperty().set(60);
+        
+        index10.setText("Total"); 
+        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
+        index10.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -372,6 +407,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
+        _table.getColumns().add(index09);
+        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -379,61 +416,11 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     
     private void tableClicked(MouseEvent event) { 
         _detail_row = _table.getSelectionModel().getSelectedIndex();
-        
-        if (event.getClickCount() >= 2){
-            if (_detail_row >= 0){
-                //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
-                
-                POSDetailController instance = new POSDetailController();
-                
-                instance.setNautilus(_nautilus);
-                instance.setParentController(_main_screen_controller);
-                instance.setScreensController(_screens_controller);
-                instance.setCallback(_detail_update_callback);
-                
-                instance.setDetailRow(_detail_row);
-                instance.setPartNumber((String) _trans.getDetail(_detail_row, 100));
-                instance.setDescription((String) _trans.getDetail(_detail_row, 101));
-                instance.setOtherInfo((String) _trans.getDetail(_detail_row, 102));
-                instance.setOnHand((int) _trans.getDetail(_detail_row, 103));
-                instance.setQtyOrder((int) _trans.getDetail(_detail_row, "nQuantity"));
-                instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
-                instance.setDiscount((double) _trans.getDetail(_detail_row, "nDiscount"));
-                instance.setAdditional((double) _trans.getDetail(_detail_row, "nAddDiscx"));
-                
-                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-            }
-        }
     }
     
-    private void quickSearch(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        //pass the initial value do initial search
-        JSONObject loJSON = _trans.Search(foType, fsValue, fsKey, fsFilter, fnMax, fbExact);
-        
-        //null result, return to callee
-        if (loJSON == null) {
-            System.err.println("Initial search result was null.");
-            return;
-        }
-        
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
-            return;
-        }
-        
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-        
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-            _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
-            loadDetail();
-            return;
-        }
-        
-        //multiple result, load the quick search to display records
+    private void quickSearch(String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
+        JSONObject loJSON = _trans.SearchRecord(fsValue, fsKey, fsFilter, fnMax, fbExact);
+
         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
         
         if (loScreen != null){
@@ -445,14 +432,14 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             instance.setTransObject(_trans);
             instance.setSearchCallback(_search_callback);
             
-            instance.setSearchType(foType);
+            instance.setSearchType(null);
             instance.setSearchValue(fsValue);
             instance.setSearchKey(fsKey);
             instance.setSearchFilter(fsFilter);
             instance.setSearchMaxRow(fnMax);
             instance.setSearchExact(fbExact);
             instance.setSearchResult(loJSON);
-            instance.setTextField(foField);
+            instance.setTextField(txtSeeks01);
             
             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
         }
@@ -463,49 +450,14 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01": //clear
-                if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
-                    _loaded = false;
-                    
-                    if (_trans.TempTransactions().isEmpty()){
-                        createNew("");
-                        cmbOrders.getSelectionModel().select(0);
-                    } else {
-                        createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                         cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
-                    }
-                        
-                    _loaded = true;
-                }
+            case "btn01":
+                quickSearch("", "IFNULL(b.sClientNm, '')", "", 50, false);
                 break;
-            case "btn02": //new
-                _loaded = false;
-                
-                createNew("");
-                clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
+            case "btn02":
                 break;
-            case "btn03": //save
-                if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
-                    
-                    _loaded = false;
-
-                    createNew("");
-                    clearFields();
-                    loadTransaction();
-
-                   cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-
-                   _loaded = true;
-                } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+            case "btn03":
                 break;
-            case "btn04": //search
+            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -515,13 +467,11 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09": //PO Receiving
-                loadScreen(ScreenInfo.NAME.PO_RECEIVING);
+            case "btn09":
                 break;
-            case "btn10": //PO Return
-                loadScreen(ScreenInfo.NAME.PO_RETURN);
+            case "btn10":
                 break;
-            case "btn11": //History
+            case "btn11":
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -565,86 +515,6 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         }
     }
     
-    private void loadScreen(ScreenInfo.NAME  foValue){
-        JSONObject loJSON = ScreenInfo.get(foValue);
-        ControlledScreen instance;
-        
-        if (loJSON != null){
-            instance = (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller"));
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            instance.setDashboardScreensController(_screens_dashboard_controller);
-            
-            _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
-        }
-    }
-    
-    private void initListener(){
-        _listener = new LMasDetTrans() {
-            @Override
-            public void MasterRetreive(String fsFieldNm, Object foValue) {
-                switch(fsFieldNm){
-                    case "nTranTtal":
-                    case "nDiscount":
-                    case "nAddDiscx":
-                    case "nFreightx":
-                        computeSummary();
-                        break;
-                }
-            }
-
-            @Override
-            public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                loadDetail();
-            }
-        };
-        
-        _search_callback = new QuickSearchCallback() {
-            @Override
-            public void Result(TextField foField, JSONObject foValue) {
-                switch (foField.getId()){
-                    case "txtSeeks01":
-                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
-                        loadDetail();
-                        break;
-                }
-            }
-
-            @Override
-            public void FormClosing(TextField foField) {
-                foField.requestFocus();
-            }
-        };
-        
-//        _detail_update_callback = new DetailUpdateCallback() {
-//            @Override
-//            public void Result(int fnRow, int fnIndex, Object foValue) {
-//                switch(fnIndex){
-//                    case 5:
-//                    case 8:
-//                    case 9:
-//                        _trans.setDetail(fnRow, fnIndex, foValue);
-//                        break;
-//                }
-//                loadDetail();
-//            }
-//
-//            @Override
-//            public void RemovedItem(int fnRow) {
-//                _trans.delDetail(fnRow);
-//                loadDetail();
-//                computeSummary();
-//                txtSeeks01.requestFocus();
-//            }
-//
-//            @Override
-//            public void FormClosing() {
-//                txtSeeks01.requestFocus();
-//            }
-//        };
-    }
-    
     private void initButton(){
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
@@ -672,31 +542,30 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("Clear");
-        btn02.setText("New");
-        btn03.setText("Save");
-        btn04.setText("Search");
+        btn01.setText("Browse");
+        btn02.setText("Pay");
+        btn03.setText("");
+        btn04.setText("");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("Receiving");
-        btn10.setText("Return");
-        btn11.setText("History");
-        btn12.setText("Close");              
-        
+        btn09.setText("");
+        btn10.setText("");
+        btn11.setText("");
+        btn12.setText("Close");
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn03.setVisible(false);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
-        btn09.setVisible(true);
-        btn10.setVisible(true);
-        btn11.setVisible(true);
+        btn09.setVisible(false);
+        btn10.setVisible(false);
+        btn11.setVisible(false);
         btn12.setVisible(true);
         
         glyph01.setIcon(FontAwesomeIcon.ANCHOR);
@@ -715,24 +584,38 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField08.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField16.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
-        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
-        txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField08.focusedProperty().addListener(txtField_Focus);
-        txtField10.focusedProperty().addListener(txtField_Focus);
-        txtField16.focusedProperty().addListener(txtField_Focus);
-        
-        cmbOrders.valueProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
-            }
-        });
+        txtField11.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
+        txtField13.focusedProperty().addListener(txtField_Focus);
+    }
+    
+    private void setTranStat(String fsValue){
+        switch(fsValue){
+            case "0":
+                lblTranStat.setText("OPEN");
+                break;
+            case "1":
+                lblTranStat.setText("CLOSED");
+                break;
+            case "2":
+                lblTranStat.setText("POSTED");
+                break;
+            case "3":
+                lblTranStat.setText("CANCELLED");
+                break;
+            case "4":
+                lblTranStat.setText("VOIDED");
+                break;
+            default:
+                lblTranStat.setText("UNKOWN");
+        }
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
@@ -744,20 +627,6 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
-            switch (lnIndex){
-                case 6: //po number
-                case 10: //remarks
-                    _trans.setMaster(lnIndex, lsValue);
-                    break;
-                case 5:
-                case 7:
-                case 8:
-                case 9:
-                case 16:
-                    break;
-                default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
-            }
             _index = lnIndex;
         } else{ //Got Focus
             _index = lnIndex;

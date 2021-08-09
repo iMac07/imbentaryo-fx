@@ -35,8 +35,8 @@
                                  <children>
                                     <GridPane layoutX="14.0" layoutY="130.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                                       <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="100.0" prefWidth="75.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="114.0" minWidth="100.0" prefWidth="109.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="86.0" prefWidth="91.0" />
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
@@ -60,7 +60,7 @@
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Unit Price:" GridPane.rowIndex="3" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Qty. On Hand:" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Qty. Order:" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Discount Rate:" GridPane.rowIndex="6" />
+                                          <Label prefHeight="30.0" prefWidth="119.0" text="Discount Rate(%):" GridPane.rowIndex="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Adtl. Discount:" GridPane.rowIndex="7" />
                                           <TextField fx:id="txtDetail01" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                           <TextField fx:id="txtDetail02" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />

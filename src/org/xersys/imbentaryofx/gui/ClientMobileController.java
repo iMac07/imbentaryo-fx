@@ -202,7 +202,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
                             return;
                         }
 
-                        _trans.setMaster(_detail_row, "sMobileNo", lsValue);
+                        _trans.setDetail(_detail_row, "sMobileNo", lsValue);
                         break;
                 }
             } catch (SQLException | ParseException ex) {
@@ -236,7 +236,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
         CheckBox loButton = (CheckBox) event.getSource();
         
         try {
-            _trans.setMaster(_detail_row, "cIncdMktg", loButton.isSelected() ? "1" : "0");
+            _trans.setDetail(_detail_row, "cIncdMktg", loButton.isSelected() ? "1" : "0");
         }catch (SQLException | ParseException ex) {
             ex.printStackTrace();
             MsgBox.showOk(ex.getMessage(), "Warning");
@@ -249,7 +249,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
         CheckBox loButton = (CheckBox) event.getSource();
         
         try {
-            _trans.setMaster(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
+            _trans.setDetail(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
             MsgBox.showOk(ex.getMessage(), "Warning");
@@ -369,7 +369,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
                 case "btnChild01": //plus
                     if (_detail_row > 0) {
                         _detail_row -= 1;
-                        _trans.setMaster(_detail_row + 1, "nPriority", 1);
+                        _trans.setDetail(_detail_row + 1, "nPriority", 1);
                     }
                     break;
                 case "btn01": //okay

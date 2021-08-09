@@ -31,7 +31,6 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
 
@@ -194,7 +193,7 @@ public class ClientEMailController implements Initializable, ControlledScreen{
             try{
                 switch (lsTxt){
                     case "txtField01":
-                        _trans.setMaster(_detail_row, "sEmailAdd", lsValue);
+                        _trans.setDetail(_detail_row, "sEmailAdd", lsValue);
                         break;
                 }
             } catch (SQLException | ParseException ex) {
@@ -228,7 +227,7 @@ public class ClientEMailController implements Initializable, ControlledScreen{
         CheckBox loButton = (CheckBox) event.getSource();
         
         try {
-            _trans.setMaster(_detail_row, "cIncdMktg", loButton.isSelected() ? "1" : "0");
+            _trans.setDetail(_detail_row, "cIncdMktg", loButton.isSelected() ? "1" : "0");
         }catch (SQLException | ParseException ex) {
             ex.printStackTrace();
             MsgBox.showOk(ex.getMessage(), "Warning");
@@ -241,7 +240,7 @@ public class ClientEMailController implements Initializable, ControlledScreen{
         CheckBox loButton = (CheckBox) event.getSource();
         
         try {
-            _trans.setMaster(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
+            _trans.setDetail(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
             MsgBox.showOk(ex.getMessage(), "Warning");
@@ -354,7 +353,7 @@ public class ClientEMailController implements Initializable, ControlledScreen{
                 case "btnChild01": //plus
                     if (_detail_row > 0) {
                         _detail_row -= 1;
-                        _trans.setMaster(_detail_row + 1, "nPriority", 1);
+                        _trans.setDetail(_detail_row + 1, "nPriority", 1);
                     }
                     break;
                 case "btn01": //okay
