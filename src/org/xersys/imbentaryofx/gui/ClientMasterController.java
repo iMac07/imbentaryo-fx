@@ -39,10 +39,11 @@ import javafx.scene.control.TextArea;
 import org.xersys.clients.base.ClientMaster;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.commander.util.Temp_Transactions;
-import org.xersys.parameters.search.ParameterSearchEngine;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
 import org.xersys.commander.iface.LRecordMas;
+import org.xersys.parameters.search.ParamSearchEngine;
+import org.xersys.parameters.search.ParamSearchFactory;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
     private ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
@@ -61,6 +62,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private ScreensController _screens_controller;
     private ScreensController _screens_dashboard_controller;
     private QuickSearchCallback _search_callback;
+    
+    private ParamSearchEngine p_oSearch_Param;
     
     private TableModel _table_model;
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
@@ -187,6 +190,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
+        p_oSearch_Param = new ParamSearchEngine(_nautilus);
+        
         _trans = new ClientMaster(_nautilus, (String) _nautilus.getSysConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
@@ -262,12 +267,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtField10":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    quickSearch(txtField, ParameterSearchEngine.Type.searchCountry, lsValue, "sCntryNme", "", 15, false);
+                    searchParameter(txtField, ParamSearchFactory.Type.searchCountry, lsValue, "sCntryNme", "", 15, false);
                     event.consume();
                     return;
                 case "txtField12":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    quickSearch(txtField, ParameterSearchEngine.Type.searchTownCity, lsValue, "sTownName", "", 15, false);
+                    searchParameter(txtField, ParamSearchFactory.Type.searchTownCity, lsValue, "sTownName", "", 15, false);
                     event.consume();
                     return;
                 case "txtField14":
@@ -316,12 +321,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             txtField101.setText((String) _trans.getMaster("xMobileNo"));
 
             if(!"".equals((String) _trans.getMaster("sCitizenx")))
-                quickSearch(txtField10, ParameterSearchEngine.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryCde", "", 1, true);
+                searchParameter(txtField10, ParamSearchFactory.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryNme", "", 1, true);
             else 
                 txtField10.setText("");
 
             if(!"".equals((String) _trans.getMaster("sBirthPlc")))
-                quickSearch(txtField12, ParameterSearchEngine.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
+                searchParameter(txtField10, ParamSearchFactory.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
             else 
                 txtField12.setText("");
 
@@ -353,70 +358,63 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
     }    
 
-    private void quickSearch(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        //pass the initial value do initial search
-        JSONObject loJSON = _trans.Search(foType, fsValue, fsKey, fsFilter, fnMax, fbExact);
+    private void searchParameter(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
+        p_oSearch_Param.setSearchType(foType);
+        p_oSearch_Param.setKey(fsKey);
+        p_oSearch_Param.setFilter(fsFilter);
+        p_oSearch_Param.setMax(fnMax);
+        p_oSearch_Param.setExact(fbExact);
         
-        //null result, return to callee
-        if (loJSON == null) {
-            System.err.println("Initial search result was null.");
-            return;
+        JSONObject loJSON = p_oSearch_Param.Search(fsValue);
+
+        //error result, return to callee
+        if ("error".equals((String) loJSON.get("result"))) {
+            System.err.println((String) loJSON.get("message"));
+
+            switch (foField.getId()){
+                case "txtField10":
+                    //set value to class
+                    foField.setText("");
+                    FXUtil.SetNextFocus(foField);
+                    return;
+                case "txtField12":
+                    //set value to class
+                    foField.setText((String) "");
+                    FXUtil.SetNextFocus(foField);
+                    return;
+            }
         }
-        
-        try {
-            //error result, return to callee
-            if ("error".equals((String) loJSON.get("result"))) {
-                System.err.println((String) loJSON.get("message"));
 
-                switch (foField.getId()){
-                    case "txtField10":
-                        _trans.setMaster("sCitizenx", "");
-                        foField.setText("");
-                        FXUtil.SetNextFocus(foField);
-                        return;
-                    case "txtField12":
-                        _trans.setMaster("sBirthPlc", "");
-                        foField.setText((String) "");
-                        FXUtil.SetNextFocus(foField);
-                        return;
-                }
+        JSONArray loArr = (JSONArray) loJSON.get("payload");
+
+        //only one record was retreived, load the data
+        if (loArr.size() == 1) {
+            loJSON = (JSONObject) loArr.get(0);
+
+            switch (foField.getId()){
+                case "txtField10":
+                    //set value to class
+                    foField.setText((String) loJSON.get("sCntryNme"));
+                    FXUtil.SetNextFocus(foField);
+                    return;
+                case "txtField12":
+                    //set value to class
+                    foField.setText((String) loJSON.get("sTownName"));
+                    FXUtil.SetNextFocus(foField);
+                    return;
             }
-
-            JSONArray loArr = (JSONArray) loJSON.get("payload");
-
-            //only one record was retreived, load the data
-            if (loArr.size() == 1) {
-                loJSON = (JSONObject) loArr.get(0);
-
-                switch (foField.getId()){
-                    case "txtField10":
-                        _trans.setMaster("sCitizenx", (String) loJSON.get("sCntryCde"));
-                        foField.setText((String) loJSON.get("sCntryNme"));
-                        FXUtil.SetNextFocus(foField);
-                        return;
-                    case "txtField12":
-                        _trans.setMaster("sBirthPlc", (String) loJSON.get("sTownIDxx"));
-                        foField.setText((String) loJSON.get("sTownName"));
-                        FXUtil.SetNextFocus(foField);
-                        return;
-                }
-            }
-        } catch (SQLException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
-            ex.printStackTrace();
-            System.exit(1);
         }
         
         //multiple result, load the quick search to display records
         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
         
         if (loScreen != null){
-            QuickSearchController instance = new QuickSearchController();
+            QuickSearchNeoController instance = new QuickSearchNeoController();
             instance.setNautilus(_nautilus);
             instance.setParentController(_main_screen_controller);
             instance.setScreensController(_screens_controller);
             
-            instance.setTransObject(_trans);
+            instance.setSearchObject(p_oSearch_Param);
             instance.setSearchCallback(_search_callback);
             
             instance.setSearchType(foType);

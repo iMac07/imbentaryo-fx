@@ -32,8 +32,8 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
+import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 
 public class ClientMobileController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;

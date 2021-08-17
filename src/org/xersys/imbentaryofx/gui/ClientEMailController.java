@@ -31,8 +31,8 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
+import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 
 public class ClientEMailController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
