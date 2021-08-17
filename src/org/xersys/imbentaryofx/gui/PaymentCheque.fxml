@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<AnchorPane id="PaymentCheque" prefHeight="294.0" prefWidth="440.0" stylesheets="@../css/Cart.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <BorderPane>
+               <center>
+                  <AnchorPane prefHeight="150.0" prefWidth="413.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <GridPane AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <Label prefHeight="41.0" prefWidth="100.0" text="Bank:" GridPane.rowIndex="1" />
+                              <TextField fx:id="txtName" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
+                              <Label prefHeight="41.0" prefWidth="100.0" text="Cheque No.:" GridPane.rowIndex="2" />
+                              <Label prefHeight="41.0" prefWidth="100.0" text="Cheque Date:" GridPane.rowIndex="3" />
+                              <Label prefHeight="41.0" prefWidth="100.0" text="Amount:" GridPane.rowIndex="4" />
+                              <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" GridPane.rowIndex="5" />
+                              <TextField fx:id="txtName1" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" />
+                              <TextField fx:id="txtName2" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" />
+                              <TextField fx:id="txtName3" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <TextField fx:id="txtName4" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="5" />
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="14.0" prefWidth="466.0" text="Add Cheque Payment" textAlignment="CENTER" GridPane.columnSpan="4" />
+                           </children>
+                        </GridPane>
+                        <TableView fx:id="_table" focusTraversable="false" prefHeight="150.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="200.0">
+                           <columns>
+                              <TableColumn prefWidth="30.0" text="No." />
+                              <TableColumn minWidth="200.0" prefWidth="200.0" text="Bank" />
+                              <TableColumn minWidth="100.0" prefWidth="100.0" text="Cheque No." />
+                              <TableColumn minWidth="100.0" prefWidth="100.0" text="Amount" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+               </center>
+            </BorderPane>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>

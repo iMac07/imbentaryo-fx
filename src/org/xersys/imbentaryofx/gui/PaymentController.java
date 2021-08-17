@@ -2,21 +2,52 @@ package org.xersys.imbentaryofx.gui;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.ReadOnlyBooleanPropertyBase;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import org.xersys.commander.contants.InvoiceType;
+import org.xersys.commander.iface.LRecordMas;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.iface.XPaymentInfo;
+import org.xersys.commander.iface.XPayments;
+import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.MsgBox;
+import org.xersys.commander.util.StringUtil;
+import org.xersys.payment.base.PaymentFactory;
+import org.xersys.imbentaryofx.listener.PaymentListener;
 
 public class PaymentController implements Initializable, ControlledScreen {
+    private MainScreenController _main_screen_controller;
+    private ScreensController _screens_controller;
+    private XNautilus _nautilus;
+    private LRecordMas _listener;
+    
+    private PaymentListener _credit_card_callback;
+    private PaymentListener _cheque_callback;
+    private PaymentListener _gc_callback;
+    
+    private int _index;
+    private boolean _loaded = false;
+    
+    private String _source_code = "";
+    private String _source_number = "";
+    private XPayments _trans;
+    
     @FXML
     private AnchorPane AnchorMain;
     @FXML
@@ -68,15 +99,11 @@ public class PaymentController implements Initializable, ControlledScreen {
     @FXML
     private FontAwesomeIconView glyph12;
     @FXML
-    private TextField txtCashAmount;
-    @FXML
     private Label lblTranTotal;
     @FXML
     private Label lblAdvancePayment;
     @FXML
     private Label lblNetPayable;
-    @FXML
-    private Label lblVATExclusive;
     @FXML
     private Label lblVATableSales;
     @FXML
@@ -94,18 +121,24 @@ public class PaymentController implements Initializable, ControlledScreen {
     @FXML
     private Label lblTotalPayment;
     @FXML
-    private TextField txtName;
-    @FXML
     private TextField txtAddress;
     @FXML
     private TextField txtTIN;
+    @FXML
+    private AnchorPane anchorPaymentType;
+    @FXML
+    private TextField txtField04;
+    @FXML
+    private TextField txtField05;
+    @FXML
+    private TextField txtField12;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
-//        if (_nautilus  == null) {
-//            System.err.println("Application driver is not set.");
-//            System.exit(1);
-//        }
+        if (_nautilus  == null) {
+            System.err.println("Application driver is not set.");
+            System.exit(1);
+        }
         
         //set the main anchor pane fit the size of its parent anchor pane
         AnchorMain.setTopAnchor(AnchorMain, 0.0);
@@ -113,11 +146,42 @@ public class PaymentController implements Initializable, ControlledScreen {
         AnchorMain.setLeftAnchor(AnchorMain, 0.0);
         AnchorMain.setRightAnchor(AnchorMain, 0.0);   
         
+        initListener();
         initButton();
+        clearFields();
+        
+        if (_source_code.isEmpty()){
+            MsgBox.showOk("Transaction source code was not found.", "Warning");
+            System.exit(1);
+        }
+        
+        if (_source_number.isEmpty()){
+            MsgBox.showOk("Transaction source number was not found.", "Warning");
+            System.exit(1);
+        }
+        
+        if (_source_code.equals("SO"))
+            _trans = new PaymentFactory().make(InvoiceType.SALES_INVOICE, _nautilus, (String) _nautilus.getSysConfig("sBranchCd"), true);   
+        else
+            _trans = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getSysConfig("sBranchCd"), true);   
+        
+        _trans.setListener(_listener);
+        _trans.setSourceCd(_source_code);
+        _trans.setSourceNo(_source_number);
+        
+        if (_trans.NewRecord()){
+            loadTransaction();
+        } else {
+            MsgBox.showOk(_trans.getMessage(), "Warning");
+            System.exit(1);
+        }
+        
+        _loaded = true;
     }    
     
     @Override
     public void setNautilus(XNautilus foValue) {
+        _nautilus = foValue;
     }
 
     @Override
@@ -132,6 +196,120 @@ public class PaymentController implements Initializable, ControlledScreen {
 
     @Override
     public void setDashboardScreensController(ScreensController foValue) {
+    }
+    
+    public void setSourceCd(String fsValue){
+        _source_code = fsValue;
+    }
+    
+    public void setSourceNo(String fsValue){
+        _source_number = fsValue;
+    }
+    
+    private void initListener(){
+        txtField04.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
+        
+        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        
+        _listener = new LRecordMas() {
+            @Override
+            public void MasterRetreive(String fsFieldNm, Object foValue) {
+                switch (fsFieldNm){
+                    case "sInvNumbr":
+                        txtField04.setText((String) foValue);
+                        break;
+                    case "nCashAmtx":
+                        txtField12.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        displayTotalPayment();
+                        break;
+                    case "nVATSales":
+                        lblVATableSales.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        break;
+                    case "nVATAmtxx":
+                        lblVATAmount.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        break;
+                    case "nNonVATSl":
+                        lblNonVATSales.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        break;
+                    case "nZroVATSl":
+                        lblZeroRatedSales.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        break;
+                }
+            }
+        };
+        
+        _credit_card_callback = new PaymentListener() {
+            @Override
+            public void setTransObject(XPaymentInfo foValue) {
+                _trans.setCardInfo(foValue);
+                lblCreditCardAmount.setText(StringUtil.NumberFormat((Number) foValue.getPaymentTotal(), "#,##0.00"));
+                
+                displayTotalPayment();
+                anchorPaymentType.getChildren().clear();
+            }
+        };
+    }
+    
+    private void displayTotalPayment(){
+        double lnCashAmtx = (double) _trans.getMaster("nCashAmtx");
+        double lnCardPaym = _trans.getCreditCardInfo().getPaymentTotal();
+        
+        lblTotalPayment.setText(StringUtil.NumberFormat(lnCashAmtx + lnCardPaym, "#,##0.00"));
+    }
+    
+    private void clearFields(){
+        lblAdvancePayment.setText("0.00");
+        lblChequeAmount.setText("0.00");
+        lblCreditCardAmount.setText("0.00");
+        lblGCAmount.setText("0.00");
+        
+        lblNetPayable.setText("0.00");
+        lblVATableSales.setText("0.00");
+        lblVATAmount.setText("0.00");
+        lblNonVATSales.setText("0.00");
+        lblZeroRatedSales.setText("0.00");
+        
+        lblTranTotal.setText("0.00");
+        lblAdvancePayment.setText("0.00");
+        lblNetPayable.setText("0.00");
+        lblTotalPayment.setText("0.00");
+        
+        txtField05.setText("");
+        txtAddress.setText("");
+        txtTIN.setText("");
+        
+        txtField04.setText("");
+        txtField12.setText("0.00");
+    }
+    
+    private void loadTransaction(){
+        lblAdvancePayment.setText("0.00");
+        lblCreditCardAmount.setText(StringUtil.NumberFormat(_trans.getCreditCardInfo().getPaymentTotal(), "#,##0.00"));
+        lblChequeAmount.setText("0.00");
+        lblGCAmount.setText("0.00");
+        
+        lblNetPayable.setText("0.00");
+        lblVATableSales.setText("0.00");
+        lblVATAmount.setText("0.00");
+        lblNonVATSales.setText("0.00");
+        lblZeroRatedSales.setText("0.00");
+        
+        lblTranTotal.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nTranTotl"), "#,##0.00"));
+        lblAdvancePayment.setText("0.00");
+        lblNetPayable.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nTranTotl"), "#,##0.00"));
+        lblTotalPayment.setText("0.00");
+        
+        txtField05.setText("");
+        txtAddress.setText("");
+        txtTIN.setText("");
+        
+        txtField04.setText("");
+        txtField12.setText("0.00");
+        
+        txtField04.requestFocus();
     }
     
     private void initButton(){
@@ -161,7 +339,7 @@ public class PaymentController implements Initializable, ControlledScreen {
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("Pay");
+        btn01.setText("Save");
         btn02.setText("+ Card");
         btn03.setText("+ Cheque");
         btn04.setText("+ GC");
@@ -208,12 +386,27 @@ public class PaymentController implements Initializable, ControlledScreen {
         
         switch (lsButton){
             case "btn01":
+                if (_trans.SaveRecord()){
+                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    
+                    if (MsgBox.showYesNo("Do you want to print the invoice?", "Confirm") == MsgBox.RESP_YES_OK){
+                        if (!_trans.PrintRecord()) MsgBox.showOk(_trans.getMessage(), "Warning");
+                    }
+                    
+                    //close this screen
+                    _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                } else {
+                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                }
                 break;
             case "btn02":
+                loadCreditCard();
                 break;
             case "btn03":
+                loadCheque();
                 break;
             case "btn04":
+                loadGC();
                 break;
             case "btn05":
                 break;
@@ -235,6 +428,130 @@ public class PaymentController implements Initializable, ControlledScreen {
         }
     }
     
-    private MainScreenController _main_screen_controller;
-    private ScreensController _screens_controller;
+    private void loadDetail(){
+    
+    }
+    
+    private void loadCreditCard(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            
+            PaymentCreditCardController loControl = new PaymentCreditCardController();
+            loControl.setNautilus(_nautilus);
+            loControl.setTransactionObject(_trans.getCreditCardInfo());
+            loControl.setScreensController(_screens_controller);
+            loControl.setCallback(_credit_card_callback);
+            
+            fxmlLoader.setLocation(loControl.getClass().getResource("PaymentCreditCard.fxml"));
+            fxmlLoader.setController(loControl);
+            
+            AnchorPane root = (AnchorPane) fxmlLoader.load();
+            anchorPaymentType.getChildren().clear();
+            anchorPaymentType.getChildren().add(root);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            MsgBox.showOk("Unable to load Credit Card Payment form.", "Warning");
+        }
+    }
+    
+    private void loadCheque(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            
+            PaymentChequeController loControl = new PaymentChequeController();
+            fxmlLoader.setLocation(loControl.getClass().getResource("PaymentCheque.fxml"));
+            fxmlLoader.setController(loControl);
+            
+            AnchorPane root = (AnchorPane) fxmlLoader.load();
+            anchorPaymentType.getChildren().clear();
+            anchorPaymentType.getChildren().add(root);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            MsgBox.showOk("Unable to load Cheque Payment form.", "Warning");
+        }
+    }
+    
+    private void loadGC(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            
+            PaymentGCController loControl = new PaymentGCController();
+            fxmlLoader.setLocation(loControl.getClass().getResource("PaymentGC.fxml"));
+            fxmlLoader.setController(loControl);
+            
+            AnchorPane root = (AnchorPane) fxmlLoader.load();
+            anchorPaymentType.getChildren().clear();
+            anchorPaymentType.getChildren().add(root);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            MsgBox.showOk("Unable to load Gift Cheque Payment form.", "Warning");
+        }
+    }   
+    
+    private void txtField_KeyPressed(KeyEvent event) {
+        TextField txtField = (TextField) event.getSource();
+        String lsTxt = txtField.getId();
+        String lsValue = txtField.getText();
+                
+        if (event.getCode() == KeyCode.ENTER){
+            switch (lsTxt){
+                case "txtField05":
+            }
+        }
+        
+        switch (event.getCode()){
+        case ENTER:
+        case DOWN:
+            FXUtil.SetNextFocus(txtField);
+            break;
+        case UP:
+            FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
+    final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
+        if (!_loaded) return;
+        
+        TextField txtField = (TextField)((ReadOnlyBooleanPropertyBase)o).getBean();
+        int lnIndex = Integer.parseInt(txtField.getId().substring(8, 10));
+        String lsValue = txtField.getText();
+        
+        if (lsValue == null) return;
+        if(!nv){ //Lost Focus          
+            switch (lnIndex){
+                case 4: //sInvNumbr
+                    if (!lsValue.isEmpty()){
+                        if (!StringUtil.isNumeric(lsValue)){
+                            MsgBox.showOk("Invoice number value must be numeric.", "Notice");
+                            _trans.setMaster("sInvNumbr", "");
+                            return;
+                        }
+                    }
+                    
+                    _trans.setMaster("sInvNumbr", lsValue);
+                    break;
+                case 5: //sClientID
+                    _trans.setMaster("nCashAmtx", lsValue);
+                    break;
+                case 12: //nCashAmtx
+                    if (!StringUtil.isNumeric(lsValue)){
+                        MsgBox.showOk("Cash amount value must be numeric.", "Notice");
+                        _trans.setMaster("nCashAmtx", 0.00);
+                        return;
+                    }
+                    
+                    _trans.setMaster("nCashAmtx", Double.valueOf(lsValue));
+                    break;
+                default:
+                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+            }
+            _index = lnIndex;
+        } else{ //Got Focus     
+            if (lnIndex == 12){
+                txtField12.setText(String.valueOf(_trans.getMaster("nCashAmtx")));
+            }
+            _index = lnIndex;
+            txtField.selectAll();
+        }
+    };    
 }

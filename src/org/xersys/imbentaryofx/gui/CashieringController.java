@@ -5,8 +5,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,7 +19,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javax.sql.rowset.CachedRowSet;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
@@ -42,6 +39,8 @@ public class CashieringController implements Initializable, ControlledScreen {
     private ScreensController _screens_controller;
     private QuickSearchCallback _search_callback;
     
+    private String _source_code = "";
+    private String _source_number = "";
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
     private TableModel _model;
@@ -166,21 +165,38 @@ public class CashieringController implements Initializable, ControlledScreen {
             _data.add(new TableModel(String.valueOf(lnCtr),
                                     String.valueOf(_trans.getDetail(lnCtr, "dTransact")),
                                     String.valueOf(_trans.getDetail(lnCtr, "sTranType")),
-                                    String.valueOf(_trans.getDetail(lnCtr, "sSourceCd")) + "-" + String.valueOf(_trans.getDetail(lnCtr, "sOrderNox")),
-                                    StringUtil.NumberFormat((double) _trans.getDetail(lnCtr, "nTranTotl") , "#,##0.00"),
+                                    String.valueOf(_trans.getDetail(lnCtr, "sOrderNox")),
+                                    StringUtil.NumberFormat((Number) _trans.getDetail(lnCtr, "nTranTotl") , "#,##0.00"),
+                                    StringUtil.NumberFormat((Number) _trans.getDetail(lnCtr, "xPayablex") , "#,##0.00"),
                                     String.valueOf(_trans.getDetail(lnCtr, "sClientNm")),
-                                    "",
                                     "",
                                     "",
                                     ""));
         }
-        
+                
         table.getSelectionModel().selectFirst();
         pnSelectd = table.getSelectionModel().getSelectedIndex();
+        
+        _source_code = (String) _trans.getDetail(pnSelectd + 1, "sSourceCd");
+        _source_number = (String) _trans.getDetail(pnSelectd + 1, "sTransNox");
     }
     
     private void mouseClicked(MouseEvent event) {
         pnSelectd = table.getSelectionModel().getSelectedIndex();
+        
+        _source_code = "";
+        _source_number = "";
+        
+        if (pnSelectd >= 0){
+            try {
+                _source_code = (String) _trans.getDetail(pnSelectd + 1, "sSourceCd");
+                _source_number = (String) _trans.getDetail(pnSelectd + 1, "sTransNox");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("Error in retreiving transaction information.", "Warning");
+                System.exit(1);
+            }
+        }
     }
     
     private void initGrid(){
@@ -188,15 +204,17 @@ public class CashieringController implements Initializable, ControlledScreen {
         TableColumn index02 = new TableColumn("D/T Created");
         TableColumn index03 = new TableColumn("Type");
         TableColumn index04 = new TableColumn("Order No.");
-        TableColumn index05 = new TableColumn("Amount");
-        TableColumn index06 = new TableColumn("Mechanic/Saleman");        
+        TableColumn index05 = new TableColumn("Order No.");
+        TableColumn index06 = new TableColumn("Payable");
+        TableColumn index07 = new TableColumn("Mechanic/Saleman");        
         
         index01.setSortable(false); index01.setResizable(false); index01.setStyle( "-fx-alignment: CENTER-LEFT;");
         index02.setSortable(false); index02.setResizable(false); index02.setStyle( "-fx-alignment: CENTER;");
         index03.setSortable(false); index03.setResizable(false); index03.setStyle( "-fx-alignment: CENTER;");
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-LEFT;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-LEFT;");
         
         table.getColumns().clear();        
         
@@ -210,19 +228,23 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         table.getColumns().add(index03);
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(180);
+        index03.prefWidthProperty().set(140);
         
         table.getColumns().add(index04);
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(130);
+        index04.prefWidthProperty().set(100);
         
         table.getColumns().add(index05);
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(130);
+        index05.prefWidthProperty().set(100);
         
         table.getColumns().add(index06);
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(240);
+        index06.prefWidthProperty().set(100);
+        
+        table.getColumns().add(index07);
+        index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
+        index07.prefWidthProperty().set(240);
         
         table.setItems(_data);
     }
@@ -300,7 +322,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         switch (lsButton){
             case "btn01": //pay
-                loadScreen(ScreenInfo.NAME.PAYMENT);
+                loadPaymentForm();
                 break;
             case "btn02":
                 break;
@@ -340,6 +362,27 @@ public class CashieringController implements Initializable, ControlledScreen {
             instance.setDashboardScreensController(_screens_dashboard_controller);
             
             _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
+        }
+    }
+    
+    private void loadPaymentForm(){
+        if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
+            PaymentController instance = new PaymentController();
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            //close this screen
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //load the payment screen
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
         }
     }
 }
