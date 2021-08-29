@@ -9,6 +9,18 @@
     -fx-background-color: transparent;
 }
 
+#Catalog{
+    -fx-background-color:  #b6c1d2;
+}
+
+#Catalog .label{
+    -fx-font-family: "Verdana";
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-text-fill: #000000; 
+    -fx-background-color: transparent;
+}
+
 #TransButtons{
     -fx-background-color: #c4cdda;
 }
@@ -24,6 +36,11 @@
 
 .label, .button, .textfield{
     -fx-font-family: "Verdana";
+}
+
+.text-field:disabled{
+    -fx-opacity: 1;
+    -fx-background-color: #ffffff;
 }
 
 #btnSearch{

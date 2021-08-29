@@ -494,16 +494,16 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         JSONObject loJSON;
         
         if (loArray.size() > 0){
-            loJSON = (JSONObject) loArray.get(pnSelectd);
-            loJSON.put("result", "success");
-            _search_callback.Result(_text_field, (JSONObject) loArray.get(pnSelectd));
-        } else {
             loJSON = new JSONObject();
             loJSON.put("result", "success");
+            loJSON.put("payload", (JSONObject) loArray.get(pnSelectd));
+            _search_callback.Result(_text_field, loJSON);
+        } else {
+            loJSON = new JSONObject();
+            loJSON.put("result", "error");
             loJSON.put("message", "No record to load.");
-            _search_callback.Result(_text_field, (JSONObject) loArray.get(pnSelectd));
+            _search_callback.Result(_text_field, loJSON);
         }    
-            
 
         //load the data
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());

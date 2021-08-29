@@ -1,6 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -8,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,15 +21,9 @@ public class CartChildController implements Initializable, CartListener {
     @FXML
     private Label lblDescript;
     @FXML
-    private Label lblOther;
-    @FXML
-    private Label lblOnHand;
-    @FXML
     private Label lblTotal;
     @FXML
     private Label lblUnitPrice;
-    @FXML
-    private TextField txtField01;
     @FXML
     private Button btnChild01;
     @FXML
@@ -39,7 +31,7 @@ public class CartChildController implements Initializable, CartListener {
     @FXML
     private Button btnChild03;
     @FXML
-    private FontAwesomeIconView fxTrash;
+    private Label lblOrder;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -121,11 +113,10 @@ public class CartChildController implements Initializable, CartListener {
     private void clearFields(){
         lblBarcode.setText("");
         lblDescript.setText("");
-        lblOther.setText("");
-        lblOnHand.setText("0");
+        lblUnitPrice.setText("0.00");
+        lblOrder.setText("0");
         lblUnitPrice.setText("0.00");
         lblTotal.setText("0.00");
-        txtField01.setText("");
     }
     
     private void loadData(){
@@ -133,8 +124,7 @@ public class CartChildController implements Initializable, CartListener {
         
         lblBarcode.setText((String) _data.get("sBarrCode"));
         lblDescript.setText((String) _data.get("sDescript"));
-        lblOther.setText((String) _data.get("sOtherInf"));
-        lblOnHand.setText(String.valueOf(lnQtyOnHnd));
+        lblOrder.setText(String.valueOf(lnQtyOnHnd));
         
         computeTotal();
     }
@@ -145,7 +135,7 @@ public class CartChildController implements Initializable, CartListener {
         
         lblUnitPrice.setText(StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"));
         lblTotal.setText(StringUtil.NumberFormat(lnQtyOrder * lnUnitPrce, "#,##0.00"));
-        txtField01.setText(String.valueOf(lnQtyOrder));
+        lblOrder.setText(String.valueOf(lnQtyOrder));
     }
     
     private JSONObject _data;

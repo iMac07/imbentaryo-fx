@@ -7,10 +7,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -22,7 +20,6 @@ import org.json.simple.parser.ParseException;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.CartCallback;
-import org.xersys.commander.base.Nautilus;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.StringUtil;
 
@@ -68,7 +65,6 @@ public class CartController implements Initializable, ControlledScreen {
     
     @Override
     public void setDashboardScreensController(ScreensController foValue) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     private void displayOrders(){
