@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,15 +13,18 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.commander.contants.EditMode;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.xersys.commander.iface.LRecordMas;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
@@ -28,6 +32,11 @@ import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MsgBox;
+import org.xersys.imbentaryofx.listener.FormClosingCallback;
+import org.xersys.inventory.search.InventorySE;
+import org.xersys.inventory.search.InventorySF;
+import org.xersys.sales.base.PartsCatalogue;
+import org.xersys.sales.base.SP_Sales;
 
 public class PartsCatalogueController implements Initializable, ControlledScreen{
     @FXML
@@ -47,51 +56,59 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     @FXML
     private Button btn01;
     @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
     private Button btn02;
-    @FXML
-    private FontAwesomeIconView glyph02;
     @FXML
     private Button btn03;
     @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
     private Button btn04;
-    @FXML
-    private FontAwesomeIconView glyph04;
     @FXML
     private Button btn05;
     @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
     private Button btn06;
-    @FXML
-    private FontAwesomeIconView glyph06;
     @FXML
     private Button btn07;
     @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
     private Button btn08;
-    @FXML
-    private FontAwesomeIconView glyph08;
     @FXML
     private Button btn09;
     @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
     private Button btn10;
-    @FXML
-    private FontAwesomeIconView glyph10;
     @FXML
     private Button btn11;
     @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
     private Button btn12;
     @FXML
+    private FontAwesomeIconView glyph01;
+    @FXML
+    private FontAwesomeIconView glyph02;
+    @FXML
+    private FontAwesomeIconView glyph03;
+    @FXML
+    private FontAwesomeIconView glyph04;
+    @FXML
+    private FontAwesomeIconView glyph05;
+    @FXML
+    private FontAwesomeIconView glyph06;
+    @FXML
+    private FontAwesomeIconView glyph07;
+    @FXML
+    private FontAwesomeIconView glyph08;
+    @FXML
+    private FontAwesomeIconView glyph09;
+    @FXML
+    private FontAwesomeIconView glyph10;
+    @FXML
+    private FontAwesomeIconView glyph11;
+    @FXML
     private FontAwesomeIconView glyph12;
+    @FXML
+    private TextField txtSeeks01;
+    @FXML
+    private TextField txtSeeks02;
+    @FXML
+    private TextField txtSeeks03;
+    @FXML
+    private TextField txtSeeks04;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -105,11 +122,21 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         initGrid();
         initButton();
         
-        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CART);
-                
-        if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));
+        _trans_listener = new LRecordMas() {
+            @Override
+            public void MasterRetreive(String fsFieldNm, Object foValue) {
+            }
+        };
         
-        displayImages();
+        _trans = new PartsCatalogue();
+        _trans.setNautilus(_nautilus);
+        _trans.setListener(_trans_listener);
+        
+        if (_trans.NewTransaction()){
+            System.setProperty("shopping.cart", "");
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CART);
+            if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));
+        }
     }    
 
     @Override
@@ -130,32 +157,82 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     @Override
     public void setDashboardScreensController(ScreensController foValue) {
         _screens_dashboard_controller = foValue;
-    }
+    }    
     
-    private void cmdMouse_Click(MouseEvent event) {
-        String lsButton = ((AnchorPane) event.getSource()).getId();
-        System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
-        
-        switch(lsButton){
-            case "btnOther01": //add to POS
-                break;
-            case "btnOther02": //add to JO
-                break;
-            case "btnOther03": //add to CO
-                break;
-            case "btnOther04": //exit window
-                _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
-                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                break;
-        }
+    public void setFormCloseListener(FormClosingCallback foValue){
+        _close_listener = foValue;
     }
     
     private void cmdButton_Click(ActionEvent event) {
+        String lsProcName = this.getClass().getSimpleName();
         String lsButton = ((Button) event.getSource()).getId();
-        System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01":
+            case "btnSearch":
+                _trans.setMaster("sCategrCd", "ENGINE");
+                _trans.setMaster("sBrandCde", "HONDA");
+                _trans.setMaster("sModelCde", "CCG125WH");
+                _trans.setMaster("sSeriesID", "X0012101");
+                
+                if (_trans.LoadFigures()){
+                    displayImages();
+                } else {
+                    MsgBox.showOk(_trans.getMessage(), "Notice");
+                }
+                break;
+            case "btn01": //add to POS
+                if (!System.getProperty("shopping.cart").isEmpty()){                    
+                    JSONArray loArray;
+                    JSONObject loJSON;
+                    JSONParser loParser = new JSONParser();
+                   
+                    try {
+                        loArray = (JSONArray) loParser.parse(System.getProperty("shopping.cart"));
+                        
+                        if (loArray.size() > 0){
+                            SP_Sales loSales = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                            loSales.setSaveToDisk(true);
+                            
+                            if (loSales.NewTransaction()){     
+                                int lnRow = 0;
+                                for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
+                                    loJSON = (JSONObject) loArray.get(lnCtr);
+
+                                    InventorySE loSearch = new InventorySE(_nautilus);
+                                    loSearch.setSearchType(InventorySF.Type.searchInvBranchComplex);
+                                    loSearch.setKey("a.sStockIDx");
+                                    loSearch.setFilter("");
+                                    loSearch.setMax(1);
+                                    loSearch.setExact(true);
+                                    
+                                    JSONObject loResult = (JSONObject) loSearch.Search((String) loJSON.get("sStockIDx"));
+                                    if ("success".equals((String) loResult.get("result"))){
+                                        JSONArray laArray = (JSONArray) loResult.get("payload");
+                                        
+                                        if (laArray.size() == 1){
+                                            loResult = new JSONObject();
+                                            loResult.put("result", "success");
+                                            loResult.put("payload", (JSONObject) laArray.get(0));
+                                            
+                                            loSales.setDetail(lnRow, "sStockIDx", loResult);
+                                            loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+                                            lnRow++;
+                                        }
+                                    }  
+                                }
+                            }
+                        }
+                        
+                        _close_listener.FormClosing(); //inform the parent the thhis form was closing
+                        _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                        MsgBox.showOk("ParseException on " + lsProcName, "Notice"); 
+                    }                    
+                } else {
+                    MsgBox.showOk("No item on shopping cart.", "Notice");
+                }
                 break;
             case "btn02":
                 break;
@@ -177,10 +254,12 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                 break;
             case "btn11":
                 break;
-            case "btn12": //close screen
-                if (_screens_controller.getScreenCount() > 1)
+            case "btn12": //close screen                
+                System.setProperty("shopping.cart", "");
+                if (_screens_controller.getScreenCount() > 1){
+                    _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                else{
+                } else{
                     if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
                         System.exit(0);
                     }
@@ -214,6 +293,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         btn10.setOnAction(this::cmdButton_Click);
         btn11.setOnAction(this::cmdButton_Click);
         btn12.setOnAction(this::cmdButton_Click);
+        btnSearch.setOnAction(this::cmdButton_Click);
         
         btn01.setTooltip(new Tooltip("F1"));
         btn02.setTooltip(new Tooltip("F2"));
@@ -271,9 +351,9 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     private void displayImages(){
         _listener = new PartsCatalogueListener() {
             @Override
-            public void onClickListener() {
+            public void onClickListener(JSONObject foValue) {
                 PartsCatalogueDetailController instance = new PartsCatalogueDetailController();
-                instance.setData();
+                instance.setData(foValue);
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
                 instance.setScreensController(_screens_controller);
@@ -288,16 +368,20 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         int row = 1;
         
         try {
-            for (int i = 0; i < 3; i++) {
+            for (int lnCtr = 1; lnCtr < _trans.getFigureCount(); lnCtr ++){
                 FXMLLoader fxmlLoader = new FXMLLoader();
                 fxmlLoader.setLocation(getClass().getResource("PartsCatalogueChild.fxml"));
-                
+
                 PartsCatalogueChildController controller = new PartsCatalogueChildController();
                 controller.setData(_listener);
-                controller.setImagePath("org/xersys/imbentaryofx/images/e-" + (i+1) + ".png");
-                
+                controller.setImagePath((String) _trans.getFigure(lnCtr, "sImageNme"));
+                controller.setBlockNo("");
+                controller.setBlockTitle((String) _trans.getFigure(lnCtr, "sDescript"));
+                controller.setAddressNo("");
+                controller.setParts(_trans.getFigureParts(lnCtr));
+
                 fxmlLoader.setController(controller);
-                
+
                 AnchorPane anchorPane = fxmlLoader.load();
 
                 if (column == _max_grid_column) {
@@ -318,7 +402,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
 
                 GridPane.setMargin(anchorPane, new Insets(15));
             }
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -327,7 +411,11 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private ScreensController _screens_dashboard_controller;
+    
+    private PartsCatalogue _trans;
+    private LRecordMas _trans_listener;
     private PartsCatalogueListener _listener;
+    private FormClosingCallback _close_listener;
     
     private int _max_grid_column;
 

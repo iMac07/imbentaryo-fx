@@ -3,6 +3,7 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -16,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="QuickSearch" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="SPSalesHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -24,7 +25,7 @@
                <top>
                   <AnchorPane id="TransHeader" prefHeight="25.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Quick Search" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="Point-of-Sales History" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </top>
@@ -33,22 +34,35 @@
                      <children>
                         <BorderPane prefHeight="375.0" prefWidth="473.0">
                            <center>
-                              <AnchorPane id="TransBody" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                              <AnchorPane id="TransBody" prefHeight="489.0" prefWidth="905.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <GridPane layoutX="14.0" layoutY="130.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                    <GridPane layoutX="10.0" layoutY="14.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="30.0" prefWidth="102.0" text="Trans. No.:" />
+                                          <TextField fx:id="txtSeeks01" disable="true" editable="false" focusTraversable="false" GridPane.columnIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                    <GridPane layoutX="717.0" layoutY="14.0" prefHeight="30.0" AnchorPane.topAnchor="14.0">
                                       <columnConstraints>
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
                                       </columnConstraints>
                                       <rowConstraints>
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Search:" />
-                                          <TextField fx:id="txtSeeks01" GridPane.columnIndex="1" />
+                                          <Label id="lblOrderNo" prefHeight="41.0" prefWidth="100.0" text="STATUS:" />
+                                          <Label id="lblOrderNo" fx:id="lblTranStat" prefHeight="30.0" prefWidth="116.0" text="OPEN" GridPane.columnIndex="1" />
                                        </children>
                                     </GridPane>
-                                    <TableView fx:id="table" prefHeight="250.0" prefWidth="895.0" stylesheets="@../css/Tables2.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
+                                    <TableView fx:id="_table" focusTraversable="false" prefHeight="285.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
                                       <columns>
                                         <TableColumn prefWidth="30.0" text="No." />
                                         <TableColumn prefWidth="130.0" text="Part Number" />
@@ -62,6 +76,71 @@
                                           <TableColumn prefWidth="77.0" text="Total" />
                                       </columns>
                                     </TableView>
+                                    <GridPane layoutX="10.0" layoutY="282.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="350.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="90.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="55.0" minWidth="55.0" prefWidth="55.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="281.0" minWidth="10.0" prefWidth="80.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Disc. Rate(%):" />
+                                          <TextField fx:id="txtField10" disable="true" GridPane.columnIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Addtl. Disc.:" GridPane.columnIndex="3" />
+                                          <TextField fx:id="txtField11" disable="true" GridPane.columnIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Freight:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField12" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                    <GridPane layoutX="20.0" layoutY="20.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="450.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="90.0" prefWidth="90.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" />
+                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" disable="true" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowSpan="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Salesman:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField07" disable="true" promptText="Quick Search" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                       </children>
+                                    </GridPane>
+                                    <GridPane layoutX="546.0" layoutY="320.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="350.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="30.0" prefWidth="124.0" text="Tran. Total:" GridPane.rowIndex="1" />
+                                          <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" GridPane.rowIndex="2" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Payable:" GridPane.rowIndex="4" />
+                                          <Label fx:id="lblTranTotal" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Label fx:id="lblTotalDisc" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <Label id="lblTransSummary" alignment="CENTER" prefHeight="51.0" prefWidth="220.0" text="Transaction Summary" GridPane.columnSpan="2" />
+                                          <Label prefHeight="30.0" prefWidth="113.0" text="Freight Charge:" GridPane.rowIndex="3" />
+                                          <Label fx:id="lblFreight" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Paid:" GridPane.rowIndex="5" />
+                                          <Label id="lblTransSummary" fx:id="lblPaymTotl" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                       </children>
+                                    </GridPane>
                                  </children>
                               </AnchorPane>
                            </center>
@@ -213,6 +292,19 @@
                                  </children>
                               </VBox>
                            </bottom>
+                           <top>
+                              <HBox id="TransButtons" prefHeight="26.0">
+                                 <children>
+                                    <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                       <children>
+                                          <ComboBox id="cmbOrder" fx:id="cmbStatus" layoutX="-27.0" onAction="#cmbStatus_Click" prefHeight="25.0" prefWidth="104.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
+                                          <Label id="lblOrderNo" text="Status Filter:" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="124.0" AnchorPane.topAnchor="0.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </children>
+                              </HBox>
+                           </top>
                         </BorderPane>
                      </children>
                   </StackPane>

@@ -24,7 +24,9 @@ public class ScreenInfo {
         CLIENT_MOBILE,
         CLIENT_EMAIL,
         CASHIERING,
-        PAYMENT
+        PAYMENT,
+        SP_SALES,
+        SP_SALES_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
@@ -56,8 +58,8 @@ public class ScreenInfo {
                 loJSON.put("controller", CONTROLLER_URL + "DashboardController");
                 return loJSON;
             case CART:
-                loJSON.put("resource", RESOURCE_URL + "Cart.fxml");
-                loJSON.put("controller", CONTROLLER_URL + "CartController");
+                loJSON.put("resource", RESOURCE_URL + "Cart2.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "Cart2Controller");
                 return loJSON;
             case QUICK_SEARCH:
                 loJSON.put("resource", RESOURCE_URL + "QuickSearch.fxml");
@@ -102,6 +104,14 @@ public class ScreenInfo {
             case PAYMENT:
                 loJSON.put("resource", RESOURCE_URL + "Payment.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PaymentController");
+                return loJSON;
+            case SP_SALES:
+                loJSON.put("resource", RESOURCE_URL + "SPSales.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPSalesController");
+                return loJSON;
+            case SP_SALES_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPSalesHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPSalesHistoryController");
                 return loJSON;
         }
         

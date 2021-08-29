@@ -169,7 +169,7 @@ public class PaymentController implements Initializable, ControlledScreen {
         _trans.setSourceCd(_source_code);
         _trans.setSourceNo(_source_number);
         
-        if (_trans.NewRecord()){
+        if (_trans.NewTransaction()){
             loadTransaction();
         } else {
             MsgBox.showOk(_trans.getMessage(), "Warning");
@@ -386,11 +386,11 @@ public class PaymentController implements Initializable, ControlledScreen {
         
         switch (lsButton){
             case "btn01":
-                if (_trans.SaveRecord()){
+                if (_trans.SaveTransaction()){
                     MsgBox.showOk("Transaction saved successfully.", "Success");
                     
                     if (MsgBox.showYesNo("Do you want to print the invoice?", "Confirm") == MsgBox.RESP_YES_OK){
-                        if (!_trans.PrintRecord()) MsgBox.showOk(_trans.getMessage(), "Warning");
+                        if (!_trans.PrintTransaction()) MsgBox.showOk(_trans.getMessage(), "Warning");
                     }
                     
                     //close this screen

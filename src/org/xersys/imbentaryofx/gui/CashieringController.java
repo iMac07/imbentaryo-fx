@@ -204,7 +204,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         TableColumn index02 = new TableColumn("D/T Created");
         TableColumn index03 = new TableColumn("Type");
         TableColumn index04 = new TableColumn("Order No.");
-        TableColumn index05 = new TableColumn("Order No.");
+        TableColumn index05 = new TableColumn("Amount");
         TableColumn index06 = new TableColumn("Payable");
         TableColumn index07 = new TableColumn("Mechanic/Saleman");        
         

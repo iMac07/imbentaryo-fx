@@ -63,6 +63,8 @@ public class MainScreenController implements Initializable {
     @FXML
     private AnchorPane btnOther10;
     @FXML
+    private AnchorPane btnOther11;
+    @FXML
     private AnchorPane btnOther;
     
     public void setNautilus(XNautilus foValue){
@@ -110,7 +112,8 @@ public class MainScreenController implements Initializable {
     
     private void initScreen(){
         //load main form and request focus on its button
-        loadScreen(ScreenInfo.NAME.POS);
+        //loadScreen(ScreenInfo.NAME.POS);
+        loadScreen(ScreenInfo.NAME.SP_SALES);
         
         //load the dashboard
         JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
@@ -150,7 +153,8 @@ public class MainScreenController implements Initializable {
             case "btnOther05": //wholesale
                 loadScreen(ScreenInfo.NAME.PARTS_CATALOGUE);
                 break;
-            case "btnOther06": //inventory
+            case "btnOther06": //cashiering
+                loadScreen(ScreenInfo.NAME.CASHIERING);
                 break;
             case "btnOther07": //warehousing
                 break;
@@ -158,10 +162,10 @@ public class MainScreenController implements Initializable {
                 break;
             case "btnOther09": //reports
                 break;
-            case "btnOther10": //parameters
-                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);
+            case "btnOther10": //inventory
                 break;
-            case "btnOther11":
+            case "btnOther11": //parameters
+                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);
                 break;
             case "btnOther12":
                 break;
