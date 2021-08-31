@@ -16,6 +16,7 @@ public class ScreenInfo {
         DASHBOARD,
         CART, 
         QUICK_SEARCH,
+        QUICK_SEARCH_FILTER,
         POS_DETAIL_UPDATE,
         PURCHASE_ORDER,
         PO_RECEIVING,
@@ -62,8 +63,12 @@ public class ScreenInfo {
                 loJSON.put("controller", CONTROLLER_URL + "Cart2Controller");
                 return loJSON;
             case QUICK_SEARCH:
-                loJSON.put("resource", RESOURCE_URL + "QuickSearch.fxml");
-                loJSON.put("controller", CONTROLLER_URL + "QuickSearchController");
+                loJSON.put("resource", RESOURCE_URL + "QuickSearchNeo.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "QuickSearchNeoController");
+                return loJSON;
+            case QUICK_SEARCH_FILTER:
+                loJSON.put("resource", RESOURCE_URL + "QuickSearchFilter.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "QuickSearchFilterController");
                 return loJSON;
             case POS_DETAIL_UPDATE:
                 loJSON.put("resource", RESOURCE_URL + "POSDetail.fxml");

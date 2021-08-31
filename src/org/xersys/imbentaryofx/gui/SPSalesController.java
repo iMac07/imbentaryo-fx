@@ -5,6 +5,8 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,6 +31,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
@@ -225,7 +229,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtSeeks01":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchInventory(txtField, InventorySF.Type.searchInvBranchComplex, lsValue, "sBarCodex", "", 15, false);
+                    searchBranchInventory("sBarCodex", lsValue, "", "", false);
                     event.consume();
                     return;
             }
@@ -452,70 +456,46 @@ public class SPSalesController implements Initializable, ControlledScreen{
         }
     }
     
-    private void searchInventory(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        _inv_search.setSearchType(foType);
-        _inv_search.setKey(fsKey);
-        _inv_search.setFilter(fsFilter);
-        _inv_search.setMax(fnMax);
-        _inv_search.setExact(fbExact);
+    private void searchBranchInventory(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchBranchInventory(fsKey, foValue, fsFilter, fsValue, fbExact);
         
-        JSONObject loJSON = _inv_search.Search(fsValue);
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        txtSeeks01.setText((String) loJSON.get("sDescript"));
+                        FXUtil.SetNextFocus(txtSeeks01);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
 
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
 
-            switch (foField.getId()){
-                case "txtSeeks01":
-                    //set value to class
-                    foField.setText("");
-                    FXUtil.SetNextFocus(foField);
-                    return;
+                            instance.setSearchObject(_trans.getSearchBranchInventory());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtSeeks01);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtSeeks01.setText("");
+                FXUtil.SetNextFocus(txtSeeks01);
             }
-        }
-
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-
-            switch (foField.getId()){
-                case "txtField01":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sBankName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField02":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sBankName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-        
-        //multiple result, load the quick search to display records
-        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-        
-        if (loScreen != null){
-            QuickSearchNeoController instance = new QuickSearchNeoController();
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            
-            instance.setSearchObject(_inv_search);
-            instance.setSearchCallback(_search_callback);
-            
-            instance.setSearchType(foType);
-            instance.setSearchValue(fsValue);
-            instance.setSearchKey(fsKey);
-            instance.setSearchFilter(fsFilter);
-            instance.setSearchMaxRow(fnMax);
-            instance.setSearchExact(fbExact);
-            instance.setSearchResult(loJSON);
-            instance.setTextField(foField);
-            
-            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtSeeks01.setText("");
+            FXUtil.SetNextFocus(txtSeeks01);
         }
     }
     

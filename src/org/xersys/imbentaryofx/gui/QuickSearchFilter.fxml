@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -16,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="QuickSearch" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="QuickSearchFilter" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -24,7 +25,7 @@
                <top>
                   <AnchorPane id="TransHeader" prefHeight="25.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Quick Search" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="Quick Search Filtering" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </top>
@@ -32,39 +33,6 @@
                   <StackPane stylesheets="@../css/POS.css" BorderPane.alignment="CENTER">
                      <children>
                         <BorderPane prefHeight="375.0" prefWidth="473.0">
-                           <center>
-                              <AnchorPane id="TransBody" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                                 <children>
-                                    <GridPane layoutX="14.0" layoutY="130.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
-                                      <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                      </rowConstraints>
-                                       <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Search:" />
-                                          <TextField fx:id="txtSeeks01" GridPane.columnIndex="1" />
-                                       </children>
-                                    </GridPane>
-                                    <TableView fx:id="table" prefHeight="250.0" prefWidth="895.0" stylesheets="@../css/Tables.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
-                                      <columns>
-                                        <TableColumn prefWidth="30.0" text="No." />
-                                        <TableColumn prefWidth="130.0" text="Part Number" />
-                                          <TableColumn prefWidth="185.0" text="Description" />
-                                          <TableColumn prefWidth="150.0" text="Other Info" />
-                                          <TableColumn text="Unit Price" />
-                                          <TableColumn prefWidth="60.0" text="QOH" />
-                                          <TableColumn prefWidth="60.0" text="Order" />
-                                          <TableColumn prefWidth="60.0" text="Disc." />
-                                          <TableColumn prefWidth="60.0" text="Adtl." />
-                                          <TableColumn prefWidth="77.0" text="Total" />
-                                      </columns>
-                                    </TableView>
-                                 </children>
-                              </AnchorPane>
-                           </center>
                            <bottom>
                               <VBox id="TransButtons" fx:id="btnbox00" prefHeight="60.0" prefWidth="100.0" spacing="1.0">
                                  <children>
@@ -213,6 +181,61 @@
                                  </children>
                               </VBox>
                            </bottom>
+                           <top>
+                              <AnchorPane prefHeight="47.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <GridPane layoutX="14.0" layoutY="52.0" prefHeight="60.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" />
+                                        <ColumnConstraints hgrow="SOMETIMES" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="10.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="5.0" minWidth="5.0" prefWidth="5.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="30.0" prefWidth="103.0" text="Available Filters:" GridPane.rowIndex="1" />
+                                          <ComboBox fx:id="cmbFilters" prefHeight="25.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Button fx:id="btnChild01" mnemonicParsing="false" prefHeight="23.0" prefWidth="65.0" text="Add Filter" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                          <Label prefHeight="30.0" prefWidth="103.0" text="Limit Result:" />
+                                          <ComboBox fx:id="cmbMax" onAction="#cmbMax_Click" prefHeight="25.0" prefWidth="150.0" GridPane.columnIndex="1" />
+                                          <Button fx:id="btnChild02" mnemonicParsing="false" prefHeight="23.0" prefWidth="65.0" text="Del. Filter" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </AnchorPane>
+                           </top>
+                           <center>
+                              <AnchorPane id="TransBody" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="table" layoutX="80.0" layoutY="6.0" prefHeight="150.0" stylesheets="@../css/Tables4.css">
+                                       <columns>
+                                          <TableColumn maxWidth="1.7976931348623157E308" prefWidth="25.0" />
+                                          <TableColumn maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Parameter" />
+                                          <TableColumn maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Value" />
+                                       </columns>
+                                    </TableView>
+                                    <Label layoutX="11.0" layoutY="11.0" text="Filters:" />
+                                    <GridPane layoutX="11.0" layoutY="176.0" prefWidth="447.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="48.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="408.0" prefWidth="408.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <Label text="Note:" />
+                                          <Label prefHeight="14.0" prefWidth="393.0" text="Please remove filters that are not used for more accurate searching." GridPane.columnIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </AnchorPane>
+                           </center>
                         </BorderPane>
                      </children>
                   </StackPane>
@@ -221,4 +244,8 @@
          </children>
       </StackPane>
    </children>
+   <stylesheets>
+      <URL value="@../css/ChildTransaction.css" />
+      <URL value="@../css/Cart.css" />
+   </stylesheets>
 </AnchorPane>

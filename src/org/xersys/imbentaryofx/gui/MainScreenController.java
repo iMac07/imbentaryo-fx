@@ -204,6 +204,7 @@ public class MainScreenController implements Initializable {
                 switch(loNode.getId()){
                     case "POSDetail":
                     case "QuickSearch":
+                    case "QuickSearchFilter":
                     case "PartsInquiry":
                     case "PartsCatalogue":
                     case "PartsCatalogueDetail":
