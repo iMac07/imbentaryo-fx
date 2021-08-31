@@ -449,18 +449,18 @@ public class PaymentCreditCardController implements Initializable {
             instance.setNautilus(p_oNautilus);
             instance.setParentController(_main_screen_controller);
             instance.setScreensController(_screens_controller);
-            
-            instance.setSearchObject(p_oSearch_Param);
-            instance.setSearchCallback(_search_callback);
-            
-            instance.setSearchType(foType);
-            instance.setSearchValue(fsValue);
-            instance.setSearchKey(fsKey);
-            instance.setSearchFilter(fsFilter);
-            instance.setSearchMaxRow(fnMax);
-            instance.setSearchExact(fbExact);
-            instance.setSearchResult(loJSON);
-            instance.setTextField(foField);
+//            
+//            instance.setSearchObject(p_oSearch_Param);
+//            instance.setSearchCallback(_search_callback);
+//            
+//            instance.setSearchType(foType);
+//            instance.setSearchValue(fsValue);
+//            instance.setSearchKey(fsKey);
+//            instance.setSearchFilter(fsFilter);
+//            instance.setSearchMaxRow(fnMax);
+//            instance.setSearchExact(fbExact);
+//            instance.setSearchResult(loJSON);
+//            instance.setTextField(foField);
             
             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
         }

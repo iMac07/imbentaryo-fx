@@ -3,7 +3,10 @@ package org.xersys.imbentaryofx.gui;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,11 +25,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.iface.XNeoSearch;
+import org.xersys.commander.iface.iSearch;
+import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
+import org.xersys.imbentaryofx.listener.FormClosingCallback;
 
 public class QuickSearchNeoController implements Initializable, ControlledScreen {
     @FXML
@@ -90,10 +97,10 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        if (_json == null){
-            System.err.println("No initial search result was passed.");
-            //_screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-            //return;
+        if (_trans == null){
+            System.err.println("UNSET Search Object.");
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            return;
         }
         
         //set the main anchor pane fit the size of its parent anchor pane
@@ -106,6 +113,13 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         txtSeeks01.setOnKeyReleased(this::keyReleased);
         
         table.setOnMouseClicked(this::mouseClicked);
+        
+        _filter_closing = new FormClosingCallback() {
+            @Override
+            public void FormClosing() {
+                System.out.println(_trans);
+            }
+        };
         
         initButton();
         initGrid();
@@ -130,83 +144,64 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
     public void setDashboardScreensController(ScreensController foValue) {
     }
     
-    public void setSearchObject(XNeoSearch foValue){
+    public void setSearchObject(iSearch foValue){
         _trans = foValue;
-    }
-    
-    public void setSearchType(Enum foType){
-        _type = foType;
-    }
-    
-    public void setSearchValue(String fsValue){
-        _value = fsValue;
-    }
-    
-    public void setSearchKey(String fsValue){
-        _key = fsValue;
-    }
-    
-    public void setSearchFilter(String fsValue){
-        _filter = fsValue;
-    }
-    
-    public void setSearchMaxRow(int fnValue){
-        _maxrow = fnValue;
-    }
-    
-    public void setSearchExact(boolean fbValue){
-        _exact = fbValue;
     }
     
     public void setSearchCallback(QuickSearchCallback foValue){
         _search_callback = foValue;
     }
     
-    public void setSearchResult(JSONObject foValue){
-        _json = foValue;
+    public void setTextField(TextField foValue){
+        _text_field = foValue;
     }
     
-    public void setTextField(TextField foField){
-        _text_field = foField;
-    }
-    
-    private void loadDetail(){
-        JSONObject loJSON;
-        
-        if (_json == null){
-            System.err.println("No initial search result was passed.");
+    private void loadDetail(){        
+        if (_trans == null){
+            System.err.println("UNSET Search Object.");
             _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
             return;
         }
         
+        JSONObject loJSON = _trans.Search();
+        
         _data.clear();
         
-        JSONArray loArray = (JSONArray) _json.get("payload");
-        String lsHeader = (String) _json.get("headers");
-        String lsColNme = (String) _json.get("colname");
-        
-        String [] lasHeader = lsHeader.split("»");
-        String [] lasColNme = lsColNme.split("»");
-        
-        for (Object obj : loArray){
-            loJSON = (JSONObject) obj;
+        if ("success".equals((String) loJSON.get("result"))){          
             
-            _data.add(new TableModel((lasHeader.length <= 0 ? "" : String.valueOf(loJSON.get(lasColNme[0]))), 
-                                    (lasHeader.length <= 1 ? "" : String.valueOf(loJSON.get(lasColNme[1]))), 
-                                    (lasHeader.length <= 2 ? "" : String.valueOf(loJSON.get(lasColNme[2]))), 
-                                    (lasHeader.length <= 3 ? "" : String.valueOf(loJSON.get(lasColNme[3]))), 
-                                    (lasHeader.length <= 4 ? "" : String.valueOf(loJSON.get(lasColNme[4]))),
-                                    (lasHeader.length <= 5 ? "" : String.valueOf(loJSON.get(lasColNme[5]))), 
-                                    (lasHeader.length <= 6 ? "" : String.valueOf(loJSON.get(lasColNme[6]))), 
-                                    (lasHeader.length <= 7 ? "" : String.valueOf(loJSON.get(lasColNme[7]))), 
-                                    (lasHeader.length <= 8 ? "" : String.valueOf(loJSON.get(lasColNme[8]))),
-                                    (lasHeader.length <= 9 ? "" : String.valueOf(loJSON.get(lasColNme[9])))));
+            try {
+                JSONParser loParser = new JSONParser();
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                ArrayList laFields = _trans.getColumns();
+                
+                //duplicate the result to class variable for loading
+                _json = loJSON;
+                
+                for (Object obj : loArray){
+                    loJSON = (JSONObject) obj;
+
+                    _data.add(new TableModel(laFields.size() <= 0 ? "" : String.valueOf(loJSON.get(laFields.get(0))), 
+                                            laFields.size() <= 1 ? "" : String.valueOf(loJSON.get(laFields.get(1))),
+                                            laFields.size() <= 2 ? "" : String.valueOf(loJSON.get(laFields.get(2))),
+                                            laFields.size() <= 3 ? "" : String.valueOf(loJSON.get(laFields.get(3))),
+                                            laFields.size() <= 4 ? "" : String.valueOf(loJSON.get(laFields.get(4))),
+                                            laFields.size() <= 5 ? "" : String.valueOf(loJSON.get(laFields.get(5))),
+                                            laFields.size() <= 6 ? "" : String.valueOf(loJSON.get(laFields.get(6))),
+                                            laFields.size() <= 7 ? "" : String.valueOf(loJSON.get(laFields.get(7))),
+                                            laFields.size() <= 8 ? "" : String.valueOf(loJSON.get(laFields.get(8))),
+                                            laFields.size() <= 9 ? "" : String.valueOf(loJSON.get(laFields.get(9)))));
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            }
         }
         
         table.getSelectionModel().selectFirst();
         pnSelectd = table.getSelectionModel().getSelectedIndex();
         
-        txtSeeks01.setText(_value);
+        txtSeeks01.setText(String.valueOf(_trans.getValue()));
         txtSeeks01.requestFocus();
         txtSeeks01.end();
     }
@@ -236,16 +231,15 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         
         table.getColumns().clear();        
         
-        String lsHeader = (String) _json.get("headers");
-        String [] lasHeader = lsHeader.split("»");
+        ArrayList laFields = _trans.getColumnNames();
         
-        for(int lnCtr = 1; lnCtr <= lasHeader.length; lnCtr++){
+        for(int lnCtr = 1; lnCtr <= laFields.size(); lnCtr++){
             switch (lnCtr){
                 case 1: 
-                    index01.setText(lasHeader[lnCtr -1]); table.getColumns().add(index01);
+                    index01.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index01);
                     index01.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index01"));
                     
-                    switch (lasHeader.length){
+                    switch (laFields.size()){
                         case 1:
                             index01.prefWidthProperty().bind(table.widthProperty().multiply(1)); break;
                         case 2:
@@ -257,10 +251,10 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                     }
                     break;
                 case 2: 
-                    index02.setText(lasHeader[lnCtr -1]); table.getColumns().add(index02);
+                    index02.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index02);
                     index02.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index02"));
                     
-                    switch (lasHeader.length){
+                    switch (laFields.size()){
                         case 2:
                             index02.prefWidthProperty().bind(table.widthProperty().multiply(0.75)); break;
                         case 3:
@@ -272,10 +266,10 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                     }                    
                     break;
                 case 3: 
-                    index03.setText(lasHeader[lnCtr -1]); table.getColumns().add(index03);
+                    index03.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index03);
                     index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
                     
-                    switch (lasHeader.length){
+                    switch (laFields.size()){
                         case 3:
                             index03.prefWidthProperty().bind(table.widthProperty().multiply(0.25)); break;
                         case 4:
@@ -285,11 +279,11 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                     }
                     break;
                 case 4:
-                    index04.setText(lasHeader[lnCtr -1]); table.getColumns().add(index04);
+                    index04.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index04);
                     index04.prefWidthProperty().bind(table.widthProperty().multiply(0.20));
                     index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
                     
-                    switch (lasHeader.length){
+                    switch (laFields.size()){
                         case 4:
                             index04.prefWidthProperty().bind(table.widthProperty().multiply(0.15)); break;
                         default:
@@ -297,32 +291,32 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                     }
                     break;
                 case 5: 
-                    index05.setText(lasHeader[lnCtr -1]); table.getColumns().add(index05);
+                    index05.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index05);
                     index05.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05")); 
                     break;
                 case 6: 
-                    index06.setText(lasHeader[lnCtr -1]); table.getColumns().add(index06);
+                    index06.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index06);
                     index06.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06")); 
                     break;
                 case 7: 
-                    index07.setText(lasHeader[lnCtr -1]); table.getColumns().add(index07);
+                    index07.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index07);
                     index07.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07")); 
                     break;
                 case 8: 
-                    index08.setText(lasHeader[lnCtr -1]); table.getColumns().add(index08);
+                    index08.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index08);
                     index08.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08")); 
                     break;
                 case 9: 
-                    index09.setText(lasHeader[lnCtr -1]); table.getColumns().add(index09);
+                    index09.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index09);
                     index09.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09")); 
                     break;
                 case 10: 
-                    index10.setText(lasHeader[lnCtr -1]); table.getColumns().add(index10);
+                    index10.setText((String) laFields.get(lnCtr -1)); table.getColumns().add(index10);
                     index10.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
                     index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10")); 
                     break;
@@ -350,14 +344,9 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
         
-        JSONObject loJSON;
-        
         switch (lsTxt){
             case "txtSeeks01":
-                _value = lsValue;
-                
-                _json = _trans.Search(_value);
-                
+                _trans.setValue(lsValue);                
                 loadDetail();
                 break;
         }
@@ -413,7 +402,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Load");
-        btn02.setText("");
+        btn02.setText("Filter");
         btn03.setText("");
         btn04.setText("");
         btn05.setText("");
@@ -427,7 +416,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         
         
         btn01.setVisible(true);
-        btn02.setVisible(false);
+        btn02.setVisible(true);
         btn03.setVisible(false);
         btn04.setVisible(false);
         btn05.setVisible(false);
@@ -461,7 +450,8 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
             case "btn01": //load
                 loadData();
                 break;
-            case "btn02":
+            case "btn02": //filter
+                loadFilter();
                 break;
             case "btn03":
                 break;
@@ -488,26 +478,45 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         }
     }
 
+    private void loadFilter(){
+        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH_FILTER);
+
+        if (loScreen != null){
+            QuickSearchFilterController instance = new QuickSearchFilterController();
+            instance.setNautilus(null);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setSearchObject(_trans);
+            instance.setFormClosing(_filter_closing);
+
+            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+        }
+    }
     
     private void loadData(){
-        JSONArray loArray = (JSONArray) _json.get("payload");
-        JSONObject loJSON;
-        
-        if (loArray.size() > 0){
-            loJSON = new JSONObject();
-            loJSON.put("result", "success");
-            loJSON.put("payload", (JSONObject) loArray.get(pnSelectd));
-            _search_callback.Result(_text_field, loJSON);
-        } else {
-            loJSON = new JSONObject();
-            loJSON.put("result", "error");
-            loJSON.put("message", "No record to load.");
-            _search_callback.Result(_text_field, loJSON);
-        }    
+        try {
+            JSONObject loJSON;
+            JSONParser loParser = new JSONParser();
+            JSONArray loArray = (JSONArray) loParser.parse((String) _json.get("payload"));
+            
+            if (loArray.size() > 0){
+                loJSON = new JSONObject();
+                loJSON.put("result", "success");
+                loJSON.put("payload", (JSONObject) loArray.get(pnSelectd));
+                _search_callback.Result(_text_field, loJSON);
+            } else {
+                loJSON = new JSONObject();
+                loJSON.put("result", "error");
+                loJSON.put("message", "No record to load.");
+                _search_callback.Result(_text_field, loJSON);
+            }    
 
-        //load the data
-        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-        _search_callback.FormClosing(_text_field);
+            //load the data
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            _search_callback.FormClosing(_text_field);
+        } catch (ParseException ex) {
+            Logger.getLogger(QuickSearchNeoController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private void mouseClicked(MouseEvent event) {
@@ -521,6 +530,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private QuickSearchCallback _search_callback;
+    private FormClosingCallback _filter_closing;
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
     private TableModel _model;
@@ -528,14 +538,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
     
     private int pnSelectd = -1;
     
-    private XNeoSearch _trans;
-
-    private Enum _type;
-    private String _value;
-    private String _key;
-    private String _filter;
-    private int _maxrow;
-    private boolean _exact;
+    private iSearch _trans;
     
     private TextField _text_field;
     private boolean _control_pressed;

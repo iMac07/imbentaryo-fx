@@ -350,74 +350,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         };
     }
     
-    private void searchTrans(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        _trans_search.setSearchType(foType);
-        _trans_search.setKey(fsKey);
-        _trans_search.setFilter(fsFilter);
-        _trans_search.setMax(fnMax);
-        _trans_search.setExact(fbExact);
-        
-        JSONObject loJSON = _trans_search.Search(fsValue);
-
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
-
-            switch (foField.getId()){
-                case "txtSeeks01":
-                    clearFields();
-                    return;
-            }
-        }
-
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-
-            switch (foField.getId()){
-                case "txtSeeks01":
-                    if (_trans.OpenTransaction((String) loJSON.get("sTransNox"))){
-                        loadTransaction();
-                        loadDetail();
-                        
-                        foField.setText((String) loJSON.get("sTransNox"));
-                    } else {
-                        MsgBox.showOk(_trans.getMessage(), "Warning");
-                        clearFields();
-                    }
-                    
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-        
-        //multiple result, load the quick search to display records
-        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-        
-        if (loScreen != null){
-            QuickSearchNeoController instance = new QuickSearchNeoController();
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            
-            instance.setSearchObject(_trans_search);
-            instance.setSearchCallback(_search_callback);
-            
-            instance.setSearchType(foType);
-            instance.setSearchValue(fsValue);
-            instance.setSearchKey(fsKey);
-            instance.setSearchFilter(fsFilter);
-            instance.setSearchMaxRow(fnMax);
-            instance.setSearchExact(fbExact);
-            instance.setSearchResult(loJSON);
-            instance.setTextField(foField);
-            
-            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-        }
-    }
-    
     private void initGrid(){
         TableColumn index01 = new TableColumn("");
         TableColumn index02 = new TableColumn("");
@@ -513,7 +445,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         switch (lsButton){
             case "btn01":
-                searchTrans(txtSeeks01, SalesSF.Type.searchSPSales, "", "sTransNox", "a.cTranStat = " + SQLUtil.toSQL(String.valueOf(_transtat)), 50, false);
+                //searchTrans(txtSeeks01, SalesSF.Type.searchSPSales, "", "sTransNox", "a.cTranStat = " + SQLUtil.toSQL(String.valueOf(_transtat)), 50, false);
                 break;
             case "btn02":
                 break;
