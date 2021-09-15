@@ -2,6 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -17,7 +19,7 @@
                <top>
                   <AnchorPane fx:id="AnchorPaneHeader" prefHeight="40.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Label fx:id="lblDate1" prefHeight="17.0" prefWidth="489.0" text="Imbentaryo v1.0" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="lblDate1" prefHeight="17.0" prefWidth="489.0" text="Icarus v1.0" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <font>
                               <Font name="Arial Bold" size="12.0" />
                            </font>
@@ -33,10 +35,13 @@
                               <Insets right="5.0" />
                            </padding>
                         </Label>
-                        <Label fx:id="lblUser1" alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="489.0" text="Xurpas Trading. Inc." textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="lblUser1" alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="489.0" text="Xurpas Trading" textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <font>
                               <Font name="Arial Bold" size="12.0" />
                            </font>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
                         </Label>
                      </children>
                   </AnchorPane>
@@ -83,16 +88,14 @@
                <left>
                   <VBox id="OtherTrans" prefHeight="200.0" prefWidth="150.0">
                      <children>
-                        <AnchorPane fx:id="btnOther" layoutX="10.0" layoutY="35.0" prefHeight="25.0" prefWidth="200.0">
-                           <children>
-                              <Label AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="25.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
+                        <AnchorPane fx:id="btnOther" layoutX="10.0" layoutY="35.0" prefHeight="10.0" prefWidth="200.0" />
                         <AnchorPane fx:id="btnOther01" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Point-of-Sale" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Purchasing" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-purchasing-32x32.png" />
+                                 </image></ImageView>
                            </children>
                            <VBox.margin>
                               <Insets />
@@ -100,62 +103,97 @@
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther02" layoutX="10.0" layoutY="10.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Customer Order" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane fx:id="btnOther03" layoutX="10.0" layoutY="65.0" prefHeight="30.0" prefWidth="200.0">
-                           <children>
-                              <Label text="Job Order" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane fx:id="btnOther04" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
-                           <children>
-                              <Label text="Purchasing" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Point-Of-Sales" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-point-of-sales-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther05" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Wholesale" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Wholesale" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-wholesale-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="btnOther06" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
+                        <AnchorPane fx:id="btnOther03" layoutX="10.0" layoutY="65.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Cashiering" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Job Order" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-job-order-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="btnOther07" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
+                        <AnchorPane fx:id="btnOther04" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Warehousing" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Customer Order" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-customer-order-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther08" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Cashflow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Cashiering" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-payment-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther09" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Reports" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Reports" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-reports-32x32.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="AnchorPaneSeparator" layoutX="10.0" layoutY="275.0" prefHeight="10.0" prefWidth="200.0">
+                           <children>
+                              <Separator prefWidth="50.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="5.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther10" layoutX="10.0" layoutY="275.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Inventory" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Clients" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-clients-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="btnOther11" layoutX="10.0" layoutY="275.0" prefHeight="30.0" prefWidth="200.0">
+                        <AnchorPane fx:id="btnOther06" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Parameters" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Inventory" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-inventory-32x32.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="btnOther07" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Warehousing" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-warehousing-32x32.png" />
+                                 </image>
+                              </ImageView>
                            </children>
                         </AnchorPane>
                      </children>

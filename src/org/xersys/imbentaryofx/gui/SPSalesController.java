@@ -1,12 +1,8 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,8 +23,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -48,8 +42,6 @@ import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.inventory.search.InventorySE;
-import org.xersys.inventory.search.InventorySF;
 import org.xersys.sales.base.SP_Sales;
 
 public class SPSalesController implements Initializable, ControlledScreen{
@@ -58,15 +50,12 @@ public class SPSalesController implements Initializable, ControlledScreen{
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
-    private InventorySE _inv_search;
-    
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private ScreensController _screens_dashboard_controller;
     private QuickSearchCallback _search_callback;
     private DetailUpdateCallback _detail_update_callback;
     
-    private TableModel _table_model;
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
@@ -75,10 +64,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
     
     @FXML
     private AnchorPane AnchorMain;
-    @FXML
-    private VBox btnbox00;
-    @FXML
-    private HBox btnbox01;
     @FXML
     private Button btn01;
     @FXML
@@ -103,30 +88,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
     @FXML
     private TextField txtSeeks01;
     @FXML
@@ -174,8 +135,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
         _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
-        
-        _inv_search = new InventorySE(_nautilus);
         
         clearFields();
         
@@ -229,7 +188,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtSeeks01":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchBranchInventory("sBarCodex", lsValue, "", "", false);
+                    searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
             }
@@ -325,9 +284,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        "TODO:",
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        "1",
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
@@ -361,9 +320,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false);
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
@@ -381,19 +340,19 @@ public class SPSalesController implements Initializable, ControlledScreen{
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(137);
+        index04.prefWidthProperty().set(60);
         
-        index05.setText("Unit Price"); 
+        index05.setText("ROQ"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("Unit Price"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(60);
+        index06.prefWidthProperty().set(80);
         
         index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
@@ -444,7 +403,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 instance.setDetailRow(_detail_row);
                 instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
-                instance.setOtherInfo((String) _trans.getDetail(_detail_row, "xOthrInfo"));
+                instance.setOtherInfo(1);
                 instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQtyOnHnd"))));
                 instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQuantity"))));
                 instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
@@ -456,8 +415,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
         }
     }
     
-    private void searchBranchInventory(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchBranchInventory(fsKey, foValue, fsFilter, fsValue, fbExact);
+    private void searchBranchInventory(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchBranchInventory(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -467,7 +426,10 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 
                 switch (loArray.size()){
                     case 1: //one record found
-                        txtSeeks01.setText((String) loJSON.get("sDescript"));
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                        loadDetail();
                         FXUtil.SetNextFocus(txtSeeks01);
                         break;
                     default: //multiple records found
@@ -559,8 +521,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 break;
             case "btn07":
                 break;
-            case "btn08": //cashiering
-                loadScreen(ScreenInfo.NAME.CASHIERING);
+            case "btn08":
                 break;
             case "btn09": //parts inquiry
                 break;
@@ -666,9 +627,13 @@ public class SPSalesController implements Initializable, ControlledScreen{
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
+                if (!"success".equals((String) foValue.get("result"))) return;
+                
+                foValue = (JSONObject) foValue.get("payload");
+                
                 switch (foField.getId()){
                     case "txtSeeks01":
-                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", foValue);
+                        _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         loadDetail();
                         break;
                 }
@@ -754,7 +719,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("Cashiering");
+        btn08.setText("");
         btn09.setText("Inquiry");
         btn10.setText("Catalogue");
         btn11.setText("History");
@@ -767,24 +732,11 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(true);
+        btn08.setVisible(false);
         btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
         
         int lnEditMode = _trans.getEditMode();
         btn02.setVisible(lnEditMode == EditMode.ADDNEW);

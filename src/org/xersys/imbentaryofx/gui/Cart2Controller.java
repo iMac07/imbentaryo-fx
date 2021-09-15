@@ -21,7 +21,6 @@ import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.CartCallback;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 
 public class Cart2Controller implements Initializable, ControlledScreen {
@@ -34,12 +33,6 @@ public class Cart2Controller implements Initializable, ControlledScreen {
     @FXML
     private Label lblTotalAmount;
     @FXML
-    private Button btnChild01;
-    @FXML
-    private Button btnChild02;
-    @FXML
-    private Button btnChild03;
-    @FXML
     private TableView table;
 
     @Override
@@ -51,10 +44,6 @@ public class Cart2Controller implements Initializable, ControlledScreen {
         AnchorMain.setRightAnchor(AnchorMain, 0.0);
         
         initGrid();
-        
-        btnChild01.setOnAction(this::cmdButton_Click);
-        btnChild02.setOnAction(this::cmdButton_Click);
-        btnChild03.setOnAction(this::cmdButton_Click);
         
         lblTotalItems.setText(String.valueOf(_total_items));
         lblTotalAmount.setText(StringUtil.NumberFormat(_total_amount, "#,##0.00"));

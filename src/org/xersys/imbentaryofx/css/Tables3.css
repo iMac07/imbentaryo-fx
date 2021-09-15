@@ -14,7 +14,7 @@
 }
 
 .table-view .column-header-background{
-    -fx-background-color: #b6c1d2;
+    -fx-background-color: #ebebeb;
 }
 
 .table-view .column-header-background .label{
@@ -61,6 +61,6 @@
     -fx-background-color: transparent;
 }
 .table-view{
-    -fx-border-color: #b6c1d2;
+    -fx-border-color: #ebebeb;
     -fx-border-width: 1px 1px 1px 1px;
 }

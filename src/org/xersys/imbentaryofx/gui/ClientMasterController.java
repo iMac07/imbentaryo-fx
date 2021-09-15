@@ -22,7 +22,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -35,15 +34,17 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import org.xersys.clients.base.ClientMaster;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.parameters.search.ParamSearchEngine;
-import org.xersys.parameters.search.ParamSearchFactory;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
     private ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
@@ -78,6 +79,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private Button btnChild02;
     @FXML
     private Button btnChild03;
+    @FXML
+    private CheckBox chkCustomer;
+    @FXML
+    private CheckBox chkSupplier;
     
     public enum CUSTOMER_TYPE{
         CUSTOMER,
@@ -88,8 +93,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private AnchorPane AnchorMain;
     @FXML
     private VBox btnbox00;
-    @FXML
-    private HBox btnbox01;
     @FXML
     private Button btn01;
     @FXML
@@ -114,30 +117,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
     @FXML
     private ComboBox cmbOrders;
     @FXML
@@ -267,12 +246,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             switch (lsTxt){
                 case "txtField10":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchParameter(txtField, ParamSearchFactory.Type.searchCountry, lsValue, "sCntryNme", "", 15, false);
+                    searchCitizenship("sCntryNme", lsValue, "", "", false);
                     event.consume();
                     return;
                 case "txtField12":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchParameter(txtField, ParamSearchFactory.Type.searchTownCity, lsValue, "sTownName", "", 15, false);
+                    searchTownCity("sTownName", lsValue, "", "", false);
                     event.consume();
                     return;
                 case "txtField14":
@@ -320,15 +299,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             
             txtField101.setText((String) _trans.getMaster("xMobileNo"));
 
-            if(!"".equals((String) _trans.getMaster("sCitizenx")))
-                searchParameter(txtField10, ParamSearchFactory.Type.searchCountry, (String) _trans.getMaster("sCitizenx"), "sCntryNme", "", 1, true);
-            else 
-                txtField10.setText("");
-
-            if(!"".equals((String) _trans.getMaster("sBirthPlc")))
-                searchParameter(txtField10, ParamSearchFactory.Type.searchTownCity, (String) _trans.getMaster("sBirthPlc"), "sTownIDxx", "", 1, true);
-            else 
-                txtField12.setText("");
+            txtField10.setText((String) _trans.getMaster("sCntryNme"));
+            txtField12.setText((String) _trans.getMaster("sTownName"));
 
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -357,76 +329,92 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             System.exit(1);
         }
     }    
-
-    private void searchParameter(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        p_oSearch_Param.setSearchType(foType);
-        p_oSearch_Param.setKey(fsKey);
-        p_oSearch_Param.setFilter(fsFilter);
-        p_oSearch_Param.setMax(fnMax);
-        p_oSearch_Param.setExact(fbExact);
+    
+    private void searchCitizenship(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchCountry(fsKey, foValue, fsFilter, fsValue, fbExact);
         
-        JSONObject loJSON = p_oSearch_Param.Search(fsValue);
-
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
-
-            switch (foField.getId()){
-                case "txtField10":
-                    //set value to class
-                    foField.setText("");
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField12":
-                    //set value to class
-                    foField.setText((String) "");
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-
-            switch (foField.getId()){
-                case "txtField10":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sCntryNme"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField12":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sTownName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-        
-        //multiple result, load the quick search to display records
-        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-        
-        if (loScreen != null){
-            QuickSearchNeoController instance = new QuickSearchNeoController();
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-//            
-//            instance.setSearchObject(p_oSearch_Param);
-//            instance.setSearchCallback(_search_callback);
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
             
-//            instance.setSearchType(foType);
-//            instance.setSearchValue(fsValue);
-//            instance.setSearchKey(fsKey);
-//            instance.setSearchFilter(fsFilter);
-//            instance.setSearchMaxRow(fnMax);
-//            instance.setSearchExact(fbExact);
-//            instance.setSearchResult(loJSON);
-//            instance.setTextField(foField);
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sCitizenx", (String) loJSON.get("sCntryCde"));
+                        FXUtil.SetNextFocus(txtField10);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchCountry());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField10);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField10.setText("");
+                FXUtil.SetNextFocus(txtField10);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField10.setText("");
+            FXUtil.SetNextFocus(txtField10);
+        }
+    }
+    
+    private void searchTownCity(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchTownCity(fsKey, foValue, fsFilter, fsValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
             
-            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sBirthPlc", (String) loJSON.get("sTownIDxx"));
+                        FXUtil.SetNextFocus(txtField12);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchTownCity());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField12);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField12.setText("");
+                FXUtil.SetNextFocus(txtField10);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField12.setText("");
+            FXUtil.SetNextFocus(txtField12);
         }
     }
     
@@ -443,7 +431,18 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             case "btnChild03": //email
                 loadEMail();
                 break;
-            case "btn01": //clear
+            case "btn01": //new
+                _loaded = false;
+                
+                createNew("");
+                clearFields();
+                loadTransaction();
+                
+               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+               
+               _loaded = true;
+                break;
+            case "btn02": //clear
                 if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
                     _loaded = false;
                     
@@ -457,19 +456,11 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         
                     _loaded = true;
                 }
-                break;
-            case "btn02": //new
-                _loaded = false;
                 
-                createNew("");
-                clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
                 break;
-            case "btn03": //save
+            case "btn03": //search
+                break;
+            case "btn04": //save
                 if (_trans.SaveRecord(true)){
                     MsgBox.showOk("Transaction saved successfully.", "Success");
                     
@@ -484,8 +475,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                    _loaded = true;
                 } else 
                     MsgBox.showOk(_trans.getMessage(), "Warning");
-                break;
-            case "btn04": //search
                 break;
             case "btn05":
                 break;
@@ -602,6 +591,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         txtField102.setText((String) foValue); break;
                     case "xEmailAdd":
                         txtField103.setText((String) foValue); break;                    
+                    case "sCntryNme":
+                        txtField10.setText((String) foValue); break;
+                    case "sTownName":
+                        txtField12.setText((String) foValue); break;
                 }
             }
         };
@@ -609,21 +602,17 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
-                try {
+                if ("success".equals((String) foValue.get("result"))){
+                    foValue = (JSONObject) foValue.get("payload");
+                
                     switch (foField.getId()){
                         case "txtField10":
                             _trans.setMaster("sCitizenx", (String) foValue.get("sCntryCde"));
-                            foField.setText((String) foValue.get("sCntryNme"));
                             break;
                         case "txtField12":
                             _trans.setMaster("sBirthPlc", (String) foValue.get("sTownIDxx"));
-                            foField.setText((String) foValue.get("sTownName"));
                             break;
                     }
-                } catch (SQLException ex) {
-                    MsgBox.showOk(ex.getMessage(), "Warning");
-                    ex.printStackTrace();
-                    System.exit(1);
                 }
             }
 
@@ -636,13 +625,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _mobile_listener = new CachedRowsetCallback() {
             @Override
             public void Result(CachedRowSet foValue) {
-                try {
-                    _trans.setMaster("xMobileNo", foValue);
-                } catch (SQLException ex) {
-                    MsgBox.showOk(ex.getMessage(), "Warning");
-                    ex.printStackTrace();
-                    System.exit(1);
-                }
+                _trans.setMaster("xMobileNo", foValue);
             }
 
             @Override
@@ -654,13 +637,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _email_listener = new CachedRowsetCallback() {
             @Override
             public void Result(CachedRowSet foValue) {
-                try {
-                    _trans.setMaster("xEmailAdd", foValue);
-                } catch (SQLException ex) {
-                    MsgBox.showOk(ex.getMessage(), "Warning");
-                    ex.printStackTrace();
-                    System.exit(1);
-                }
+                _trans.setMaster("xEmailAdd", foValue);
             }
 
             @Override
@@ -709,10 +686,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("Clear");
-        btn02.setText("New");
-        btn03.setText("Save");
-        btn04.setText("Search");
+        btn01.setText("New");
+        btn02.setText("Clear");
+        btn03.setText("Search");
+        btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -735,19 +712,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn10.setVisible(false);
         btn11.setVisible(true);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
         
         cmbGenderCd.setItems(_gendercd);
         cmbClientTp.setItems(_clienttp);
@@ -793,29 +757,17 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     }
     
     private void cmbGenderCd_Click(Event event) {
-        try {
-            ComboBox loButton = (ComboBox) event.getSource();
-        
-            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-            if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
-        } catch (SQLException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
-            ex.printStackTrace();
-            System.exit(1);
-        }
+        ComboBox loButton = (ComboBox) event.getSource();
+
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
     }
     
     private void cmbCvilStat_Click(Event event) {
-        try {
-            ComboBox loButton = (ComboBox) event.getSource();
-        
-            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-            if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
-        } catch (SQLException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
-            ex.printStackTrace();
-            System.exit(1);
-        }
+        ComboBox loButton = (ComboBox) event.getSource();
+
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
     }
         
     private void cmbBox_KeyPressed(KeyEvent event) {
@@ -826,18 +778,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     }
     
     private void cmbClientTp_Click(Event event) {
-        try {
-            ComboBox loButton = (ComboBox) event.getSource();
-        
-            int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-            if (lnIndex >= 0) {
-                _trans.setMaster("cClientTp", String.valueOf(lnIndex));
-                txtField07.setEditable(lnIndex == 1);
-            }
-        } catch (SQLException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
-            ex.printStackTrace();
-            System.exit(1);
+        ComboBox loButton = (ComboBox) event.getSource();
+
+        int lnIndex = loButton.getSelectionModel().getSelectedIndex();
+        if (lnIndex >= 0) {
+            _trans.setMaster("cClientTp", String.valueOf(lnIndex));
+            txtField07.setEditable(lnIndex == 1);
         }
     }
     
@@ -850,21 +796,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         if (lsValue == null) return;
         if(!nv){ //Lost Focus      
-            try {
-                switch (lnIndex){
-                    case 13: //additional info
-                        _trans.setMaster("sAddlInfo", lsValue);
-                        break;
-                    default:
-                        MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
-                }
-                _index = lnIndex;
-            } catch (SQLException ex) {
-                MsgBox.showOk(ex.getMessage(), "Warning");
-                ex.printStackTrace();
-                System.exit(1);
+            switch (lnIndex){
+                case 13: //additional info
+                    _trans.setMaster("sAddlInfo", lsValue);
+                    break;
+                default:
+                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
             }
-            
+            _index = lnIndex;
         } else{ //Got Focus
             _index = lnIndex;
             txtField.selectAll();
@@ -880,40 +819,34 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         if (lsValue == null) return;
         if(!nv){ //Lost Focus          
-            try {
-                switch (lnIndex){
-                    case 3: //last name
-                        _trans.setMaster("sLastName", lsValue);
-                        break;
-                    case 4: //first name
-                        _trans.setMaster("sFrstName", lsValue);
-                        break;
-                    case 5: //middle name
-                        _trans.setMaster("sMiddName", lsValue);
-                        break;
-                    case 6: //suffix name
-                        _trans.setMaster("sSuffixNm", lsValue);
-                        break;
-                    case 7: //full name/company name
-                        _trans.setMaster("sClientNm", lsValue);
-                        break;
-                    case 11: //birthday                        
-                        if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
-                            _trans.setMaster("dBirthDte", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
-                        } else {
-                            MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
-                            txtField.requestFocus();
-                        }
-                        break;
-                    default:
-                        MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
-                }
-                _index = lnIndex;
-            } catch (SQLException ex) {
-                MsgBox.showOk(ex.getMessage(), "Warning");
-                ex.printStackTrace();
-                System.exit(1);
+            switch (lnIndex){
+                case 3: //last name
+                    _trans.setMaster("sLastName", lsValue);
+                    break;
+                case 4: //first name
+                    _trans.setMaster("sFrstName", lsValue);
+                    break;
+                case 5: //middle name
+                    _trans.setMaster("sMiddName", lsValue);
+                    break;
+                case 6: //suffix name
+                    _trans.setMaster("sSuffixNm", lsValue);
+                    break;
+                case 7: //full name/company name
+                    _trans.setMaster("sClientNm", lsValue);
+                    break;
+                case 11: //birthday                        
+                    if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
+                        _trans.setMaster("dBirthDte", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
+                    } else {
+                        MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
+                        txtField.requestFocus();
+                    }
+                    break;
+                default:
+                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
             }
+            _index = lnIndex;
         } else{ //Got Focus
             try{
                 switch (lnIndex){

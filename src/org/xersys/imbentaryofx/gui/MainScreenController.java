@@ -63,9 +63,9 @@ public class MainScreenController implements Initializable {
     @FXML
     private AnchorPane btnOther10;
     @FXML
-    private AnchorPane btnOther11;
-    @FXML
     private AnchorPane btnOther;
+    @FXML
+    private AnchorPane AnchorPaneSeparator;
     
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
@@ -138,36 +138,31 @@ public class MainScreenController implements Initializable {
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch(lsButton){
-            case "btnOther01": //point of sales
-                loadScreen(ScreenInfo.NAME.POS);
+            case "btnOther01": //purchasing
+                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
                 break;
-            case "btnOther02": //customer order
-                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);
+            case "btnOther02": //sales
+                loadScreen(ScreenInfo.NAME.SP_SALES);
                 break;
             case "btnOther03": //job order
                 loadScreen(ScreenInfo.NAME.JOB_ORDER);
                 break;
-            case "btnOther04": //purchasing
-                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER);
+            case "btnOther04": //customer order
+                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);
                 break;
             case "btnOther05": //wholesale
-                loadScreen(ScreenInfo.NAME.PARTS_CATALOGUE);
                 break;
-            case "btnOther06": //cashiering
-                loadScreen(ScreenInfo.NAME.CASHIERING);
+            case "btnOther06": //inventory
                 break;
             case "btnOther07": //warehousing
                 break;
-            case "btnOther08": //cashflow
+            case "btnOther08": //payment
+                loadScreen(ScreenInfo.NAME.CASHIERING);
                 break;
-            case "btnOther09": //reports
+            case "btnOther09": //cashflow
                 break;
-            case "btnOther10": //inventory
-                break;
-            case "btnOther11": //parameters
-                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);
-                break;
-            case "btnOther12":
+            case "btnOther10": //clients
+                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);                
                 break;
         }
     }

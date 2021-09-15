@@ -8,6 +8,7 @@ public class ScreenInfo {
     
     public enum NAME{
         JOB_ORDER,
+        JOB_ESTIMATE,
         PARTS_INQUIRY,
         PARTS_CATALOGUE,
         POS,
@@ -26,6 +27,7 @@ public class ScreenInfo {
         CLIENT_EMAIL,
         CASHIERING,
         PAYMENT,
+        PAYMENT_NO_INVOICE,
         SP_SALES,
         SP_SALES_HISTORY
     }
@@ -37,6 +39,10 @@ public class ScreenInfo {
             case JOB_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "JobOrder.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "JobOrderController");
+                return loJSON;
+            case JOB_ESTIMATE:
+                loJSON.put("resource", RESOURCE_URL + "JobEstimate.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "JobEstimateController");
                 return loJSON;
             case PARTS_INQUIRY:
                 loJSON.put("resource", RESOURCE_URL + "PartsInquiry.fxml");
@@ -109,6 +115,10 @@ public class ScreenInfo {
             case PAYMENT:
                 loJSON.put("resource", RESOURCE_URL + "Payment.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PaymentController");
+                return loJSON;
+            case PAYMENT_NO_INVOICE:
+                loJSON.put("resource", RESOURCE_URL + "PaymentNoInvoice.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PaymentNoInvoiceController");
                 return loJSON;
             case SP_SALES:
                 loJSON.put("resource", RESOURCE_URL + "SPSales.fxml");

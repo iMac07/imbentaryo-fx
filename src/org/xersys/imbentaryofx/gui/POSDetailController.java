@@ -34,7 +34,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private int _row;
     private String _part_number;
     private String _description;
-    private String _other_info;
+    private int _roq;
     private int _order;
     private int _on_hand;
     private double _srp;
@@ -170,8 +170,8 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         _description = fsValue;
     }
     
-    public void setOtherInfo(String fsValue){
-        _other_info = fsValue;
+    public void setOtherInfo(int fnValue){
+        _roq = fnValue;
     }
     
     public void setSellingPrice(double fnValue){
@@ -215,8 +215,8 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         
         btn01.setText("Okay");
         btn02.setText("Remove");
-        btn03.setText("+5 Order");
-        btn04.setText("+10 Order");
+        btn03.setText("");
+        btn04.setText("");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -229,8 +229,8 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn03.setVisible(false);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
@@ -270,7 +270,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
                 
         txtDetail01.setText(_part_number);
         txtDetail02.setText(_description);
-        txtDetail03.setText(_other_info);
+        txtDetail03.setText(String.valueOf(_roq));
         txtDetail04.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
         txtDetail05.setText(String.valueOf(_on_hand));
         txtDetail06.setText(String.valueOf(_order));
@@ -294,13 +294,9 @@ public class POSDetailController implements Initializable, ControlledScreen  {
             case "btn02": //remove item
                 removeData();
                 break;
-            case "btn03": //+5 order
-                _order += 5;
-                txtDetail06.setText(String.valueOf(_order));
+            case "btn03":
                 break;
-            case "btn04": //+10 order
-                _order += 10;
-                txtDetail06.setText(String.valueOf(_order));
+            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -324,6 +320,11 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     }
     
     private void loadData(){
+        if (_order <= 0){
+            removeData();
+            return;
+        }
+        
         //load the data
         _callback.Result(_row, "nQuantity", _order);
         _callback.Result(_row, "nDiscount", _discount);
@@ -336,7 +337,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private void removeData(){
         //load the data
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-        _callback.RemovedItem(0);
+        _callback.RemovedItem(_row);
         _callback.FormClosing();
     }
     
