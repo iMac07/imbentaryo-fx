@@ -33,8 +33,6 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.inventory.search.InventorySE;
-import org.xersys.inventory.search.InventorySF;
 import org.xersys.sales.base.PartsCatalogue;
 import org.xersys.sales.base.SP_Sales;
 
@@ -51,8 +49,6 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     private Button btnSearch;
     @FXML
     private VBox btnbox00;
-    @FXML
-    private HBox btnbox01;
     @FXML
     private Button btn01;
     @FXML
@@ -77,30 +73,6 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
     @FXML
     private TextField txtSeeks01;
     @FXML
@@ -198,27 +170,27 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                                 for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
                                     loJSON = (JSONObject) loArray.get(lnCtr);
 
-                                    InventorySE loSearch = new InventorySE(_nautilus);
-                                    loSearch.setSearchType(InventorySF.Type.searchInvBranchComplex);
-                                    loSearch.setKey("a.sStockIDx");
-                                    loSearch.setFilter("");
-                                    loSearch.setMax(1);
-                                    loSearch.setExact(true);
-                                    
-                                    JSONObject loResult = (JSONObject) loSearch.Search((String) loJSON.get("sStockIDx"));
-                                    if ("success".equals((String) loResult.get("result"))){
-                                        JSONArray laArray = (JSONArray) loResult.get("payload");
-                                        
-                                        if (laArray.size() == 1){
-                                            loResult = new JSONObject();
-                                            loResult.put("result", "success");
-                                            loResult.put("payload", (JSONObject) laArray.get(0));
-                                            
-                                            loSales.setDetail(lnRow, "sStockIDx", loResult);
-                                            loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
-                                            lnRow++;
-                                        }
-                                    }  
+//                                    InventorySE loSearch = new InventorySE(_nautilus);
+//                                    loSearch.setSearchType(InventorySF.Type.searchInvBranchComplex);
+//                                    loSearch.setKey("a.sStockIDx");
+//                                    loSearch.setFilter("");
+//                                    loSearch.setMax(1);
+//                                    loSearch.setExact(true);
+//                                    
+//                                    JSONObject loResult = (JSONObject) loSearch.Search((String) loJSON.get("sStockIDx"));
+//                                    if ("success".equals((String) loResult.get("result"))){
+//                                        JSONArray laArray = (JSONArray) loResult.get("payload");
+//                                        
+//                                        if (laArray.size() == 1){
+//                                            loResult = new JSONObject();
+//                                            loResult.put("result", "success");
+//                                            loResult.put("payload", (JSONObject) laArray.get(0));
+//                                            
+//                                            loSales.setDetail(lnRow, "sStockIDx", loResult);
+//                                            loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+//                                            lnRow++;
+//                                        }
+//                                    }  
                                 }
                             }
                         }
@@ -333,19 +305,6 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         btn10.setVisible(false);
         btn11.setVisible(false);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
     }
     
     private void displayImages(){

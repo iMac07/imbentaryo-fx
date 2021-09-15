@@ -17,7 +17,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
@@ -52,8 +51,6 @@ public class CashieringController implements Initializable, ControlledScreen {
     @FXML
     private VBox btnbox00;
     @FXML
-    private HBox btnbox01;
-    @FXML
     private Button btn01;
     @FXML
     private Button btn02;
@@ -77,30 +74,6 @@ public class CashieringController implements Initializable, ControlledScreen {
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
     @FXML
     private TableView table;
 
@@ -277,8 +250,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Pay");
-        btn02.setText("Release");
-        btn03.setText("");
+        btn02.setText("Invoice");
+        btn03.setText("Release");
         btn04.setText("");
         btn05.setText("");
         btn06.setText("");
@@ -291,7 +264,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(false);
+        btn03.setVisible(true);
         btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
@@ -301,19 +274,6 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn10.setVisible(false);
         btn11.setVisible(false);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -322,11 +282,12 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         switch (lsButton){
             case "btn01": //pay
-                loadPaymentForm();
+                payNoInvoice();
                 break;
-            case "btn02":
+            case "btn02": //invoice
+                payWithInvoice();
                 break;
-            case "btn03":
+            case "btn03": //release
                 break;
             case "btn04":
                 break;
@@ -365,10 +326,31 @@ public class CashieringController implements Initializable, ControlledScreen {
         }
     }
     
-    private void loadPaymentForm(){
+    private void payWithInvoice(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
             PaymentController instance = new PaymentController();
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            //close this screen
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //load the payment screen
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
+    private void payNoInvoice(){
+        if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_NO_INVOICE);
+            PaymentNoInvoiceController instance = new PaymentNoInvoiceController();
             instance.setSourceCd(_source_code);
             instance.setSourceNo(_source_number);
 

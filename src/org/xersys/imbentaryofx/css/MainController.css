@@ -1,24 +1,26 @@
 #AnchorPaneHeader{
-    -fx-background-color:  #465a7d;
-    -fx-border-color: #cdcdcd; 
-    -fx-border-width: 0px 0px 1.5px 0px;
+    -fx-background-color:  #ed2b2b;
+    -fx-border-color: #323232; 
+    -fx-border-width: 0px 0px 1px 0px;
 }
 
 #AnchorPaneMonitor{
     -fx-border-color: #f0f0f0; 
-    -fx-border-width: 0px 0px 0px 1.5px;
+    -fx-border-width: 0px 0px 0px 1px;
 }
 
 #AnchorPaneFooter{
-    -fx-background-color:  #465a7d;
-    -fx-border-color: #cdcdcd; 
-    -fx-border-width: 1.5px 0px 0px 0px;
+    -fx-background-color: #323232;
+}
+
+#AnchorPaneFooter .label{
+    -fx-font-size: 11px;
 }
 
 #OtherTrans, #TransButtons{
-    -fx-background-color: #c4cdda;
+    -fx-background-color: #323232;
     -fx-border-color: #f0f0f0; 
-    -fx-border-width: 0px 1.5px 0px 0px;
+    -fx-border-width: 0px 1px 0px 0px;
 }
 
 #OtherTrans .label{
@@ -26,23 +28,25 @@
 }
 
 #btnOther{
-    -fx-background-color:  #b6c1d2;
+    -fx-background-color:  #323232;
 }
 
 #btnOther01, #btnOther02, #btnOther03, #btnOther04, #btnOther05,
-#btnOther06, #btnOther07, #btnOther08, #btnOther09, #btnOther10{
+#btnOther06, #btnOther07, #btnOther08, #btnOther09, #btnOther10,
+#btnOther11{
     -fx-border-width: 0px 0px 0px 0px;
     -fx-border-radius: 0px;
     -fx-border-color: #d2d9e2;
     -fx-background-radius: 0px;
-    -fx-background-color: #c4cdda;
-    -fx-text-fill: #000000;    
+    -fx-background-color: #323232;
+    -fx-text-fill: #ffffff;    
     -fx-font-size: 12px;
 }
 
 #btnOther01:hover, #btnOther02:hover, #btnOther03:hover, #btnOther04:hover, #btnOther05:hover,
-#btnOther06:hover, #btnOther07:hover, #btnOther08:hover, #btnOther09:hover, #btnOther10:hover{
-    -fx-background-color: #b6c1d2;
+#btnOther06:hover, #btnOther07:hover, #btnOther08:hover, #btnOther09:hover, #btnOther10:hover,
+#btnOther11:hover{
+    -fx-background-color: #2c2c2c;
     -fx-text-fill: #ffffff;
     -fx-cursor: hand;
 }

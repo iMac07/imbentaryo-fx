@@ -20,6 +20,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPaymentInfo;
@@ -32,7 +34,6 @@ import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.PaymentListener;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.parameters.search.ParamSearchEngine;
-import org.xersys.parameters.search.ParamSearchFactory;
 import org.xersys.payment.base.CreditCardTrans;
 
 public class PaymentCreditCardController implements Initializable {
@@ -70,8 +71,6 @@ public class PaymentCreditCardController implements Initializable {
     private TextField txtField04;
     @FXML
     private TextField txtField05;
-    @FXML
-    private Button btn03;
     @FXML
     private Label lblTranTotl;
 
@@ -111,6 +110,7 @@ public class PaymentCreditCardController implements Initializable {
         
         p_oTrans.setListener(p_oListener);
         
+        txtField01.focusedProperty().addListener(txtField_Focus);
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
@@ -123,7 +123,6 @@ public class PaymentCreditCardController implements Initializable {
 
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
-        btn03.setOnAction(this::cmdButton_Click);
         
         loadDetail();
         
@@ -143,7 +142,7 @@ public class PaymentCreditCardController implements Initializable {
                 double lnValue;
                 
                 switch(fsFieldNm){
-                    case "xTermnlNm":
+                    case "sTermnlID":
                         txtField01.setText((String) foValue);
                         break;
                     case "sBankName":
@@ -182,25 +181,22 @@ public class PaymentCreditCardController implements Initializable {
         _search_callback = new QuickSearchCallback() {
                 @Override
                 public void Result(TextField foField, JSONObject foValue) {
-                    switch (foField.getId()){
-                        case "txtField01":
-                            p_oTrans.setDetail(_detail_row + 1, "sTermnlID", (String) foValue.get("sBankCode"));
-                            p_oTrans.setDetail(_detail_row + 1, "xTermnlNm", (String) foValue.get("sBankName"));
-                            break;
-                        case "txtField02":
-                            p_oTrans.setDetail(_detail_row + 1, "sBankCode", (String) foValue.get("sBankCode"));
-                            p_oTrans.setDetail(_detail_row + 1, "sBankName", (String) foValue.get("sBankName"));
-                            break;
+                    if ("success".equals((String) foValue.get("result"))){
+                        foValue = (JSONObject) foValue.get("payload");
+                        
+                        switch (foField.getId()){
+                            case "txtField02":
+                                p_oTrans.setDetail(_detail_row + 1, "sBankCode", (String) foValue.get("sBankCode"));
+                                break;
+                        }
                     }
+                    
+                    
                 }
 
                 @Override
                 public void FormClosing(TextField foField) {
                     switch (foField.getId()){
-                        case "txtField01":
-                            txtField02.requestFocus();
-                            txtField02.selectAll();
-                            break;
                         case "txtField02":
                             txtField03.requestFocus();
                             txtField03.selectAll();
@@ -237,28 +233,6 @@ public class PaymentCreditCardController implements Initializable {
                     txtField01.selectAll();
                 }
                 break;
-            case "btn03": //commit
-                //delete last record if detail is insufficient
-                if (p_oTrans.getItemCount() > 1){
-                    if (String.valueOf(p_oTrans.getDetail(p_oTrans.getItemCount(), "sTermnlID")).isEmpty() ||
-                        String.valueOf(p_oTrans.getDetail(p_oTrans.getItemCount(), "sBankCode")).isEmpty() ||
-                        String.valueOf(p_oTrans.getDetail(p_oTrans.getItemCount(), "sCardNoxx")).isEmpty() ||
-                        String.valueOf(p_oTrans.getDetail(p_oTrans.getItemCount(), "sApprovNo")).isEmpty() ||
-                        ((Number) p_oTrans.getDetail(p_oTrans.getItemCount(), "nAmountxx")).doubleValue() <= 0.00){
-
-                        if (MsgBox.showOkCancel("System detected that card payment info on last record was insufficient.\n\n" +
-                                                "Continuing this action will delete the last record.", "Confirm") == MsgBox.RESP_YES_OK){
-                        
-                            if (!p_oTrans.delDetail(p_oTrans.getItemCount())){
-                                MsgBox.showOk(p_oTrans.getMessage(), "Warning");
-                                break;
-                            }
-                        }                        
-                    }
-                }
-                
-                _parent_callback.setTransObject(p_oTrans);
-                break;
         }
     }
     
@@ -292,6 +266,8 @@ public class PaymentCreditCardController implements Initializable {
             _table.getFocusModel().focus(lnRow - 1); 
             _detail_row = _table.getSelectionModel().getSelectedIndex();
         }
+        
+        _parent_callback.Update();
     }
     
     private void clearFields(){
@@ -303,7 +279,7 @@ public class PaymentCreditCardController implements Initializable {
     }
     
     private void setFieldInfo(){
-        txtField01.setText((String) p_oTrans.getDetail(_detail_row + 1, "xTermnlNm"));
+        txtField01.setText((String) p_oTrans.getDetail(_detail_row + 1, "sTermnlID"));
         txtField02.setText((String) p_oTrans.getDetail(_detail_row + 1, "sBankName"));
         
         String lsCardNoxx = (String) p_oTrans.getDetail(_detail_row + 1, "sCardNoxx");
@@ -373,14 +349,11 @@ public class PaymentCreditCardController implements Initializable {
         
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
-                case "txtField01":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchParameter(txtField, ParamSearchFactory.Type.searchBanks, lsValue, "sBankName", "", 15, false);
-                    break;
                 case "txtField02":
                     System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchParameter(txtField, ParamSearchFactory.Type.searchBanks, lsValue, "sBankName", "", 15, false);
-                    break;
+                    searchBanks("sBankName", lsValue, "", "", false);
+                    event.consume();
+                    return;
             }
         }
         
@@ -394,75 +367,46 @@ public class PaymentCreditCardController implements Initializable {
         }
     }
     
-    private void searchParameter(TextField foField, Enum foType, String fsValue, String fsKey, String fsFilter, int fnMax, boolean fbExact){        
-        p_oSearch_Param.setSearchType(foType);
-        p_oSearch_Param.setKey(fsKey);
-        p_oSearch_Param.setFilter(fsFilter);
-        p_oSearch_Param.setMax(fnMax);
-        p_oSearch_Param.setExact(fbExact);
+    private void searchBanks(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
+        JSONObject loJSON = p_oTrans.searchBanks(fsKey, foValue, fsFilter, fsValue, fbExact);
         
-        JSONObject loJSON = p_oSearch_Param.Search(fsValue);
-
-        //error result, return to callee
-        if ("error".equals((String) loJSON.get("result"))) {
-            System.err.println((String) loJSON.get("message"));
-
-            switch (foField.getId()){
-                case "txtField01":
-                    //set value to class
-                    foField.setText("");
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField02":
-                    //set value to class
-                    foField.setText((String) "");
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-
-        JSONArray loArr = (JSONArray) loJSON.get("payload");
-
-        //only one record was retreived, load the data
-        if (loArr.size() == 1) {
-            loJSON = (JSONObject) loArr.get(0);
-
-            switch (foField.getId()){
-                case "txtField01":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sBankName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-                case "txtField02":
-                    //set value to class
-                    foField.setText((String) loJSON.get("sBankName"));
-                    FXUtil.SetNextFocus(foField);
-                    return;
-            }
-        }
-        
-        //multiple result, load the quick search to display records
-        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-        
-        if (loScreen != null){
-            QuickSearchNeoController instance = new QuickSearchNeoController();
-            instance.setNautilus(p_oNautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-//            
-//            instance.setSearchObject(p_oSearch_Param);
-//            instance.setSearchCallback(_search_callback);
-//            
-//            instance.setSearchType(foType);
-//            instance.setSearchValue(fsValue);
-//            instance.setSearchKey(fsKey);
-//            instance.setSearchFilter(fsFilter);
-//            instance.setSearchMaxRow(fnMax);
-//            instance.setSearchExact(fbExact);
-//            instance.setSearchResult(loJSON);
-//            instance.setTextField(foField);
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
             
-            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        txtField02.setText((String) loJSON.get("sBankName"));
+                        FXUtil.SetNextFocus(txtField02);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(p_oNautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(p_oTrans.getSearchBanks());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField02);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField02.setText("");
+                FXUtil.SetNextFocus(txtField02);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField02.setText("");
+            FXUtil.SetNextFocus(txtField02);
         }
     }
     
@@ -476,6 +420,9 @@ public class PaymentCreditCardController implements Initializable {
         if (lsValue == null) return;
         if(!nv){ //Lost Focus          
             switch (lnIndex){
+                case 1: //sTermnlID                    
+                    p_oTrans.setDetail(_detail_row + 1, "sTermnlID", lsValue);
+                    break;
                 case 3: //sCardNoxx
                     if (!lsValue.isEmpty()){
                         if (!StringUtil.isNumeric(lsValue)){

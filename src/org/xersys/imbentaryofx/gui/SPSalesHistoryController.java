@@ -1,9 +1,6 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -27,7 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.lib.pojo.Temp_Transactions;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
@@ -36,12 +34,10 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.sales.base.SP_Sales;
-import org.xersys.sales.search.SalesSE;
-import org.xersys.sales.search.SalesSF;
+import org.xersys.sales.search.SalesSearch;
 
 public class SPSalesHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
@@ -50,7 +46,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     private SP_Sales _trans;
     private LMasDetTrans _listener;
     
-    private SalesSE _trans_search;
+    private SalesSearch _trans_search;
     private int _transtat;
     
     private MainScreenController _main_screen_controller;
@@ -97,30 +93,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     @FXML
     private Button btn12;
     @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
-    @FXML
     private TextField txtField10;
     @FXML
     private TextField txtField11;
@@ -166,10 +138,10 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         initGrid();
         initListener();
         
-        _trans_search = new SalesSE(_nautilus);
+        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchSPSales);
         
         _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
-        _trans.setSaveToDisk(true);
+        _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
 
         clearFields();
@@ -227,17 +199,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
         lblPayable.setText("0.00");
-        
-        //load temporary transactions
-        ArrayList<Temp_Transactions> laTemp = _trans.TempTransactions();
-        ObservableList<String> lsOrderNox = FXCollections.observableArrayList();
-        
-        if (laTemp.size() > 0){    
-            for (int lnCtr = 0; lnCtr <= laTemp.size()-1; lnCtr ++){
-                lsOrderNox.add(laTemp.get(lnCtr).getOrderNo() + " (" +SQLUtil.dateFormat(laTemp.get(lnCtr).getDateCreated(), SQLUtil.FORMAT_TIMESTAMP) + ")");
-            }
-        }
-        
+
         _table_data.clear();
         
         cmbStatus.getSelectionModel().select(0);
@@ -258,7 +220,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         txtField12.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
         
-        
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
@@ -267,6 +228,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     }
     
     private void loadTransaction(){
+        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
         txtField07.setText((String) _trans.getMaster("sSalesman"));
         
@@ -278,6 +240,61 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         loadDetail();
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+    }
+    
+    private void searchTransaction(){
+        _trans_search.setKey("a.sTransNox");
+        _trans_search.setValue("");
+        _trans_search.setExact(false);
+        
+        JSONObject loJSON =  _trans_search.Search();
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        if (_trans.OpenTransaction((String) loJSON.get("sTransNox"))){
+                            loadTransaction();
+                            loadDetail();
+                        } else {
+                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            clearFields();
+                        }
+                        FXUtil.SetNextFocus(txtSeeks01);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans_search);
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtSeeks01);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtSeeks01.setText("");
+                FXUtil.SetNextFocus(txtSeeks01);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtSeeks01.setText("");
+            FXUtil.SetNextFocus(txtSeeks01);
+        }
     }
     
     private void loadDetail(){
@@ -365,13 +382,13 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(true);
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index09.setSortable(false); index09.setResizable(true); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(true); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -385,19 +402,19 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(137);
+        index04.prefWidthProperty().set(60);
         
-        index05.setText("Unit Price"); 
+        index05.setText("ROQ"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("Unit Price"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(60);
+        index06.prefWidthProperty().set(80);
         
         index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
@@ -445,7 +462,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         switch (lsButton){
             case "btn01":
-                //searchTrans(txtSeeks01, SalesSF.Type.searchSPSales, "", "sTransNox", "a.cTranStat = " + SQLUtil.toSQL(String.valueOf(_transtat)), 50, false);
+                searchTransaction();
                 break;
             case "btn02":
                 break;
@@ -561,19 +578,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn10.setVisible(false);
         btn11.setVisible(false);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
     }
     
     private void initFields(){

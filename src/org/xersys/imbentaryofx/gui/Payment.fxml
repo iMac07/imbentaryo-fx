@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -57,108 +58,92 @@
                                              <children>
                                                 <AnchorPane>
                                                    <children>
-                                                      <Button id="btn01" fx:id="btn01" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="41.0" text="F1" textAlignment="JUSTIFY" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                      <Button id="btn01" fx:id="btn01" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="41.0" text="F1" textAlignment="JUSTIFY" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph01" glyphName="CUBE" size="25" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/pay.png" />
+                                                               </image>
+                                                            </ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="1">
                                                    <children>
-                                                      <Button fx:id="btn02" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                      <Button fx:id="btn02" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph02" glyphName="CART_ARROW_DOWN" size="25" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/invoice.png" />
+                                                               </image>
+                                                            </ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="2">
                                                    <children>
-                                                      <Button fx:id="btn03" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                      <Button fx:id="btn03" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph03" glyphName="WRENCH" size="25" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/release.png" />
+                                                               </image>
+                                                            </ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="3">
                                                    <children>
-                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph04" glyphName="CART_PLUS" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="4">
                                                    <children>
-                                                      <Button fx:id="btn05" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph05" glyphName="CUBES" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn05" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="5">
                                                    <children>
-                                                      <Button fx:id="btn06" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="63.0" prefWidth="42.0" text="F6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph06" glyphName="BARCODE" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn06" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="63.0" prefWidth="42.0" text="F6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="6">
                                                    <children>
-                                                      <Button id="btn01" fx:id="btn07" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="52.0" prefWidth="41.0" text="F1" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph07" glyphName="AMBULANCE" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button id="btn01" fx:id="btn07" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="52.0" prefWidth="41.0" text="F1" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="7">
                                                    <children>
-                                                      <Button fx:id="btn08" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph08" glyphName="LINE_CHART" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn08" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="8">
                                                    <children>
-                                                      <Button fx:id="btn09" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph09" glyphName="TABLE" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn09" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="9">
                                                    <children>
-                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph10" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">
                                                    <children>
-                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph11" size="25" />
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="11">
                                                    <children>
-                                                      <Button fx:id="btn12" alignment="BOTTOM_CENTER" contentDisplay="TOP" focusTraversable="false" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="63.0" prefWidth="42.0" text="F6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                      <Button fx:id="btn12" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="63.0" prefWidth="42.0" text="F6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <FontAwesomeIconView fx:id="glyph12" glyphName="POWER_OFF" size="25" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/close.png" />
+                                                               </image>
+                                                            </ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>
@@ -169,9 +154,6 @@
                                              </HBox.margin>
                                           </GridPane>
                                        </children>
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
                                        <padding>
                                           <Insets bottom="1.0" />
                                        </padding>

@@ -1,28 +1,28 @@
 #TransHeader{
-    -fx-background-color:  #b6c1d2;
+    -fx-background-color:  #424752;
 }
 
 #TransHeader .label{
     -fx-font-family: "Verdana";
-    -fx-font-weight: bold;
-    -fx-text-fill: #000000; 
+    -fx-font-size: 11px;
+    -fx-text-fill: #ffffff; 
     -fx-background-color: transparent;
 }
 
 #Catalog{
-    -fx-background-color:  #b6c1d2;
+    -fx-background-color:  #424752;
 }
 
 #Catalog .label{
     -fx-font-family: "Verdana";
     -fx-font-weight: bold;
     -fx-font-size: 10px;
-    -fx-text-fill: #000000; 
+    -fx-text-fill: #ffffff; 
     -fx-background-color: transparent;
 }
 
 #TransButtons{
-    -fx-background-color: #c4cdda;
+    -fx-background-color: #ebebeb;
 }
 
 #OtherTrans .label{
@@ -30,7 +30,7 @@
 }
 
 #TransBody{
-    -fx-background-color: #f4f5f7;
+    -fx-background-color: #f6f6f6;
 }
 
 
@@ -40,21 +40,28 @@
 
 .text-field:disabled{
     -fx-opacity: 1;
+    -fx-border-width: 1px 1px 1px 1px;
+    -fx-border-color: #ebebeb;
     -fx-background-color: #ffffff;
+}
+
+.check-box:disabled .box {
+    -fx-background-color: white;
+    -fx-border-color:grey;
 }
 
 #btnSearch{
     -fx-border-width: 0px 0px 0px 1px;
     -fx-border-radius: 0px;
     -fx-background-radius: 10px;
-    -fx-background-color: #465a7d;
+    -fx-background-color: #3b7c8f;
     -fx-text-fill: #ffffff;    
     -fx-font-size: 12px;
 }
 
 #btnSearch:hover{
-    -fx-background-color: #b6c1d2;
-    -fx-text-fill: #000000;
+    -fx-background-color: #46899c;
+    -fx-text-fill: #ffffff;
     -fx-cursor: hand;
 }
 
@@ -65,18 +72,18 @@
 #btn01, #btn02, #btn03, #btn04, #btn05, #btn06, #btn07, #btn08, #btn09, #btn10, #btn11, #btn12{
     -fx-border-width: 0px 0px 0px 0px;
     -fx-border-radius: 0px;
-    -fx-border-color: #d2d9e2;
+    -fx-border-color: #ebebeb;
     -fx-background-radius: 0px;
-    -fx-background-color: #c4cdda;
-    -fx-text-fill: #000000;    
+    -fx-background-color: #ebebeb;
+    -fx-text-fill: #3b7c8f;    
     -fx-font-size: 11px;
     -fx-font-family: "Verdana";
 }
 
 #btn01:hover, #btn02:hover, #btn03:hover, #btn04:hover, #btn05:hover, #btn06:hover,
 #btn07:hover, #btn08:hover, #btn09:hover, #btn10:hover, #btn11:hover, #btn12:hover{
-    -fx-background-color: #b6c1d2;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #dedede;
+    -fx-text-fill: #3b7c8f;
     -fx-cursor: hand;
 }
 
