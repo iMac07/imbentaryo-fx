@@ -92,30 +92,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     @FXML
     private Button btn12;
     @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
-    @FXML
     private TextField txtSeeks01;
     @FXML
     private ComboBox cmbOrders;
@@ -799,27 +775,20 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         btn11.setVisible(true);
         btn12.setVisible(true);
         
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
-        
         int lnEditMode = _trans.getEditMode();
         btn02.setVisible(lnEditMode == EditMode.ADDNEW);
         btn03.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtSeeks011.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField10.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField0713.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField071.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField0712.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField0711.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField07111.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){

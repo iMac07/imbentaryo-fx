@@ -24,20 +24,13 @@
     -fx-text-fill: #000000; 
 }
 
-#btnChild01, #btnChild02, #btnChild03{
-    -fx-font-family: "Verdana";
-    -fx-font-size: 10px;
-    -fx-text-fill: #ffffff; 
-    
-    -fx-border-width: 0px 0px 0px 1px;
+#btnChild01, #btnChild02, #btnChild03{    
+    -fx-border-width: 0px 0px 0px 0px;
     -fx-border-radius: 0px;
-    -fx-background-radius: 5px;
-    -fx-background-color: #3b7c8f;
+    -fx-background-color: transparent;
 }
 
 #btnChild01:hover, #btnChild02:hover, #btnChild03:hover{
-    -fx-background-color: #b6c1d2;
-    -fx-text-fill: #000000;
     -fx-cursor: hand;
 }
 

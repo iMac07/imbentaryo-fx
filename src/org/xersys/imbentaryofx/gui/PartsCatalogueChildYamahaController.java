@@ -16,7 +16,7 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
 
 
-public class PartsCatalogueChildController implements Initializable {
+public class PartsCatalogueChildYamahaController implements Initializable {
     @FXML
     private ImageView image;
     @FXML
@@ -68,7 +68,6 @@ public class PartsCatalogueChildController implements Initializable {
             
             FileInputStream inputstream = new FileInputStream(_image_path);
             Rectangle2D loRec = new Rectangle2D(140, 0, 632, 480);
-            //Rectangle2D loRec = new Rectangle2D(400, 200, 632, 480);
             
             image.setImage(new Image(inputstream));
             image.setPreserveRatio(true);

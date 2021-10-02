@@ -33,7 +33,6 @@ import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.PaymentListener;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
-import org.xersys.parameters.search.ParamSearchEngine;
 import org.xersys.payment.base.CreditCardTrans;
 
 public class PaymentCreditCardController implements Initializable {
@@ -41,7 +40,6 @@ public class PaymentCreditCardController implements Initializable {
     
     private LRecordMas p_oListener;
     private CreditCardTrans p_oTrans;
-    private ParamSearchEngine p_oSearch_Param;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -105,8 +103,6 @@ public class PaymentCreditCardController implements Initializable {
         initGrid();
         clearFields();
         initListener();
-        
-        p_oSearch_Param = new ParamSearchEngine(p_oNautilus);
         
         p_oTrans.setListener(p_oListener);
         

@@ -43,11 +43,11 @@ import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.purchasing.base.PurchaseOrderNew;
+import org.xersys.purchasing.base.PurchaseOrder;
 
 public class PurchaseOrderController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private PurchaseOrderNew _trans;
+    private PurchaseOrder _trans;
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
@@ -57,7 +57,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     private QuickSearchCallback _search_callback;
     private DetailUpdateCallback _detail_update_callback;
     
-    private ObservableList<TableModel7> _table_data = FXCollections.observableArrayList();
+    private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
     private int _index;
@@ -94,23 +94,21 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtSeeks01;
     @FXML
-    private ComboBox cmbOrders;
-    @FXML
     private TextField txtField06;
     @FXML
     private TextField txtField07;
-    @FXML
-    private Label lblPayable;
-    @FXML
-    private TableView _table;
     @FXML
     private TextField txtField10;
     @FXML
     private TextField txtField05;
     @FXML
-    private TextField txtField16;
-    @FXML
     private TextField txtField08;
+    @FXML
+    private ComboBox cmbOrders;
+    @FXML
+    private Label lblPayable;
+    @FXML
+    private TableView _table;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -129,7 +127,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new PurchaseOrderNew(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -184,8 +182,15 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
                     searchBranchInventory("sBarCodex", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField06":
+                    searchSupplier("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField08":
+                    searchTerm("sDescript", lsValue, false);
                     event.consume();
                     return;
             }
@@ -207,6 +212,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         txtSeeks01.setText("");
         txtField06.setText("");
         txtField07.setText("");
+        txtField08.setText("");
+        txtField10.setText("");
 
         lblPayable.setText("0.00");
         
@@ -223,7 +230,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         cmbOrders.setItems(lsOrderNox);  
         _table_data.clear();
         
-        txtSeeks01.requestFocus();
+        if (txtField05.isDisable())
+            txtField06.requestFocus();
+        else
+            txtField05.requestFocus();
     }
     
     private void computeSummary(){
@@ -234,11 +244,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
     
     private void loadTransaction(){
         txtField05.setText("");
-        txtField06.setText("");
+        txtField06.setText((String) _trans.getMaster("sClientNm"));
         txtField07.setText((String) _trans.getMaster("sReferNox"));
-        txtField08.setText("");
+        txtField08.setText((String) _trans.getMaster("sTermName"));
         txtField10.setText((String) _trans.getMaster("sRemarksx"));
-        txtField16.setText("");
         
         computeSummary();
         
@@ -260,13 +269,16 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnTranTotl = lnQuantity * lnUnitPrce;
             
-            _table_data.add(new TableModel7(String.valueOf(lnCtr + 1), 
+            _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        "",
+                        "",
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -278,7 +290,6 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         computeSummary();
         
         txtSeeks01.setText("");
-        txtSeeks01.requestFocus();
     }
     
     private void initGrid(){
@@ -414,6 +425,94 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         }
     }
     
+    private void searchSupplier(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchSupplier(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sSupplier", (String) loJSON.get("sClientID"));
+                        FXUtil.SetNextFocus(txtField06);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchSupplier());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField06);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtSeeks01.setText("");
+                FXUtil.SetNextFocus(txtField06);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtSeeks01.setText("");
+            FXUtil.SetNextFocus(txtField06);
+        }
+    }
+    
+    private void searchTerm(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchTerm(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sTermCode", (String) loJSON.get("sTermCode"));
+                        FXUtil.SetNextFocus(txtField08);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchTerm());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField08);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField08.setText("");
+                FXUtil.SetNextFocus(txtField08);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField08.setText("");
+            FXUtil.SetNextFocus(txtField08);
+        }
+    }
+    
     private void cmdButton_Click(ActionEvent event) {
         String lsButton = ((Button) event.getSource()).getId();
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
@@ -453,7 +552,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 break;
             case "btn04": //pay
                 if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully and ready for paying.", "Success");
+                    MsgBox.showOk("Transaction saved successfully.", "Success");
                     
                     _loaded = false;
 
@@ -482,6 +581,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 loadScreen(ScreenInfo.NAME.PO_RETURN);
                 break;
             case "btn11": //History
+                loadScreen(ScreenInfo.NAME.PURCHASE_ORDER_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -569,6 +669,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                     case "nFreightx":
                         computeSummary();
                         break;
+                    case "sSupplier":
+                        txtField06.setText((String) foValue);
+                        break;
+                    case "sTermCode":
+                        txtField08.setText((String) foValue);
+                        break;
                 }
             }
 
@@ -589,6 +695,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         loadDetail();
+                        break;
+                    case "txtField06":
+                        _trans.setMaster("sSupplier", (String) foValue.get("sClientID"));
+                        break;
+                    case "txtField08":
+                        _trans.setMaster("sTermCode", (String) foValue.get("sTermCode"));
                         break;
                 }
             }
@@ -669,7 +781,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn01.setText("New");
         btn02.setText("Clear");
         btn03.setText("Search");
-        btn04.setText("Pay");
+        btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -698,9 +810,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField05.setDisable(true);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField16.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField08.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField10.setDisable(lnEditMode != EditMode.ADDNEW);
@@ -710,15 +821,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
         txtField08.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField16.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         
-        txtField05.focusedProperty().addListener(txtField_Focus);
-        txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField08.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
-        txtField16.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -738,17 +846,11 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
-                case 6: //po number
+                case 7: //po number
                     _trans.setMaster("sReferNox", lsValue);
                     break;
                 case 10: //remarks
                     _trans.setMaster("sRemarksx", lsValue);
-                    break;
-                case 5:
-                case 7:
-                case 8:
-                case 9:
-                case 16:
                     break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
