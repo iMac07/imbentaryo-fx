@@ -11,7 +11,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -34,6 +37,8 @@ public class Cart2Controller implements Initializable, ControlledScreen {
     private Label lblTotalAmount;
     @FXML
     private TableView table;
+    @FXML
+    private TextField txtQuantity;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -44,7 +49,7 @@ public class Cart2Controller implements Initializable, ControlledScreen {
         AnchorMain.setRightAnchor(AnchorMain, 0.0);
         
         initGrid();
-        
+        txtQuantity.setOnKeyPressed(this::txtField_KeyPressed);
         lblTotalItems.setText(String.valueOf(_total_items));
         lblTotalAmount.setText(StringUtil.NumberFormat(_total_amount, "#,##0.00"));
         
@@ -168,6 +173,29 @@ public class Cart2Controller implements Initializable, ControlledScreen {
     @FXML
     private void table_clicked(MouseEvent event) {
         _selected = table.getSelectionModel().getSelectedIndex();
+        
+        JSONObject loJSON = (JSONObject) _data.get(_selected);
+        txtQuantity.setText(String.valueOf(loJSON.get("nQuantity")));
+        txtQuantity.requestFocus();
+    }
+    
+    private void txtField_KeyPressed(KeyEvent event) {
+        TextField txtField = (TextField) event.getSource();
+        String lsTxt = txtField.getId();
+        String lsValue = txtField.getText();
+                
+        if (event.getCode() == KeyCode.ENTER){
+            switch (lsTxt){
+                case "txtQuantity":
+                    if (_data.size() > 0) {
+                        JSONObject loJSON = (JSONObject) _data.get(_selected);
+
+                        loJSON.put("nQuantity", Integer.valueOf(lsValue));
+                        _data.set(_selected, loJSON);
+                        displayOrders();             
+                    }
+            }
+        }
     }
     
     private void cmdButton_Click(ActionEvent event) {

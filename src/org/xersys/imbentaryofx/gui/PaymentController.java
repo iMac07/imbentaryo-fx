@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -313,10 +311,10 @@ public class PaymentController implements Initializable, ControlledScreen {
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("Save");
-        btn02.setText("+ Card");
-        btn03.setText("+ Cheque");
-        btn04.setText("+ GC");
+        btn01.setText("Okay");
+        btn02.setText("Card");
+        btn03.setText("Cheque");
+        btn04.setText("GC");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");

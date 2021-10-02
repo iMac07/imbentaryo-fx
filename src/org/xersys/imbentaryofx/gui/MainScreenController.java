@@ -37,12 +37,6 @@ public class MainScreenController implements Initializable {
     @FXML
     private Label lblUser;
     @FXML
-    private Label lblDate1;
-    @FXML
-    private Label lblCompany1;
-    @FXML
-    private Label lblUser1;
-    @FXML
     private AnchorPane btnOther01;
     @FXML
     private AnchorPane btnOther02;
@@ -148,11 +142,12 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.JOB_ORDER);
                 break;
             case "btnOther04": //customer order
-                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);
+                //loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);
                 break;
             case "btnOther05": //wholesale
                 break;
             case "btnOther06": //inventory
+                loadScreen(ScreenInfo.NAME.SP_INV_MASTER);
                 break;
             case "btnOther07": //warehousing
                 break;

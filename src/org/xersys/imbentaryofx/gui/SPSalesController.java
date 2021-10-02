@@ -592,13 +592,13 @@ public class SPSalesController implements Initializable, ControlledScreen{
             public void FormClosing() {
                 _loaded = false;
                 
-                createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                initButton();
                 clearFields();
+                initButton();
+
+                cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());    
                 loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
+
                _loaded = true;
 
                 initButton();

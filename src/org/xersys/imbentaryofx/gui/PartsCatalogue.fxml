@@ -136,7 +136,10 @@
                                                    <children>
                                                       <Button id="btn01" fx:id="btn01" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="41.0" text="F1" textAlignment="JUSTIFY" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/point-of-sale.png" />
+                                                               </image></ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>
@@ -158,7 +161,10 @@
                                                    <children>
                                                       <Button fx:id="btn03" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" />
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/customer-order.png" />
+                                                               </image></ImageView>
                                                          </graphic>
                                                       </Button>
                                                    </children>

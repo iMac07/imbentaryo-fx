@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -168,29 +166,11 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                             if (loSales.NewTransaction()){     
                                 int lnRow = 0;
                                 for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
-                                    loJSON = (JSONObject) loArray.get(lnCtr);
-
-//                                    InventorySE loSearch = new InventorySE(_nautilus);
-//                                    loSearch.setSearchType(InventorySF.Type.searchInvBranchComplex);
-//                                    loSearch.setKey("a.sStockIDx");
-//                                    loSearch.setFilter("");
-//                                    loSearch.setMax(1);
-//                                    loSearch.setExact(true);
-//                                    
-//                                    JSONObject loResult = (JSONObject) loSearch.Search((String) loJSON.get("sStockIDx"));
-//                                    if ("success".equals((String) loResult.get("result"))){
-//                                        JSONArray laArray = (JSONArray) loResult.get("payload");
-//                                        
-//                                        if (laArray.size() == 1){
-//                                            loResult = new JSONObject();
-//                                            loResult.put("result", "success");
-//                                            loResult.put("payload", (JSONObject) laArray.get(0));
-//                                            
-//                                            loSales.setDetail(lnRow, "sStockIDx", loResult);
-//                                            loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
-//                                            lnRow++;
-//                                        }
-//                                    }  
+                                    loJSON = (JSONObject) loArray.get(lnCtr);                                   
+                                    
+                                    loSales.setDetail(lnRow, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                                    loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+                                    lnRow++;
                                 }
                             }
                         }
@@ -327,7 +307,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         int row = 1;
         
         try {
-            for (int lnCtr = 1; lnCtr < _trans.getFigureCount(); lnCtr ++){
+            for (int lnCtr = 1; lnCtr <= _trans.getFigureCount(); lnCtr ++){
                 FXMLLoader fxmlLoader = new FXMLLoader();
                 fxmlLoader.setLocation(getClass().getResource("PartsCatalogueChild.fxml"));
 

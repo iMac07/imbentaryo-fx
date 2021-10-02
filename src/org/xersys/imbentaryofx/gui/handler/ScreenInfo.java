@@ -20,6 +20,7 @@ public class ScreenInfo {
         QUICK_SEARCH_FILTER,
         POS_DETAIL_UPDATE,
         PURCHASE_ORDER,
+        PURCHASE_ORDER_HISTORY,
         PO_RECEIVING,
         PO_RETURN,
         CLIENT_MASTER,
@@ -29,7 +30,8 @@ public class ScreenInfo {
         PAYMENT,
         PAYMENT_NO_INVOICE,
         SP_SALES,
-        SP_SALES_HISTORY
+        SP_SALES_HISTORY,
+        SP_INV_MASTER
     }
     
     public static JSONObject get(NAME foModule){
@@ -84,6 +86,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "PurchaseOrder.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PurchaseOrderController");
                 return loJSON;
+            case PURCHASE_ORDER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "PurchaseOrderHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PurchaseOrderHistoryController");
+                return loJSON;
             case PO_RECEIVING:
                 loJSON.put("resource", RESOURCE_URL + "POReceiving.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReceivingController");
@@ -127,6 +133,10 @@ public class ScreenInfo {
             case SP_SALES_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "SPSalesHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPSalesHistoryController");
+                return loJSON;
+            case SP_INV_MASTER:
+                loJSON.put("resource", RESOURCE_URL + "SPMaster.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPMasterController");
                 return loJSON;
         }
         
