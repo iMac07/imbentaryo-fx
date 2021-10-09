@@ -1,6 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -12,8 +11,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import org.json.simple.JSONObject;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 

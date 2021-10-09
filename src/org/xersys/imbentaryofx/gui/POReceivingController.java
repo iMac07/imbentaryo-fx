@@ -31,9 +31,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.lib.pojo.Temp_Transactions;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -271,22 +268,24 @@ public class POReceivingController implements Initializable, ControlledScreen{
         _table_data.clear();
         
         double lnUnitPrce;
+        double lnFreightx;
         double lnTranTotl;
         int lnQuantity;
         
         for(lnCtr = 0; lnCtr <= lnRow -1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
+            lnFreightx = ((Number)_trans.getDetail(lnCtr, "nFreightx")).doubleValue();
             lnTranTotl = lnQuantity * lnUnitPrce;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        StringUtil.NumberFormat(lnFreightx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
                         "",
                         ""));
         }
@@ -310,14 +309,16 @@ public class POReceivingController implements Initializable, ControlledScreen{
         TableColumn index05 = new TableColumn("");
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
+        TableColumn index08 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
         index04.setSortable(false); index04.setResizable(true); index04.setStyle( "-fx-alignment: CENTER;");
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER;");
+        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -337,17 +338,21 @@ public class POReceivingController implements Initializable, ControlledScreen{
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
         index04.prefWidthProperty().set(60);
         
-        index05.setText("Unit Price"); 
+        index05.setText("Qty"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("Order"); 
+        index06.setText("Unit Price"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(60);
+        index06.prefWidthProperty().set(80);
         
-        index07.setText("Total"); 
+        index07.setText("Freight"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(85);
+        index07.prefWidthProperty().set(80);
+        
+        index08.setText("Total"); 
+        index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
+        index08.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -356,6 +361,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
         _table.getColumns().add(index05);
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
+        _table.getColumns().add(index08);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -367,9 +373,9 @@ public class POReceivingController implements Initializable, ControlledScreen{
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.PO_RECEIVING_DETAIL_UPDATE);
                 
-                POSDetailController instance = new POSDetailController();
+                POReceivingDetailController instance = new POReceivingDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -380,9 +386,10 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
                 instance.setOtherInfo(0);
-                instance.setOnHand((int) _trans.getDetail(_detail_row, "nQtyOnHnd"));
-                instance.setQtyOrder((int) _trans.getDetail(_detail_row, "nQuantity"));
+                instance.setOnHand(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setQtyOrder(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQuantity"))));
                 instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
+                instance.setFreight((double) _trans.getDetail(_detail_row, "nFreightx"));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
@@ -636,6 +643,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 loadScreen(ScreenInfo.NAME.PO_RETURN);
                 break;
             case "btn11": //History
+                loadScreen(ScreenInfo.NAME.PO_RECEIVING_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -729,7 +737,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                     case "sTermCode":
                         txtField08.setText((String) foValue);
                         break;
-                    case "sReferNox":
+                    case "sSourceNo":
                         loadTransaction();
                         loadDetail();
                         break;
@@ -761,7 +769,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                         _trans.setMaster("sTermCode", (String) foValue.get("sTermCode"));
                         break;
                     case "txtField17":
-                        _trans.setMaster("sReferNox", (String) foValue.get("sTransNox"));
+                        _trans.setMaster("sSourceNo", (String) foValue.get("sTransNox"));
                         break;
                 }
             }
@@ -842,7 +850,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
         btn01.setText("New");
         btn02.setText("Clear");
         btn03.setText("Search");
-        btn04.setText("Pay");
+        btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");

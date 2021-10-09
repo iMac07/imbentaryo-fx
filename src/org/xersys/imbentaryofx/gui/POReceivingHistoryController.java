@@ -1,6 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -17,6 +18,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -32,18 +34,17 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.sales.base.SP_Sales;
-import org.xersys.sales.search.SalesSearch;
+import org.xersys.purchasing.base.POReceiving;
 
-public class SPSalesHistoryController implements Initializable, ControlledScreen{
+public class POReceivingHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
     
     private XNautilus _nautilus;
-    private SP_Sales _trans;
+    private POReceiving _trans;
     private LMasDetTrans _listener;
     
-    private SalesSearch _trans_search;
     private int _transtat;
     
     private MainScreenController _main_screen_controller;
@@ -90,33 +91,29 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     @FXML
     private Button btn12;
     @FXML
-    private TextField txtField10;
+    private TextField txtSeeks01;
     @FXML
-    private TextField txtField11;
+    private TextField txtSeeks02;
     @FXML
-    private TextField txtField12;
+    private TextField txtField05;
     @FXML
     private TextField txtField06;
     @FXML
     private TextField txtField07;
     @FXML
-    private Label lblTranTotal;
+    private TextField txtField08;
     @FXML
-    private Label lblTotalDisc;
+    private TextField txtField16;
     @FXML
-    private Label lblPayable;
-    @FXML
-    private TableView _table;
-    @FXML
-    private Label lblFreight;
+    private TextField txtField17;
     @FXML
     private Label lblTranStat;
     @FXML
-    private Label lblPaymTotl;
-    @FXML
     private ComboBox cmbStatus;
     @FXML
-    private TextField txtSeeks01;
+    private TableView _table;
+    @FXML
+    private Label lblPayable;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -135,9 +132,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         initGrid();
         initListener();
         
-        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchSPSales);
-        
-        _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new POReceiving(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
 
@@ -172,6 +167,17 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
         
+        if (event.getCode() == KeyCode.ENTER){
+            switch(lsTxt){
+                case "txtSeeks01":
+                    searchTransaction("a.sReferNox", lsValue, false);
+                    break;
+                case "txtSeeks02":
+                    searchTransaction("IFNULL(b.sClientNm, '')", lsValue, false);
+                    break;
+            }
+        }
+        
         switch (event.getCode()){
         case ENTER:
         case DOWN:
@@ -186,52 +192,33 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         initGrid();
         
         txtSeeks01.setText("");
+        txtSeeks02.setText("");
+        txtField05.setText("");
         txtField06.setText("");
         txtField07.setText("");
-        txtField10.setText("0.00");
-        txtField11.setText("0.00");
-        txtField12.setText("0.00");
-        
-        lblTranTotal.setText("0.00");
-        lblTotalDisc.setText("0.00");
-        lblFreight.setText("0.00");
-        lblPayable.setText("0.00");
+        txtField08.setText("");
+        txtField16.setText("");
+        txtField17.setText("");
 
         _table_data.clear();
         
         cmbStatus.getSelectionModel().select(0);
         _transtat = 0;
+        _trans.setTranStat(_transtat);
         
         setTranStat("-1");
     }
     
-    private void computeSummary(){
-        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
-        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
-        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
-        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
-        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
-        double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
-        
-        txtField10.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        txtField12.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
-        
-        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
-        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
-        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
-        lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
-    }
-    
     private void loadTransaction(){
-        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
-        txtField06.setText((String) _trans.getMaster("sRemarksx"));
-        txtField07.setText((String) _trans.getMaster("sSalesman"));
+        txtField05.setText((String) _trans.getMaster("sClientNm"));
+        txtField06.setText((String) _trans.getMaster("sReferNox"));
+        txtField07.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dRefernce"), SQLUtil.FORMAT_MEDIUM_DATE));
+        txtField08.setText((String) _trans.getMaster("sTermName"));
+        txtField17.setText((String) _trans.getMaster("sRemarksx"));
+        txtField17.setText((String) _trans.getMaster("sSourceNo"));
         
-        txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nDiscount"), "##0.00"));
-        txtField11.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAddDiscx"), "#,##0.00"));
-        txtField12.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nFreightx"), "#,##0.00"));
+        txtSeeks01.setText(txtField06.getText());
+        txtSeeks02.setText(txtField05.getText());
         
         computeSummary();
         
@@ -239,12 +226,14 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
     }
     
-    private void searchTransaction(){
-        _trans_search.setKey("a.sTransNox");
-        _trans_search.setValue("");
-        _trans_search.setExact(false);
+    private void computeSummary(){
+        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
         
-        JSONObject loJSON =  _trans_search.Search();
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+    }
+    
+    private void searchTransaction(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchTransaction(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -274,7 +263,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans_search);
+                            instance.setSearchObject(_trans.getSearchTransaction());
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtSeeks01);
 
@@ -301,33 +290,31 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnDiscount;
-        double lnAddDiscx;
+        double lnFreightx;
         double lnTranTotl;
         int lnQuantity;
         
-        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+        for(lnCtr = 0; lnCtr <= lnRow -1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
-            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnFreightx = ((Number)_trans.getDetail(lnCtr, "nFreightx")).doubleValue();
+            lnTranTotl = lnQuantity * lnUnitPrce;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        "TODO:",
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
-                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        StringUtil.NumberFormat(lnFreightx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        "",
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
-            _table.getSelectionModel().select(lnRow - 1);
-            _table.getFocusModel().focus(lnRow - 1); 
+            _table.getSelectionModel().select(_detail_row);
+            _table.getFocusModel().focus(_detail_row); 
             _detail_row = _table.getSelectionModel().getSelectedIndex();           
         }
         
@@ -348,11 +335,17 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                                 loadDetail();
                             } else {
                                 MsgBox.showOk(_trans.getMessage(), "Warning");
+                                
+                                initGrid();
+                                initButton();
                                 clearFields();
                             }
-                        } else 
-                            MsgBox.showOk((String) foValue.get("message"), "Warning");
-                        
+                        } else {                            
+                            initGrid();
+                            initButton();
+                            clearFields();
+                        }
+                            
                         break;
                 }
             }
@@ -373,19 +366,15 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
-        TableColumn index09 = new TableColumn("");
-        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
-        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(true); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER;");
+        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -405,7 +394,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
         index04.prefWidthProperty().set(60);
         
-        index05.setText("ROQ"); 
+        index05.setText("Qty"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
@@ -413,21 +402,13 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(80);
         
-        index07.setText("Order"); 
+        index07.setText("Freight"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(60);
+        index07.prefWidthProperty().set(80);
         
-        index08.setText("Disc."); 
+        index08.setText("Total"); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(60);
-        
-        index09.setText("Adtl."); 
-        index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(60);
-        
-        index10.setText("Total"); 
-        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(85);
+        index08.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -437,8 +418,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
-        _table.getColumns().add(index09);
-        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -451,6 +430,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     @FXML
     private void cmbStatus_Click(ActionEvent event) {
         _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
+        _trans.setTranStat(_transtat);
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -458,10 +438,17 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01":
-                searchTransaction();
+            case "btn01": //browse
+                searchTransaction("a.sTransNox", "", false);
                 break;
-            case "btn02":
+            case "btn02": //print
+                if (_trans.CloseTransaction()){
+                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03":
                 break;
@@ -551,7 +538,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Pay");
+        btn02.setText("Confirm");
         btn03.setText("");
         btn04.setText("");
         btn05.setText("");
@@ -577,17 +564,9 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn12.setVisible(true);
     }
     
-    private void initFields(){
-        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField10.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField12.setOnKeyPressed(this::txtField_KeyPressed);        
-        
-        txtField06.focusedProperty().addListener(txtField_Focus);
-        txtField10.focusedProperty().addListener(txtField_Focus);
-        txtField11.focusedProperty().addListener(txtField_Focus);
-        txtField12.focusedProperty().addListener(txtField_Focus);
+    private void initFields(){        
+        txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtSeeks02.setOnKeyPressed(this::txtField_KeyPressed);
         
         cmbStatus.setItems(_status);
         cmbStatus.getSelectionModel().select(0);

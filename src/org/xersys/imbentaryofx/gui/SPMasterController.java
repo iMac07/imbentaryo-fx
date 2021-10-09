@@ -1,7 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.sql.SQLException;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -19,21 +19,18 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONObject;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextArea;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.inventory.base.Inventory;
 
 public class SPMasterController implements Initializable, ControlledScreen{
@@ -232,7 +229,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
         }
     }
     
-    private void clearFields(){        
+    private void clearFields(){      
+        txtSeeks01.setText("");
+        txtSeeks02.setText("");
+        
         txtField02.setText("");
         txtField03.setText("");
         txtField04.setText("");
@@ -267,7 +267,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         chkActive.setSelected(false);
     }
     
-    private void loadTransaction(){
+    private void loadRecord(){
         try {
             txtSeeks01.setText((String) _trans.getMaster("sBarCodex"));
             txtSeeks02.setText((String) _trans.getMaster("sDescript"));
@@ -298,12 +298,31 @@ public class SPMasterController implements Initializable, ControlledScreen{
             
             lnValue = Integer.parseInt((String) _trans.getMaster("cRecdStat"));
             chkActive.setSelected(lnValue == 1);
-        } catch (NumberFormatException | SQLException ex) {
+        } catch (NumberFormatException ex) {
             MsgBox.showOk(ex.getMessage(), "Warning");
             ex.printStackTrace();
             System.exit(1);
         }
     }    
+    
+    private void loadMaster(){
+        txtField103.setText("");
+        txtField104.setText(String.valueOf(_trans.getInvMaster().getMaster("nBinNumbr")));
+        txtField105.setText(SQLUtil.dateFormat((Date) _trans.getInvMaster().getMaster("dAcquired"), SQLUtil.FORMAT_MEDIUM_DATE));
+        txtField106.setText(SQLUtil.dateFormat((Date) _trans.getInvMaster().getMaster("dBegInvxx"), SQLUtil.FORMAT_MEDIUM_DATE));
+        txtField107.setText(String.valueOf(_trans.getInvMaster().getMaster("nBegQtyxx")));
+        txtField108.setText(String.valueOf(_trans.getInvMaster().getMaster("nQtyOnHnd")));
+        txtField109.setText(String.valueOf(_trans.getInvMaster().getMaster("nMinLevel")));
+        txtField110.setText(String.valueOf(_trans.getInvMaster().getMaster("nMaxLevel")));
+        txtField111.setText(StringUtil.NumberFormat((Number) _trans.getInvMaster().getMaster("nAvgMonSl"), "#,##0.00"));
+        txtField112.setText(StringUtil.NumberFormat((Number) _trans.getInvMaster().getMaster("nAvgMonSl"), "#,##0.00"));
+        txtField113.setText(String.valueOf(_trans.getInvMaster().getMaster("cClassify")));
+        txtField114.setText(String.valueOf(_trans.getInvMaster().getMaster("nBackOrdr")));
+        txtField115.setText(String.valueOf(_trans.getInvMaster().getMaster("nResvOrdr")));
+        txtField116.setText(String.valueOf(_trans.getInvMaster().getMaster("nFloatQty")));
+        
+        chkActive1.setSelected(String.valueOf(_trans.getInvMaster().getMaster("cRecdStat")).equals("1"));
+    }
     
     private void cmdButton_Click(ActionEvent event) {
         String lsButton = ((Button) event.getSource()).getId();
@@ -321,7 +340,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
 
                 initButton();
                 clearFields();
-                loadTransaction();
+                loadRecord();
                 
                _loaded = true;
                 break;
@@ -335,7 +354,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
             case "btn03": //search
                 break;
             case "btn04": //save                
-                if (_trans.SaveRecord(true)){
+                if (_trans.SaveRecord()){
                     MsgBox.showOk("Transaction saved successfully.", "Success");
                     
                     _loaded = false;
@@ -359,7 +378,22 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn10":
                 break;
-            case "btn11": //history
+            case "btn11": //update
+                if (_trans.UpdateRecord()) {
+                    initButton();
+                    
+                    if (_trans.getInvMaster().getEditMode() != EditMode.READY){
+                        if (MsgBox.showYesNo("This is item is not on your branch inventory.\n\n" +
+                                "Do you want to add this item to inventory?", "Confirm") == MsgBox.RESP_YES_OK){
+
+                            if (_trans.getInvMaster().NewRecord()){
+                                loadMaster();
+                                disableMasterFields(true);
+                                disableInvMasterFields();
+                            }
+                        }
+                    }
+                } 
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -430,6 +464,14 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         txtField11.setText(StringUtil.NumberFormat((double) foValue, "#,##0.00")); break;
                     case "nSelPrce1":
                         txtField12.setText(StringUtil.NumberFormat((double) foValue, "#,##0.00")); break;
+                    case "nBinNumbr":
+                        txtField104.setText(String.valueOf(foValue)); break;
+                    case "dAcquired":
+                        txtField105.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
+                    case "dBegInvxx":
+                        txtField106.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
+                    case "nBegQtyxx":
+                        txtField107.setText(String.valueOf(foValue)); break;
                 }
             }
         };
@@ -444,7 +486,9 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         case "txtSeeks01":
                         case "txtSeeks02":
                             if (_trans.OpenRecord((String) foValue.get("sStockIDx"))){
-                                loadTransaction();
+                                loadRecord();
+                                
+                                if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
                             } else {
                                 MsgBox.showOk(_trans.getMessage(), "Warning");
                                 clearFields();
@@ -506,7 +550,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("History");
+        btn11.setText("Update");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -528,9 +572,13 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn11.setVisible(!lbShow);
         
-        txtField02.setDisable(!lbShow);
-        txtField03.setDisable(!lbShow);
+        txtSeeks01.setDisable(lnEditMode == EditMode.ADDNEW);
+        txtSeeks02.setDisable(lnEditMode == EditMode.ADDNEW);
+        
+        txtField02.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField03.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField04.setDisable(!lbShow);
         txtField05.setDisable(!lbShow);
         txtField06.setDisable(true);
@@ -538,10 +586,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField08.setDisable(!lbShow);
         txtField09.setDisable(true);
         txtField10.setDisable(!lbShow);
-        txtField11.setDisable(!lbShow);
-        txtField12.setDisable(!lbShow);
+        txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
         
-        disableInvMasterFields(true);
+        disableInvMasterFields();
         
         //disable these fields temporarilly
         chkCombo.setDisable(true);
@@ -556,23 +604,37 @@ public class SPMasterController implements Initializable, ControlledScreen{
             txtSeeks01.requestFocus();
     }
     
-    private void disableInvMasterFields(boolean fbDisable){
-        txtField103.setDisable(fbDisable);
-        txtField104.setDisable(fbDisable);
-        txtField105.setDisable(fbDisable);
-        txtField106.setDisable(fbDisable);
-        txtField107.setDisable(fbDisable);
-        txtField108.setDisable(fbDisable);
-        txtField109.setDisable(fbDisable);
-        txtField110.setDisable(fbDisable);
-        txtField111.setDisable(fbDisable);
-        txtField112.setDisable(fbDisable);
-        txtField113.setDisable(fbDisable);
-        txtField114.setDisable(fbDisable);
-        txtField115.setDisable(fbDisable);
-        txtField116.setDisable(fbDisable);
+    private void disableMasterFields(boolean fbValue){
+        txtField02.setDisable(fbValue);
+        txtField03.setDisable(fbValue);
+        txtField04.setDisable(fbValue);
+        txtField05.setDisable(fbValue);
+        txtField06.setDisable(fbValue);
+        txtField07.setDisable(fbValue);
+        txtField08.setDisable(fbValue);
+        txtField09.setDisable(fbValue);
+        txtField10.setDisable(fbValue);
+        txtField11.setDisable(fbValue);
+        txtField12.setDisable(fbValue);
+    }
+    
+    private void disableInvMasterFields(){
+        int lnEditMode = _trans.getInvMaster().getEditMode();
         
-        chkActive1.setDisable(fbDisable);
+        txtField103.setDisable(true);
+        txtField104.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField105.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField106.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField107.setDisable(lnEditMode != EditMode.ADDNEW);
+        
+        chkActive1.setDisable(true);
+        
+        if (lnEditMode != EditMode.ADDNEW) {
+            if (txtField103.disableProperty().get() == true)
+                txtField104.requestFocus();
+            else
+                txtField103.requestFocus();
+        }
     }
     
     private void initFields(){              
@@ -597,6 +659,16 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
+        
+        txtField104.focusedProperty().addListener(txtField_Focus);
+        txtField105.focusedProperty().addListener(txtField_Focus);
+        txtField106.focusedProperty().addListener(txtField_Focus);
+        txtField107.focusedProperty().addListener(txtField_Focus);
+        
+        txtField104.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField105.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField106.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField107.setOnKeyPressed(this::txtField_KeyPressed);
         
         cmbInvStat.setItems(_inv_status);
     }
@@ -690,7 +762,9 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         loJSON = (JSONObject) loArray.get(0);
                         
                         if (_trans.OpenRecord((String) loJSON.get("sStockIDx"))){
-                            loadTransaction();
+                            loadRecord();
+                            
+                            if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
                         } else {
                             MsgBox.showOk(_trans.getMessage(), "Warning");
                             clearFields();
@@ -730,7 +804,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         if (!_loaded) return;
         
         TextField txtField = (TextField)((ReadOnlyBooleanPropertyBase)o).getBean();
-        int lnIndex = Integer.parseInt(txtField.getId().substring(8, 10));
+        int lnIndex = Integer.parseInt(txtField.getId().substring(8));
         String lsValue = txtField.getText();
         
         if (lsValue == null) return;
@@ -762,24 +836,56 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         _trans.setMaster("nSelPrce1", Double.parseDouble(lsValue)); 
                     
                     break;
+                case 107:
+                    int lnBegQtyxx = 0;
+                    
+                    if (!StringUtil.isNumeric(lsValue))
+                        _trans.setMaster("nBegQtyxx", lnBegQtyxx);
+                    else
+                        _trans.setMaster("nBegQtyxx", Integer.valueOf(lsValue)); 
+                    
+                    break;
+                case 104:
+                    int lnBinNumbr = 0;
+                    
+                    if (!StringUtil.isNumeric(lsValue))
+                        _trans.setMaster("nBinNumbr", lnBinNumbr);
+                    else
+                        _trans.setMaster("nBinNumbr", Integer.valueOf(lsValue)); 
+                    
+                    break;
+                case 105:
+                    if (!StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE))
+                        _trans.setMaster("dAcquired", _nautilus.getServerDate());
+                    else
+                        _trans.setMaster("dAcquired", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
+                    
+                    break;
+                case 106:
+                    if (!StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE))
+                        _trans.setMaster("dBegInvxx", _nautilus.getServerDate());
+                    else
+                        _trans.setMaster("dBegInvxx", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
+                    
+                    break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
             }
             _index = lnIndex;
         } else{ //Got Focus
-            try{
-                switch (lnIndex){
-                    case 11:
-                        txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nUnitPrce"), "#,##0.00"));
-                        break;
-                    case 12:
-                        txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nSelPrce1"), "#,##0.00"));
-                        break;
-                }
-            } catch (SQLException ex) {
-                MsgBox.showOk(ex.getMessage(), "Warning");
-                ex.printStackTrace();
-                System.exit(1);
+            switch (lnIndex){
+                case 11:
+                    txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nUnitPrce"), "#,##0.00"));
+                    break;
+                case 12:
+                    txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nSelPrce1"), "#,##0.00"));
+                    break;
+                case 105:
+                    txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dAcquired"), SQLUtil.FORMAT_SHORT_DATE));
+                    break;
+                case 106:
+                    txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBegInvxx"), SQLUtil.FORMAT_SHORT_DATE));
+                    break;
             }
             
             _index = lnIndex;

@@ -1,9 +1,9 @@
-package org.xersys.imbentaryofx.gui.handler;
+package org.xersys.imbentaryofx.gui;
 
 import org.json.simple.JSONObject;
 
 public class ScreenInfo {
-    public static final String RESOURCE_URL = "../";
+    public static final String RESOURCE_URL = "";
     public static final String CONTROLLER_URL = "org.xersys.imbentaryofx.gui.";
     
     public enum NAME{
@@ -18,10 +18,10 @@ public class ScreenInfo {
         CART, 
         QUICK_SEARCH,
         QUICK_SEARCH_FILTER,
-        POS_DETAIL_UPDATE,
         PURCHASE_ORDER,
         PURCHASE_ORDER_HISTORY,
         PO_RECEIVING,
+        PO_RECEIVING_HISTORY,
         PO_RETURN,
         CLIENT_MASTER,
         CLIENT_MOBILE,
@@ -29,9 +29,13 @@ public class ScreenInfo {
         CASHIERING,
         PAYMENT,
         PAYMENT_NO_INVOICE,
+        PAYMENT_CHARGE,
         SP_SALES,
         SP_SALES_HISTORY,
-        SP_INV_MASTER
+        SP_INV_MASTER,
+        POS_DETAIL_UPDATE,
+        PO_DETAIL_UPDATE,
+        PO_RECEIVING_DETAIL_UPDATE
     }
     
     public static JSONObject get(NAME foModule){
@@ -94,6 +98,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "POReceiving.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReceivingController");
                 return loJSON;
+            case PO_RECEIVING_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "POReceivingHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReceivingHistoryController");
+                return loJSON;
             case PO_RETURN:
                 loJSON.put("resource", RESOURCE_URL + "POReturn.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReturnController");
@@ -126,6 +134,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "PaymentNoInvoice.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PaymentNoInvoiceController");
                 return loJSON;
+            case PAYMENT_CHARGE:
+                loJSON.put("resource", RESOURCE_URL + "PaymentCharge.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PaymentChargeController");
+                return loJSON;
             case SP_SALES:
                 loJSON.put("resource", RESOURCE_URL + "SPSales.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPSalesController");
@@ -137,6 +149,14 @@ public class ScreenInfo {
             case SP_INV_MASTER:
                 loJSON.put("resource", RESOURCE_URL + "SPMaster.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPMasterController");
+                return loJSON;
+            case PO_DETAIL_UPDATE:
+                loJSON.put("resource", RESOURCE_URL + "PODetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PODetailController");
+                return loJSON;
+            case PO_RECEIVING_DETAIL_UPDATE:
+                loJSON.put("resource", RESOURCE_URL + "POReceivingDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReceivingDetailController");
                 return loJSON;
         }
         

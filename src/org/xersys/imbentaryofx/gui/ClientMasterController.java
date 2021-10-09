@@ -23,9 +23,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
@@ -323,7 +320,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 cmbCvilStat.getSelectionModel().select(0);
 
             cmbClientTp.requestFocus();
-        } catch (NumberFormatException | SQLException ex) {
+        } catch (NumberFormatException ex) {
             MsgBox.showOk(ex.getMessage(), "Warning");
             ex.printStackTrace();
             System.exit(1);
@@ -467,7 +464,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 _trans.setMaster("cCustomer", chkCustomer.isSelected() ? "1" : "0");
                 _trans.setMaster("cSupplier", chkSupplier.isSelected() ? "1" : "0");
                 
-                if (_trans.SaveRecord(true)){
+                if (_trans.SaveRecord()){
                     MsgBox.showOk("Record saved successfully.", "Success");
                     
                     _loaded = false;
@@ -884,16 +881,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             }
             _index = lnIndex;
         } else{ //Got Focus
-            try{
-                switch (lnIndex){
-                    case 11:
-                        txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_SHORT_DATE));
-                        break;
-                }
-            } catch (SQLException ex) {
-                MsgBox.showOk(ex.getMessage(), "Warning");
-                ex.printStackTrace();
-                System.exit(1);
+            switch (lnIndex){
+                case 11:
+                    txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_SHORT_DATE));
+                    break;
             }
             
             _index = lnIndex;

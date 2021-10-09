@@ -27,8 +27,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.iSearch;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;

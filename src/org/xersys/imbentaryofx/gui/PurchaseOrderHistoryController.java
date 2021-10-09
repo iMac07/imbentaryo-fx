@@ -27,8 +27,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -36,7 +34,6 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.purchasing.base.PurchaseOrder;
 
 public class PurchaseOrderHistoryController implements Initializable, ControlledScreen{
@@ -431,7 +428,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    MsgBox.showOk("Transaction confirmed successfully.", "Success");
+                    MsgBox.showOk("Transaction closed successfully.", "Success");
                     
                     initGrid();
                     initButton();
@@ -439,6 +436,13 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03": //confirmation by supplier
+                if (_trans.PostTransaction()){
+                    MsgBox.showOk("Transaction confirmed successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn04":
                 break;

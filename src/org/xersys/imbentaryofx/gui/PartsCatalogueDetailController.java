@@ -24,11 +24,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 
 public class PartsCatalogueDetailController implements Initializable, ControlledScreen{
     @FXML
