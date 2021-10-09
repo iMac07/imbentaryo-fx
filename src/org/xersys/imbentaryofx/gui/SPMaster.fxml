@@ -138,37 +138,37 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Location:" />
-                                          <TextField fx:id="txtField103" GridPane.columnIndex="1" />
+                                          <TextField fx:id="txtField103" promptText="Search" GridPane.columnIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Bin Number:" GridPane.columnIndex="3" />
                                           <TextField fx:id="txtField104" GridPane.columnIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="D. Acquired:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField105" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="D. Inventory:" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField106" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Beg. Inv. Qty:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField107" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="D. Inventory:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField106" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Beg. Inv. Qty:" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField107" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="D. Acquired:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField105" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="On Hand:" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField108" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField108" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="MIN Level:" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField109" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField109" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="MAX Level:" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField110" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField110" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="AVG Mon. Sl.:" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField111" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                          <TextField fx:id="txtField111" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="AVG Cost:" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField112" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                          <TextField fx:id="txtField112" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Classification:" GridPane.rowIndex="6">
                                              <GridPane.margin>
                                                 <Insets />
                                              </GridPane.margin>
                                           </Label>
-                                          <TextField fx:id="txtField113" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                          <TextField fx:id="txtField113" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Back Order:" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-                                          <TextField fx:id="txtField114" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                                          <TextField fx:id="txtField114" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Resv. Order:" GridPane.rowIndex="7" />
-                                          <TextField fx:id="txtField115" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                          <TextField fx:id="txtField115" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Float Qty:" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-                                          <TextField fx:id="txtField116" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                                          <TextField fx:id="txtField116" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="7" />
                                           <CheckBox fx:id="chkActive1" mnemonicParsing="false" text="Active" GridPane.columnIndex="4" GridPane.rowIndex="9" />
                                        </children>
                                     </GridPane>

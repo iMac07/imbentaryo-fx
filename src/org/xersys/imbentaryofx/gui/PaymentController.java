@@ -16,10 +16,13 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.xersys.clients.search.ClientSearch;
 import org.xersys.commander.contants.InvoiceType;
 import org.xersys.commander.iface.LRecordMas;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
@@ -27,10 +30,12 @@ import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.PaymentFactory;
 import org.xersys.imbentaryofx.listener.PaymentListener;
+import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 
 public class PaymentController implements Initializable, ControlledScreen {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
+    private QuickSearchCallback _search_callback;
     private XNautilus _nautilus;
     private LRecordMas _listener;
     
@@ -149,6 +154,8 @@ public class PaymentController implements Initializable, ControlledScreen {
             System.exit(1);
         }
         
+        loadCreditCard();
+        
         _loaded = true;
     }    
     
@@ -194,6 +201,9 @@ public class PaymentController implements Initializable, ControlledScreen {
                     case "sInvNumbr":
                         txtField04.setText((String) foValue);
                         break;
+                    case "sClientID":
+                        txtField05.setText((String) foValue);
+                        break;
                     case "nCashAmtx":
                         txtField12.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
                         displayTotalPayment();
@@ -220,7 +230,26 @@ public class PaymentController implements Initializable, ControlledScreen {
                 lblCreditCardAmount.setText(StringUtil.NumberFormat((Number) _trans.getCreditCardInfo().getPaymentTotal(), "#,##0.00"));
                 
                 displayTotalPayment();
-                anchorPaymentType.getChildren().clear();
+            }
+        };
+        
+        _search_callback = new QuickSearchCallback() {
+            @Override
+            public void Result(TextField foField, JSONObject foValue) {
+                if (!"success".equals((String) foValue.get("result"))) return;
+                
+                foValue = (JSONObject) foValue.get("payload");
+                
+                switch (foField.getId()){
+                    case "txtField05":
+                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
+                        break;
+                }
+            }
+
+            @Override
+            public void FormClosing(TextField foField) {
+                foField.requestFocus();
             }
         };
     }
@@ -324,11 +353,10 @@ public class PaymentController implements Initializable, ControlledScreen {
         btn11.setText("");
         btn12.setText("Cancel");              
         
-        
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn03.setVisible(false);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
@@ -445,7 +473,7 @@ public class PaymentController implements Initializable, ControlledScreen {
             ex.printStackTrace();
             MsgBox.showOk("Unable to load Gift Cheque Payment form.", "Warning");
         }
-    }   
+    }  
     
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
@@ -455,6 +483,9 @@ public class PaymentController implements Initializable, ControlledScreen {
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtField05":
+                    searchClient("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
             }
         }
         
@@ -465,6 +496,50 @@ public class PaymentController implements Initializable, ControlledScreen {
             break;
         case UP:
             FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
+    private void searchClient(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchClient(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
+                        FXUtil.SetNextFocus(txtField05);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject((ClientSearch) _trans.getSearchClient());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField05);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField05.setText("");
+                FXUtil.SetNextFocus(txtField05);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField05.setText("");
+            FXUtil.SetNextFocus(txtField05);
         }
     }
     

@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -22,7 +20,7 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 
-public class POSDetailController implements Initializable, ControlledScreen  {
+public class PODetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private DetailUpdateCallback _callback;
@@ -35,8 +33,6 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private int _order;
     private int _on_hand;
     private double _srp;
-    private double _discount;
-    private double _additional;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -78,10 +74,6 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private TextField txtDetail05;
     @FXML
     private TextField txtDetail06;
-    @FXML
-    private TextField txtDetail07;
-    @FXML
-    private TextField txtDetail08;
     @FXML
     private Label lblTotal;
 
@@ -149,14 +141,6 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         _srp = fnValue;
     }
     
-    public void setDiscount(double fnValue){
-        _discount = fnValue;
-    }
-    
-    public void setAdditional(double fnValue){
-        _additional = fnValue;
-    }
-    
     private void initButton(){
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
@@ -219,21 +203,16 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         txtDetail04.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail05.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail08.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtDetail04.focusedProperty().addListener(txtField_Focus);
         txtDetail06.focusedProperty().addListener(txtField_Focus);
-        txtDetail07.focusedProperty().addListener(txtField_Focus);
-        txtDetail08.focusedProperty().addListener(txtField_Focus);
                 
         txtDetail01.setText(_part_number);
         txtDetail02.setText(_description);
         txtDetail03.setText(String.valueOf(_roq));
-        txtDetail04.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
+        txtDetail04.setText(StringUtil.NumberFormat(_srp, "###0.00"));
         txtDetail05.setText(String.valueOf(_on_hand));
         txtDetail06.setText(String.valueOf(_order));
-        txtDetail07.setText(StringUtil.NumberFormat(_discount, "##0.00"));
-        txtDetail08.setText(StringUtil.NumberFormat(_additional, "##0.00"));
         
         computeTotal();
         
@@ -285,8 +264,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         
         //load the data
         _callback.Result(_row, "nQuantity", _order);
-        _callback.Result(_row, "nDiscount", _discount);
-        _callback.Result(_row, "nAddDiscx", _additional);
+        _callback.Result(_row, "nUnitPrce", _srp);
         
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         _callback.FormClosing();
@@ -300,7 +278,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     }
     
     private void computeTotal(){        
-        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - _additional;
+        double lnTranTotl = _order * _srp;
         
         lblTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
     }
@@ -311,7 +289,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         switch (event.getCode()){
         case ENTER:
         case DOWN:
-            if (txtField.getId().equals("txtDetail08")){
+            if (txtField.getId().equals("txtDetail04")){
                 txtDetail06.selectAll();
                 txtDetail06.requestFocus();
                 event.consume();
@@ -343,40 +321,27 @@ public class POSDetailController implements Initializable, ControlledScreen  {
                         MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
                         txtField.setText("0");
                     } 
-                        
                     
                     _order = Integer.parseInt(txtField.getText());
                     break;
-                case 7:
+                case 4:
                     if (StringUtil.isNumeric(lsValue)){
                         double lnValue = Double.valueOf(lsValue);
                         
-                        if (lnValue > 100)
-                            txtField.setText("100.00");
-                        else
-                            txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));
+                        txtField.setText(StringUtil.NumberFormat(lnValue, "###0.00"));                            
                     } else {
                         MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
                         txtField.setText("0.00");
                     }
                         
-                    _discount = Double.valueOf(txtField.getText());
-                    break;
-                case 8:
-                    if (StringUtil.isNumeric(lsValue)){
-                        double lnValue = Double.valueOf(lsValue);
-                        
-                        txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));                            
-                    } else {
-                        MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
-                        txtField.setText("0.00");
-                    }
-                        
-                    _additional = Double.valueOf(txtField.getText());
+                    _srp = Double.valueOf(txtField.getText());
                     break;
             }
             
             computeTotal();
+        } else {
+            txtField.requestFocus();
+            txtField.selectAll();
         }
     };
 }

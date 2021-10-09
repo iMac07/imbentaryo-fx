@@ -30,9 +30,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.lib.pojo.Temp_Transactions;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -357,9 +354,9 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.PO_DETAIL_UPDATE);
                 
-                POSDetailController instance = new POSDetailController();
+                PODetailController instance = new PODetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -370,8 +367,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
                 instance.setOtherInfo(0);
-                instance.setOnHand((int) _trans.getDetail(_detail_row, "nQtyOnHnd"));
-                instance.setQtyOrder((int) _trans.getDetail(_detail_row, "nQuantity"));
+                instance.setOnHand(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setQtyOrder(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQuantity"))));
                 instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
@@ -394,7 +391,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                         
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
                         loadDetail();
-                        FXUtil.SetNextFocus(txtSeeks01);
+                        txtSeeks01.requestFocus();
                         break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
@@ -695,6 +692,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         loadDetail();
+                        txtSeeks01.requestFocus();
                         break;
                     case "txtField06":
                         _trans.setMaster("sSupplier", (String) foValue.get("sClientID"));
@@ -715,9 +713,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             @Override
             public void Result(int fnRow, int fnIndex, Object foValue) {
                 switch(fnIndex){
+                    case 4:
                     case 5:
-                    case 8:
-                    case 9:
                         _trans.setDetail(fnRow, fnIndex, foValue);
                         break;
                 }
@@ -728,8 +725,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             public void Result(int fnRow, String fsIndex, Object foValue){
                 switch(fsIndex){
                     case "nQuantity":
-                    case "nDiscount":
-                    case "nAddDiscx":
+                    case "nUnitPrce":
                         _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
                 }

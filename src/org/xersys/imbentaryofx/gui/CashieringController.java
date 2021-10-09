@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
@@ -19,14 +17,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONObject;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
 import org.xersys.payment.base.CashierTrans;
 
 public class CashieringController implements Initializable, ControlledScreen {
@@ -250,8 +245,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Pay");
-        btn02.setText("Invoice");
-        btn03.setText("Release");
+        btn02.setText("Release");
+        btn03.setText("");
         btn04.setText("");
         btn05.setText("");
         btn06.setText("");
@@ -264,7 +259,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(true);
+        btn03.setVisible(false);
         btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
@@ -282,12 +277,18 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         switch (lsButton){
             case "btn01": //pay
-                payNoInvoice();
+                if (!_source_code.isEmpty() && !_source_number.isEmpty()) {
+                    if (MsgBox.showYesNo("Do you want to issue an invoid?", "Confirm") == MsgBox.RESP_YES_OK)
+                        payWithInvoice();
+                    else
+                        payNoInvoice();
+                }
                 break;
-            case "btn02": //invoice
-                payWithInvoice();
+            case "btn02": //release
+                if (!_source_code.isEmpty() && !_source_number.isEmpty()) 
+                    payCharge();
                 break;
-            case "btn03": //release
+            case "btn03":
                 break;
             case "btn04":
                 break;
@@ -351,6 +352,27 @@ public class CashieringController implements Initializable, ControlledScreen {
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_NO_INVOICE);
             PaymentNoInvoiceController instance = new PaymentNoInvoiceController();
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setSourceCd(_source_code);
+            instance.setSourceNo(_source_number);
+
+            //close this screen
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //load the payment screen
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
+    private void payCharge(){
+        if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
+            PaymentChargeController instance = new PaymentChargeController();
             instance.setSourceCd(_source_code);
             instance.setSourceNo(_source_number);
 

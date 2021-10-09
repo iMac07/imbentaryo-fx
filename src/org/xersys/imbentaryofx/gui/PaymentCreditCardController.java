@@ -28,9 +28,6 @@ import org.xersys.commander.iface.XPaymentInfo;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.imbentaryofx.gui.handler.ControlledScreen;
-import org.xersys.imbentaryofx.gui.handler.ScreenInfo;
-import org.xersys.imbentaryofx.gui.handler.ScreensController;
 import org.xersys.imbentaryofx.listener.PaymentListener;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.payment.base.CreditCardTrans;
@@ -374,6 +371,8 @@ public class PaymentCreditCardController implements Initializable {
                 
                 switch (loArray.size()){
                     case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        
                         txtField02.setText((String) loJSON.get("sBankName"));
                         FXUtil.SetNextFocus(txtField02);
                         break;
