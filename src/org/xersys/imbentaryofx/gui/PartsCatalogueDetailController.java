@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.control.CheckBox;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -76,7 +74,6 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         
         if (_data != null){
             try {            
-                //FileInputStream inputstream = new FileInputStream("F:\\xurpas\\images\\parts catalogue\\tmx 125 alpha 18KSWFEA\\figure\\engine\\E-1.jpg");
                 FileInputStream inputstream = new FileInputStream((String) _data.get("path"));
                 image.setImage(new Image(inputstream));
                 
@@ -189,27 +186,27 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         
         index02.setText("Part Number"); 
         index02.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index02"));
-        index02.prefWidthProperty().set(130);
+        index02.prefWidthProperty().set(120);
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(180);
         
         index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index04"));
-        index04.prefWidthProperty().set(80);
+        index04.prefWidthProperty().set(50);
         
-        index05.setText("Reqd. Qty"); 
+        index05.setText("ROQ"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(50);
         
-        index06.setText("Model Series"); 
+        index06.setText("Series"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index06"));
-        index06.prefWidthProperty().set(130);
+        index06.prefWidthProperty().set(50);
         
         index07.setText("Select"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,Boolean>("index07"));
-        index07.prefWidthProperty().set(80);
+        index07.prefWidthProperty().set(50);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);

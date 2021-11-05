@@ -67,13 +67,34 @@ public class PartsCatalogueChildController implements Initializable {
             lblAddressNo.setText(_address_no);
             
             FileInputStream inputstream = new FileInputStream(_image_path);
-            Rectangle2D loRec = new Rectangle2D(140, 0, 632, 480);
-            //Rectangle2D loRec = new Rectangle2D(400, 200, 632, 480);
-            
+//            Rectangle2D loRec = new Rectangle2D(140, 0, 632, 480);
+//            //Rectangle2D loRec = new Rectangle2D(400, 200, 632, 480);
+//            
             image.setImage(new Image(inputstream));
-            image.setPreserveRatio(true);
-            image.setSmooth(true);
-            image.setViewport(loRec);
+//            image.setPreserveRatio(true);
+//            image.setSmooth(true);
+//            image.setViewport(loRec);
+            Image img = image.getImage();
+            if (img != null) {
+                double w = 0;
+                double h = 0;
+
+                double ratioX = image.getFitWidth() / img.getWidth();
+                double ratioY = image.getFitHeight() / img.getHeight();
+
+                double reducCoeff = 0;
+                if(ratioX >= ratioY) {
+                    reducCoeff = ratioY;
+                } else {
+                    reducCoeff = ratioX;
+                }
+
+                w = img.getWidth() * reducCoeff;
+                h = img.getHeight() * reducCoeff;
+
+                image.setX((image.getFitWidth() - w) / 2);
+                image.setY((image.getFitHeight() - h) / 2);
+            }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }

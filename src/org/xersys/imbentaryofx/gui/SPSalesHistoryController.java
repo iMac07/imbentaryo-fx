@@ -237,12 +237,15 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         loadDetail();
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
     }
     
     private void searchTransaction(){
         _trans_search.setKey("a.sTransNox");
         _trans_search.setValue("");
         _trans_search.setExact(false);
+        _trans_search.addFilter("Status", cmbStatus.getSelectionModel().getSelectedIndex());
         
         JSONObject loJSON =  _trans_search.Search();
         
@@ -316,9 +319,9 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        "TODO:",
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        "1",
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),

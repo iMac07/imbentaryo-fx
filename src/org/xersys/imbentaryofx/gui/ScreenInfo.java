@@ -26,6 +26,7 @@ public class ScreenInfo {
         CLIENT_MASTER,
         CLIENT_MOBILE,
         CLIENT_EMAIL,
+        CLIENT_ADDRESS,
         CASHIERING,
         PAYMENT,
         PAYMENT_NO_INVOICE,
@@ -117,6 +118,10 @@ public class ScreenInfo {
             case CLIENT_EMAIL:
                 loJSON.put("resource", RESOURCE_URL + "ClientEMail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ClientEMailController");
+                return loJSON;
+            case CLIENT_ADDRESS:
+                loJSON.put("resource", RESOURCE_URL + "ClientAddress.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ClientAddressController");
                 return loJSON;
             case POS_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "POSHistory.fxml");

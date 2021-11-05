@@ -9,7 +9,7 @@ import org.xersys.commander.crypt.CryptFactory;
 
 public class Login {
     public static void main (String [] args){
-        final String PRODUCTID = "AppX";
+        final String PRODUCTID = "Daedalus";
         
         //get database property
         Property loConfig = new Property("db-config.properties", PRODUCTID);
@@ -33,6 +33,7 @@ public class Login {
         loNautilus.setConnection(loConn);
         loNautilus.setEncryption(CryptFactory.make(CryptFactory.CrypType.AESCrypt));
         
+        loNautilus.setUserID("0001210001");
         if (!loNautilus.load(PRODUCTID)){
             System.err.println(loNautilus.getMessage());
             System.exit(1);

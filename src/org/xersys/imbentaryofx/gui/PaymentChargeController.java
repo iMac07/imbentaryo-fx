@@ -1,13 +1,9 @@
 package org.xersys.imbentaryofx.gui;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.beans.property.ReadOnlyBooleanPropertyBase;
-import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +12,11 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.xersys.clients.search.ClientSearch;
 import org.xersys.commander.contants.InvoiceType;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
@@ -23,11 +24,13 @@ import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
+import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.payment.base.PaymentFactory;
 
 public class PaymentChargeController implements Initializable, ControlledScreen {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
+    private QuickSearchCallback _search_callback;
     private XNautilus _nautilus;
     private LRecordMas _listener;
     
@@ -155,9 +158,30 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch (fsFieldNm){
-                    case "":
+                    case "sClientID":
+                        txtField01.setText((String) foValue);
                         break;
                 }
+            }
+        };
+        
+        _search_callback = new QuickSearchCallback() {
+            @Override
+            public void Result(TextField foField, JSONObject foValue) {
+                if (!"success".equals((String) foValue.get("result"))) return;
+                
+                foValue = (JSONObject) foValue.get("payload");
+                
+                switch (foField.getId()){
+                    case "txtField01":
+                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
+                        break;
+                }
+            }
+
+            @Override
+            public void FormClosing(TextField foField) {
+                foField.requestFocus();
             }
         };
     }
@@ -281,7 +305,10 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
                 
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
-                case "":
+                case "txtField01":
+                    searchClient("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
             }
         }
         
@@ -293,5 +320,49 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
         case UP:
             FXUtil.SetPreviousFocus(txtField);
         }
-    }    
+    }   
+    
+    private void searchClient(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchClient(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
+                        FXUtil.SetNextFocus(txtField01);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject((ClientSearch) _trans.getSearchClient());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField01);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField01.setText("");
+                FXUtil.SetNextFocus(txtField01);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField01.setText("");
+            FXUtil.SetNextFocus(txtField01);
+        }
+    }
 }
