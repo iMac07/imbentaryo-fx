@@ -53,8 +53,6 @@ public class ClientEMailController implements Initializable, ControlledScreen{
     @FXML
     private VBox btnbox00;
     @FXML
-    private HBox btnbox01;
-    @FXML
     private Button btn01;
     @FXML
     private Button btn02;
@@ -78,30 +76,6 @@ public class ClientEMailController implements Initializable, ControlledScreen{
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
-    private FontAwesomeIconView glyph01;
-    @FXML
-    private FontAwesomeIconView glyph02;
-    @FXML
-    private FontAwesomeIconView glyph03;
-    @FXML
-    private FontAwesomeIconView glyph04;
-    @FXML
-    private FontAwesomeIconView glyph05;
-    @FXML
-    private FontAwesomeIconView glyph06;
-    @FXML
-    private FontAwesomeIconView glyph07;
-    @FXML
-    private FontAwesomeIconView glyph08;
-    @FXML
-    private FontAwesomeIconView glyph09;
-    @FXML
-    private FontAwesomeIconView glyph10;
-    @FXML
-    private FontAwesomeIconView glyph11;
-    @FXML
-    private FontAwesomeIconView glyph12;
     @FXML
     private TableView _table;
     @FXML
@@ -314,7 +288,7 @@ public class ClientEMailController implements Initializable, ControlledScreen{
         index01.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index01"));
         index01.prefWidthProperty().set(30);
         
-        index02.setText("e-mail Address"); 
+        index02.setText("E-mail Address"); 
         index02.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index02"));
         index02.prefWidthProperty().set(200);
         
@@ -486,19 +460,6 @@ public class ClientEMailController implements Initializable, ControlledScreen{
         btn10.setVisible(false);
         btn11.setVisible(false);
         btn12.setVisible(true);
-        
-        glyph01.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph02.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph03.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph04.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph05.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph06.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph07.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph08.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph09.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph10.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph11.setIcon(FontAwesomeIcon.ANCHOR);
-        glyph12.setIcon(FontAwesomeIcon.ANCHOR);
     }
     
     private void initFields(){

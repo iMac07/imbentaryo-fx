@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -494,7 +492,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
     }
     
     private void searchBranchInventory(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchBranchInventory(fsKey, foValue, fbExact);
+        JSONObject loJSON = _trans.searchParts(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -516,7 +514,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans.getSearchBranchInventory());
+                            instance.setSearchObject(_trans.getSearchParts());
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtSeeks01);
 

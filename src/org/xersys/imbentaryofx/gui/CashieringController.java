@@ -278,7 +278,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         switch (lsButton){
             case "btn01": //pay
                 if (!_source_code.isEmpty() && !_source_number.isEmpty()) {
-                    if (MsgBox.showYesNo("Do you want to issue an invoid?", "Confirm") == MsgBox.RESP_YES_OK)
+                    if (MsgBox.showYesNo("Do you want to issue an invoice?", "Confirm") == MsgBox.RESP_YES_OK)
                         payWithInvoice();
                     else
                         payNoInvoice();

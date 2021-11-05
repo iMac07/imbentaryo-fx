@@ -1,7 +1,6 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -133,6 +132,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private TextField txtField14;
     @FXML
     private TextArea txtField13;
+    @FXML
+    private CheckBox chkMechanic;
+    @FXML
+    private CheckBox chkAdvisor;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -199,8 +202,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     
     private void txtArea_KeyPressed(KeyEvent event) {
         TextArea txtField = (TextArea) event.getSource();
-        String lsTxt = txtField.getId();
-        String lsValue = txtField.getText();
         
         if (event.getCode() == KeyCode.ENTER) event.consume();
         
@@ -222,17 +223,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtField10":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
                     searchCitizenship("sCntryNme", lsValue, "", "", false);
                     event.consume();
                     return;
                 case "txtField12":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
                     searchTownCity("sTownName", lsValue, "", "", false);
                     event.consume();
                     return;
                 case "txtField14":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
                     break;
             }
         }
@@ -251,6 +249,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         ArrayList<Temp_Transactions> laTemp = _trans.TempTransactions();
         ObservableList<String> lsOrderNox = FXCollections.observableArrayList();
         
+        lsOrderNox.clear();
         if (laTemp.size() > 0){    
             for (int lnCtr = 0; lnCtr <= laTemp.size()-1; lnCtr ++){
                 lsOrderNox.add(laTemp.get(lnCtr).getOrderNo() + " (" +SQLUtil.dateFormat(laTemp.get(lnCtr).getDateCreated(), SQLUtil.FORMAT_TIMESTAMP) + ")");
@@ -280,6 +279,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         chkCustomer.setSelected(false);
         chkSupplier.setSelected(false);
+        chkMechanic.setSelected(false);
+        chkAdvisor.setSelected(false);
     }
     
     private void loadTransaction(){
@@ -292,6 +293,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             txtField13.setText((String) _trans.getMaster("sAddlInfo"));
             
             txtField101.setText((String) _trans.getMaster("xMobileNo"));
+            txtField102.setText((String) _trans.getMaster("xAddressx"));
+            txtField103.setText((String) _trans.getMaster("xEmailAdd"));
 
             txtField10.setText((String) _trans.getMaster("sCntryNme"));
             txtField12.setText((String) _trans.getMaster("sTownName"));
@@ -424,6 +427,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 loadMobile();
                 break;
             case "btnChild02": //address
+                loadAddress();
                 break;
             case "btnChild03": //email
                 loadEMail();
@@ -456,13 +460,22 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         
                     _loaded = true;
                 }
-                
                 break;
             case "btn03": //search
+                switch (_index){
+                    case 10:
+                        searchCitizenship("sCntryNme", txtField10.getText(), "", "", false);
+                        break;
+                    case 12:
+                        searchTownCity("sTownName", txtField12.getText(), "", "", false);
+                        break;
+                }
                 break;
             case "btn04": //save
                 _trans.setMaster("cCustomer", chkCustomer.isSelected() ? "1" : "0");
                 _trans.setMaster("cSupplier", chkSupplier.isSelected() ? "1" : "0");
+                _trans.setMaster("cMechanic", chkMechanic.isSelected() ? "1" : "0");
+                _trans.setMaster("cSrvcAdvs", chkAdvisor.isSelected() ? "1" : "0");
                 
                 if (_trans.SaveRecord()){
                     MsgBox.showOk("Record saved successfully.", "Success");
@@ -568,36 +581,50 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
     }
     
+    private void loadAddress(){
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CLIENT_ADDRESS);
+
+        if (loJSON != null){
+            ClientAddressController instance = new ClientAddressController();
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setDataListener(_address_listener);
+
+            instance.setData(_trans.getAddress());
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
     private void initListener(){
-        _listener = new LRecordMas() {
-            @Override
-            public void MasterRetreive(String fsFieldNm, Object foValue) {
-                switch (fsFieldNm){
-                    case "sLastName":
-                        txtField03.setText((String) foValue); break;
-                    case "sFrstName":
-                        txtField04.setText((String) foValue); break;
-                    case "sMiddName":
-                        txtField05.setText((String) foValue); break;
-                    case "sSuffixNm":
-                        txtField06.setText((String) foValue); break;
-                    case "sClientNm":
-                        txtField07.setText((String) foValue); break;
-                    case "dBirthDte":
-                        txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
-                    case "sAddlInfo":
-                        txtField13.setText((String) foValue); break;
-                    case "xMobileNo":
-                        txtField101.setText((String) foValue); break;
-                    case "xAddressx":
-                        txtField102.setText((String) foValue); break;
-                    case "xEmailAdd":
-                        txtField103.setText((String) foValue); break;                    
-                    case "sCntryNme":
-                        txtField10.setText((String) foValue); break;
-                    case "sTownName":
-                        txtField12.setText((String) foValue); break;
-                }
+        _listener = (String fsFieldNm, Object foValue) -> {
+            switch (fsFieldNm){
+                case "sLastName":
+                    txtField03.setText((String) foValue); break;
+                case "sFrstName":
+                    txtField04.setText((String) foValue); break;
+                case "sMiddName":
+                    txtField05.setText((String) foValue); break;
+                case "sSuffixNm":
+                    txtField06.setText((String) foValue); break;
+                case "sClientNm":
+                    txtField07.setText((String) foValue); break;
+                case "dBirthDte":
+                    txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
+                case "sAddlInfo":
+                    txtField13.setText((String) foValue); break;
+                case "xMobileNo":
+                    txtField101.setText((String) foValue); break;
+                case "xAddressx":
+                    txtField102.setText((String) foValue); break;
+                case "xEmailAdd":
+                    txtField103.setText((String) foValue); break;
+                case "sCntryNme":
+                    txtField10.setText((String) foValue); break;
+                case "sTownName":
+                    txtField12.setText((String) foValue); break;
             }
         };
         
@@ -632,7 +659,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
             @Override
             public void FormClosing() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
         
@@ -644,7 +670,17 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
             @Override
             public void FormClosing() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        
+        _address_listener = new CachedRowsetCallback() {
+            @Override
+            public void Result(CachedRowSet foValue) {
+                _trans.setMaster("xAddressx", foValue);
+            }
+
+            @Override
+            public void FormClosing() {
             }
         };
     }
@@ -738,7 +774,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         txtField11.setDisable(!lbShow);
         txtField12.setDisable(!lbShow);
         txtField13.setDisable(!lbShow);
-        txtField14.setDisable(!lbShow);
+        txtField14.setDisable(true);
         txtField101.setDisable(!lbShow);
         txtField102.setDisable(!lbShow);
         txtField103.setDisable(!lbShow);
@@ -749,6 +785,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         chkCustomer.setDisable(!lbShow);
         chkSupplier.setDisable(!lbShow);
+        chkMechanic.setDisable(!lbShow);
+        chkAdvisor.setDisable(!lbShow);
         
         btnChild01.setVisible(lbShow);
         btnChild02.setVisible(lbShow);
@@ -756,11 +794,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     }
     
     private void initFields(){       
-        cmbOrders.valueProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
-            }
+        cmbOrders.valueProperty().addListener((ObservableValue observable, Object oldValue, Object newValue) -> {
+            if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
         });
         
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
@@ -783,7 +818,9 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
         txtField13.focusedProperty().addListener(txtArea_Focus);
         
         txtField07.setEditable(false);
@@ -875,6 +912,9 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
                         txtField.requestFocus();
                     }
+                    break;
+                case 10: //citizenship
+                case 12: //birth place
                     break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");

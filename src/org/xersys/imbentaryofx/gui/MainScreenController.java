@@ -10,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
@@ -27,6 +28,8 @@ public class MainScreenController implements Initializable {
     public AnchorPane AnchorPaneMonitor;
     @FXML
     public AnchorPane AnchorPaneBody;
+    @FXML
+    public VBox SidePane;
     @FXML
     private Label lblDate;
     @FXML
@@ -57,11 +60,14 @@ public class MainScreenController implements Initializable {
     private AnchorPane btnOther;
     @FXML
     private AnchorPane AnchorPaneSeparator;
+    @FXML
+    private AnchorPane btnOther11;
+    @FXML
+    private AnchorPane btnOther12;
     
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
     }
-    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -195,10 +201,11 @@ public class MainScreenController implements Initializable {
                     case "PartsInquiry":
                     case "PartsCatalogue":
                     case "PartsCatalogueDetail":
+                    case "ClientAddress":
                     case "ClientMobile":
                     case "ClientEMail":
                     case "Cashiering":
-                    case "Payment":                        
+                    case "Payment":     
                         System.err.println("Request rejected.");
                         break;
                     default:
