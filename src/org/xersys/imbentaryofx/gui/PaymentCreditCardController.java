@@ -169,6 +169,11 @@ public class PaymentCreditCardController implements Initializable {
                 
                 loadDetail();
             }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
         };
         
         _search_callback = new QuickSearchCallback() {

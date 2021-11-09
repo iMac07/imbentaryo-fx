@@ -474,6 +474,11 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         txtField107.setText(String.valueOf(foValue)); break;
                 }
             }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
         };
         
         _search_callback = new QuickSearchCallback() {

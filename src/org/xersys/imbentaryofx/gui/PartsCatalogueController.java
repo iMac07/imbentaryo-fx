@@ -93,6 +93,10 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
             }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+            }
         };
         
         _trans = new PartsCatalogue();

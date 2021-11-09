@@ -494,7 +494,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn03": //search
-                
                 break;
             case "btn04": //pay
                 if (_trans.SaveTransaction(true)){
