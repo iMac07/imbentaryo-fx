@@ -30,7 +30,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import org.xersys.clients.base.ClientMaster;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
 import org.json.simple.parser.JSONParser;
@@ -279,6 +278,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
 
             chkCustomer.setSelected(((String) _trans.getMaster("cCustomer")).equals("1"));
             chkSupplier.setSelected(((String) _trans.getMaster("cSupplier")).equals("1"));
+            chkMechanic.setSelected(((String) _trans.getMaster("cMechanic")).equals("1"));
+            chkAdvisor.setSelected(((String) _trans.getMaster("cSrvcAdvs")).equals("1"));
             
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -322,7 +323,9 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                         loJSON = (JSONObject) loArray.get(0);
                         
                         if (_trans.OpenRecord((String) loJSON.get("sClientID"))){
+                            clearFields();
                             loadTransaction();
+                            initButton();
                         } else {
                             MsgBox.showOk(_trans.getMessage(), "Warning");
                             clearFields();
@@ -460,20 +463,21 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
             case "btnChild03": //email
                 loadEMail();
                 break;
-            case "btn01": //new
-                loadScreen(ScreenInfo.NAME.CLIENT_MASTER);
+            case "btn01": //update
+                if (_trans.UpdateRecord())
+                    initButton();
+                else
+                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    
                 break;
-            case "btn02": //update
+            case "btn02": //cancel update
+                _trans = new ClientMaster(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                _trans.setListener(_listener);
+
+                initButton();
+                clearFields();
                 break;
             case "btn03": //search
-                switch (_index){
-                    case 10:
-                        searchCitizenship("sCntryNme", txtField10.getText(), "", "", false);
-                        break;
-                    case 12:
-                        searchTownCity("sTownName", txtField12.getText(), "", "", false);
-                        break;
-                }
                 break;
             case "btn04": //save
                 _trans.setMaster("cCustomer", chkCustomer.isSelected() ? "1" : "0");
@@ -488,8 +492,6 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
 
                     initButton();
                     clearFields();
-                        
-                    cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
 
                    _loaded = true;
                 } else 
@@ -509,6 +511,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 loadAPClient();
                 break;
             case "btn11": //AR Client
+                loadARClient();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -609,10 +612,40 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
             return;
         }
         
+        if (!((String) _trans.getMaster("cSupplier")).equals("1")){
+            MsgBox.showOk("Client is not a supplier.", "Warning");
+            return;
+        }
+        
         JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.AP_CLIENT);
 
         if (loJSON != null){
             APClientController instance = new APClientController();
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setClientID((String) _trans.getMaster("sClientID"));
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
+    private void loadARClient(){
+        if (_trans.getEditMode() != EditMode.READY){
+            MsgBox.showOk("No record loaded.", "Warning");
+            return;
+        }
+        
+        if (!((String) _trans.getMaster("cCustomer")).equals("1")){
+            MsgBox.showOk("Client is not a customer.", "Warning");
+            return;
+        }
+        
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.AR_CLIENT);
+
+        if (loJSON != null){
+            ARClientController instance = new ARClientController();
             instance.setNautilus(_nautilus);
             instance.setParentController(_main_screen_controller);
             instance.setScreensController(_screens_controller);
@@ -669,7 +702,9 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                     switch (foField.getId()){
                         case "txtSeeks01":
                             if (_trans.OpenRecord((String) foValue.get("sClientID"))){
+                                clearFields();
                                 loadTransaction();
+                                initButton();
                             } else {
                                 MsgBox.showOk(_trans.getMessage(), "Warning");
                                 clearFields();
@@ -764,8 +799,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("New");
-        btn02.setText("Clear");
+        btn01.setText("Update");
+        btn02.setText("Cnl Upd");
         btn03.setText("Search");
         btn04.setText("Save");
         btn05.setText("");
@@ -773,8 +808,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("AP Client");
-        btn11.setText("AR Client");
+        btn10.setText("AP Record");
+        btn11.setText("AR Record");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -794,45 +829,42 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         cmbClientTp.setItems(_clienttp);
         cmbCvilStat.setItems(_cvilstat);
         
-        cmbGenderCd.getSelectionModel().select(0);
-        cmbClientTp.getSelectionModel().select(0);
-        cmbCvilStat.getSelectionModel().select(0);
-        
         int lnEditMode = _trans.getEditMode();
         boolean lbShow = lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE;
         
+        btn01.setVisible(!lbShow);
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
         btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
         
-        txtField03.setDisable(!lbShow);
-        txtField04.setDisable(!lbShow);
-        txtField05.setDisable(!lbShow);
-        txtField06.setDisable(!lbShow);
-        txtField07.setDisable(!lbShow);
-        txtField10.setDisable(!lbShow);
-        txtField11.setDisable(!lbShow);
-        txtField12.setDisable(!lbShow);
-        txtField13.setDisable(!lbShow);
+        txtField03.setDisable(true);
+        txtField04.setDisable(true);
+        txtField05.setDisable(true);
+        txtField06.setDisable(true);
+        txtField07.setDisable(true);
+        txtField10.setDisable(true);
+        txtField11.setDisable(true);
+        txtField12.setDisable(true);
+        txtField13.setDisable(true);
         txtField14.setDisable(true);
-        txtField101.setDisable(!lbShow);
-        txtField102.setDisable(!lbShow);
-        txtField103.setDisable(!lbShow);
+        txtField101.setDisable(true);
+        txtField102.setDisable(true);
+        txtField103.setDisable(true);
         
-        cmbClientTp.setDisable(!lbShow);
+        cmbClientTp.setDisable(true);
+        cmbGenderCd.setDisable(true);
         cmbCvilStat.setDisable(!lbShow);
-        cmbGenderCd.setDisable(!lbShow);
         
         chkCustomer.setDisable(!lbShow);
         chkSupplier.setDisable(!lbShow);
         chkMechanic.setDisable(!lbShow);
         chkAdvisor.setDisable(!lbShow);
         
-        btnChild01.setVisible(lbShow);
-        btnChild02.setVisible(lbShow);
-        btnChild03.setVisible(lbShow);
+        btnChild01.setVisible(false);
+        btnChild02.setVisible(false);
+        btnChild03.setVisible(false);
     }
     
     private void initFields(){               
@@ -876,7 +908,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         ComboBox loButton = (ComboBox) event.getSource();
 
         int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-        if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
+        if (lnIndex >= 0) 
+            _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
     }
         
     private void cmbBox_KeyPressed(KeyEvent event) {

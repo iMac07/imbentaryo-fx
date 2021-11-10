@@ -8,6 +8,7 @@ public class ScreenInfo {
     
     public enum NAME{
         AP_CLIENT,
+        AR_CLIENT,
         JOB_ORDER,
         JOB_ESTIMATE,
         PARTS_INQUIRY,
@@ -172,6 +173,10 @@ public class ScreenInfo {
             case AP_CLIENT:
                 loJSON.put("resource", RESOURCE_URL + "APClient.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "APClientController");
+                return loJSON;
+            case AR_CLIENT:
+                loJSON.put("resource", RESOURCE_URL + "ARClient.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ARClientController");
                 return loJSON;
         }
         

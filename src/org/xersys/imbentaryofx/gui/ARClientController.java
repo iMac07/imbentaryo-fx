@@ -20,16 +20,16 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.clients.base.APClient;
+import org.xersys.clients.base.ARClient;
 import org.xersys.commander.util.StringUtil;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
 
-public class APClientController implements Initializable, ControlledScreen{
+public class ARClientController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private APClient _trans;
+    private ARClient _trans;
     private LRecordMas _listener;    
     
     private MainScreenController _main_screen_controller;
@@ -84,23 +84,25 @@ public class APClientController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField14;
     @FXML
-    private TextField txtField13;
-    @FXML
-    private TextField txtField19;
-    @FXML
-    private TextField txtField20;
-    @FXML
     private TextField txtField21;
     @FXML
     private TextField txtField22;
-    @FXML
-    private TextField txtField18;
     @FXML
     private TextField txtField23;
     @FXML
     private TextField txtField08;
     @FXML
     private TextField txtField09;
+    @FXML
+    private TextField txtField24;
+    @FXML
+    private TextField txtField25;
+    @FXML
+    private TextField txtField26;
+    @FXML
+    private TextField txtField11;
+    @FXML
+    private TextField txtField15;
     
     public void setClientID(String fsValue){
         _clientid = fsValue;
@@ -122,7 +124,7 @@ public class APClientController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new APClient(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new ARClient(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setListener(_listener);
         
         openRecord();
@@ -153,9 +155,11 @@ public class APClientController implements Initializable, ControlledScreen{
     private void openRecord(){
         clearFields();        
         
-        if (_trans.OpenRecord(_clientid)) loadTransaction();
-        
-        initButton();
+        if (_trans.OpenRecord(_clientid)) {
+            loadTransaction();
+            initButton();
+        } else
+            MsgBox.showOk(_trans.getMessage(), "Warning");
     }
     
     private void txtField_KeyPressed(KeyEvent event) {
@@ -165,7 +169,7 @@ public class APClientController implements Initializable, ControlledScreen{
                 
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
-                case "txtField08":
+                case "txtField09":
                     searchTerm("sTermCode", lsValue, "", "", false);
                     event.consume();
                     return;
@@ -191,14 +195,15 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField08.setText("");
         txtField09.setText("");
         txtField10.setText("");
-        txtField13.setText("");
+        txtField11.setText("");       
         txtField14.setText("");        
-        txtField18.setText("");                
-        txtField19.setText("");
-        txtField20.setText("");
+        txtField15.setText("");
         txtField21.setText("");
         txtField22.setText("");
         txtField23.setText("");
+        txtField24.setText("");
+        txtField25.setText("");
+        txtField26.setText("");
     }
     
     private void loadTransaction(){
@@ -207,17 +212,20 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField05.setText((String) _trans.getMaster(5));
         txtField06.setText((String) _trans.getMaster(6));
         txtField07.setText((String) _trans.getMaster(7));
-        txtField08.setText((String) _trans.getMaster(24));
-        txtField09.setText(StringUtil.NumberFormat((Number) _trans.getMaster(9), "##0.00"));
-        txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster(10), "#,##0.00"));
-        txtField13.setText(StringUtil.NumberFormat((Number) _trans.getMaster(13), "#,##0.00"));
+        txtField08.setText((String) _trans.getMaster(8));
+        txtField09.setText((String) _trans.getMaster(27));
+        
+        txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster(10), "##0.00"));
+        txtField11.setText(StringUtil.NumberFormat((Number) _trans.getMaster(11), "#,##0.00"));
         txtField14.setText(StringUtil.NumberFormat((Number) _trans.getMaster(14), "#,##0.00"));
-        txtField18.setText((String) _trans.getMaster(18));
-        txtField19.setText((String) _trans.getMaster(19));
-        txtField20.setText((String) _trans.getMaster(20));
+        txtField15.setText(StringUtil.NumberFormat((Number) _trans.getMaster(15), "#,##0.00"));
+        
         txtField21.setText((String) _trans.getMaster(21));
         txtField22.setText((String) _trans.getMaster(22));
         txtField23.setText((String) _trans.getMaster(23));
+        txtField24.setText((String) _trans.getMaster(24));
+        txtField25.setText((String) _trans.getMaster(25));
+        txtField26.setText((String) _trans.getMaster(26));
     }    
     
     private void searchTerm(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
@@ -233,7 +241,7 @@ public class APClientController implements Initializable, ControlledScreen{
                     case 1: //one record found
                         loJSON = (JSONObject) loArray.get(0);
                         _trans.setMaster("sTermCode", (String) loJSON.get("sTermCode"));
-                        FXUtil.SetNextFocus(txtField08);
+                        FXUtil.SetNextFocus(txtField09);
                         break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
@@ -246,7 +254,7 @@ public class APClientController implements Initializable, ControlledScreen{
 
                             instance.setSearchObject(_trans.getSearchTerm());
                             instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtField08);
+                            instance.setTextField(txtField09);
 
                             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                         }
@@ -254,13 +262,13 @@ public class APClientController implements Initializable, ControlledScreen{
             } catch (ParseException ex) {
                 ex.printStackTrace();
                 MsgBox.showOk("ParseException detected.", "Warning");
-                txtField08.setText("");
-                FXUtil.SetNextFocus(txtField08);
+                txtField09.setText("");
+                FXUtil.SetNextFocus(txtField09);
             }
         } else {
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
-            txtField08.setText("");
-            FXUtil.SetNextFocus(txtField08);
+            txtField09.setText("");
+            FXUtil.SetNextFocus(txtField09);
         }
     }
     
@@ -353,7 +361,7 @@ public class APClientController implements Initializable, ControlledScreen{
             public void MasterRetreive(String fsIndex, Object foValue) {
                 switch (fsIndex){
                     case "xTermName":
-                        txtField08.setText((String) foValue);
+                        txtField09.setText((String) foValue);
                         break;
                 }
             }
@@ -371,14 +379,16 @@ public class APClientController implements Initializable, ControlledScreen{
                         txtField06.setText((String) foValue); break;
                     case 7:
                         txtField07.setText((String) foValue); break;
-                    case 9:
-                        txtField09.setText(StringUtil.NumberFormat((Number) foValue, "##0.00")); break;
+                    case 8:
+                        txtField08.setText((String) foValue); break;
                     case 10:
-                        txtField10.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00")); break;
-                    case 13:
-                        txtField13.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00")); break;
+                        txtField10.setText(StringUtil.NumberFormat((Number) foValue, "##0.00")); break;
+                    case 11:
+                        txtField11.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00")); break;
                     case 14:
                         txtField14.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00")); break;
+                    case 15:
+                        txtField15.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00")); break;
                 }
             }
         };
@@ -390,7 +400,7 @@ public class APClientController implements Initializable, ControlledScreen{
                     foValue = (JSONObject) foValue.get("payload");
                 
                     switch (foField.getId()){
-                        case "txtField08":
+                        case "txtField09":
                             _trans.setMaster("sTermCode", (String) foValue.get("sTermCode"));
                             break;
                     }
@@ -473,14 +483,16 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField08.setDisable(!lbShow);
         txtField09.setDisable(!lbShow);
         txtField10.setDisable(!lbShow);
-        txtField13.setDisable(true);
-        txtField14.setDisable(true);        
-        txtField18.setDisable(true);                
-        txtField19.setDisable(true);
-        txtField20.setDisable(true);
-        txtField21.setDisable(true);
+        txtField11.setDisable(!lbShow);
+        
+        txtField14.setDisable(true);
+        txtField15.setDisable(true);        
+        txtField21.setDisable(true);                
         txtField22.setDisable(true);
         txtField23.setDisable(true);
+        txtField24.setDisable(true);
+        txtField25.setDisable(true);
+        txtField26.setDisable(true);
     }
     
     private void initFields(){               
@@ -492,6 +504,7 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField08.setOnKeyPressed(this::txtField_KeyPressed);
         txtField09.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
@@ -501,6 +514,7 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField08.focusedProperty().addListener(txtField_Focus);
         txtField09.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
+        txtField11.focusedProperty().addListener(txtField_Focus);
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
@@ -517,11 +531,12 @@ public class APClientController implements Initializable, ControlledScreen{
                 case 5:
                 case 6:
                 case 7:
-                    _trans.setMaster(lnIndex, lsValue);
-                    break;
                 case 8:
+                    _trans.setMaster(lnIndex, lsValue);                
                     break;
                 case 9:
+                    break;
+                case 10:
                     if (!StringUtil.isNumeric(lsValue))
                         _trans.setMaster(lnIndex, 0.00);
                     else {
@@ -531,7 +546,7 @@ public class APClientController implements Initializable, ControlledScreen{
                             _trans.setMaster(lnIndex, Double.valueOf(lsValue));
                     }
                     break;
-                case 10:
+                case 11:
                     if (!StringUtil.isNumeric(lsValue))
                         _trans.setMaster(lnIndex, 0.00);
                     else
@@ -542,7 +557,7 @@ public class APClientController implements Initializable, ControlledScreen{
             }
         } else{ //Got Focus        
             switch (lnIndex){
-                case 10:
+                case 11:
                     txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster(10), "###0.00"));
                     break;
             }
