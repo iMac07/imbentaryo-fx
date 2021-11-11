@@ -40,11 +40,11 @@ import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.purchasing.base.PurchaseOrder;
+import org.xersys.purchasing.base.POReturn;
 
 public class POReturnController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private PurchaseOrder _trans;
+    private POReturn _trans;
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
@@ -102,6 +102,12 @@ public class POReturnController implements Initializable, ControlledScreen{
     private TextField txtField16;
     @FXML
     private TextField txtField12;
+    @FXML
+    private TextField txtField11;
+    @FXML
+    private TextField txtField09;
+    @FXML
+    private TextField txtField10;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -120,7 +126,7 @@ public class POReturnController implements Initializable, ControlledScreen{
         initFields();
         initListener();
         
-        _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new POReturn(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -196,6 +202,12 @@ public class POReturnController implements Initializable, ControlledScreen{
         initGrid();
         
         txtSeeks01.setText("");
+        txtField05.setText("");
+        txtField09.setText("");
+        txtField10.setText("");
+        txtField11.setText("");
+        txtField12.setText("");
+        txtField16.setText("");
 
         lblPayable.setText("0.00");
         
@@ -221,8 +233,13 @@ public class POReturnController implements Initializable, ControlledScreen{
         lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
     }
     
-    private void loadTransaction(){
-        txtField05.setText("");
+    private void loadTransaction(){       
+        txtField05.setText((String) _trans.getMaster("sClientNm"));
+        txtField09.setText(StringUtil.NumberFormat((double) _trans.getMaster("nDiscount"), "##0.00"));
+        txtField10.setText(StringUtil.NumberFormat((double) _trans.getMaster("nAddDiscx"), "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat((double) _trans.getMaster("nFreightx"), "#,##0.00"));
+        txtField12.setText((String) _trans.getMaster("sRemarksx"));
+        txtField16.setText((String) _trans.getMaster("sPOTransx"));
         
         computeSummary();
         
