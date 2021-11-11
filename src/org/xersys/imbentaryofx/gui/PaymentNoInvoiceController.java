@@ -174,6 +174,11 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
                         break;
                 }
             }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
         };
         
         _credit_card_callback = new PaymentListener() {

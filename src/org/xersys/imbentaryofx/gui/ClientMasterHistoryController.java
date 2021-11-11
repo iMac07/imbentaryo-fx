@@ -1,11 +1,9 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -32,7 +30,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import org.xersys.clients.base.ClientMaster;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import javax.sql.rowset.CachedRowSet;
 import org.json.simple.parser.JSONParser;
@@ -41,7 +38,7 @@ import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.CommonUtil;
 
-public class ClientMasterController implements Initializable, ControlledScreen{
+public class ClientMasterHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
     private ObservableList<String> _clienttp = FXCollections.observableArrayList("Individual", "Institution");
     private ObservableList<String> _cvilstat = FXCollections.observableArrayList("Single", "Married", "Separated", "Widowed", "Single Parent", "Single Parent w/ Live-in Partner");
@@ -99,7 +96,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private Button btn11;
     @FXML
     private Button btn12;
-    @FXML
     private ComboBox cmbOrders;
     @FXML
     private ComboBox cmbClientTp;
@@ -126,7 +122,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField101;
     @FXML
-    private TextField txtField102;
+    private TextArea txtField102;
     @FXML
     private TextField txtField103;
     @FXML
@@ -137,6 +133,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private CheckBox chkMechanic;
     @FXML
     private CheckBox chkAdvisor;
+    @FXML
+    private TextField txtSeeks01;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -155,17 +153,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         initListener();
         
         _trans = new ClientMaster(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
-        _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
-        clearFields();
-        
-        if (!_trans.TempTransactions().isEmpty())
-            createNew(_trans.TempTransactions().get(0).getOrderNo());
-        
-        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size()-1);
-        
         initButton();
+        clearFields();
         
         _loaded = true;
     }    
@@ -190,17 +181,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
-    private void createNew(String fsOrderNox){
-        if (!_trans.NewRecord(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
-            System.exit(1);
-        }
-        
-        clearFields();
-        loadTransaction();
-    }
-    
     private void txtArea_KeyPressed(KeyEvent event) {
         TextArea txtField = (TextArea) event.getSource();
         
@@ -223,6 +203,10 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
+                case "txtSeeks01":
+                    searchRecord("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
                 case "txtField10":
                     searchCitizenship("sCntryNme", lsValue, "", "", false);
                     event.consume();
@@ -246,24 +230,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
     }
     
-    private void clearFields(){        
-        ArrayList<Temp_Transactions> laTemp = _trans.TempTransactions();
-        ObservableList<String> lsOrderNox = FXCollections.observableArrayList();
-        
-        lsOrderNox.clear();
-        if (laTemp.size() > 0){    
-            for (int lnCtr = 0; lnCtr <= laTemp.size()-1; lnCtr ++){
-                lsOrderNox.add(laTemp.get(lnCtr).getOrderNo() + " (" +SQLUtil.dateFormat(laTemp.get(lnCtr).getDateCreated(), SQLUtil.FORMAT_TIMESTAMP) + ")");
-            }
-        }
-        
-        cmbOrders.setItems(lsOrderNox);  
-        
-        cmbOrders.setItems(lsOrderNox);  
+    private void clearFields(){                
         cmbClientTp.getSelectionModel().select(0);
         cmbGenderCd.getSelectionModel().select(0);
         cmbCvilStat.getSelectionModel().select(0);
         
+        txtSeeks01.setText("");
         txtField03.setText("");
         txtField04.setText("");
         txtField05.setText("");
@@ -282,10 +254,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         chkSupplier.setSelected(false);
         chkMechanic.setSelected(false);
         chkAdvisor.setSelected(false);
+        
+        txtSeeks01.requestFocus();
+        txtSeeks01.selectAll();
     }
     
     private void loadTransaction(){
         try {
+            txtSeeks01.setText((String) _trans.getMaster("sClientNm"));
             txtField03.setText((String) _trans.getMaster("sLastName"));
             txtField04.setText((String) _trans.getMaster("sFrstName"));
             txtField05.setText((String) _trans.getMaster("sMiddName"));
@@ -302,6 +278,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
             chkCustomer.setSelected(((String) _trans.getMaster("cCustomer")).equals("1"));
             chkSupplier.setSelected(((String) _trans.getMaster("cSupplier")).equals("1"));
+            chkMechanic.setSelected(((String) _trans.getMaster("cMechanic")).equals("1"));
+            chkAdvisor.setSelected(((String) _trans.getMaster("cSrvcAdvs")).equals("1"));
             
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -330,6 +308,58 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             System.exit(1);
         }
     }    
+    
+    private void searchRecord(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchRecord(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        if (_trans.OpenRecord((String) loJSON.get("sClientID"))){
+                            clearFields();
+                            loadTransaction();
+                            initButton();
+                        } else {
+                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            clearFields();
+                        }
+                        FXUtil.SetNextFocus(txtSeeks01);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchRecord());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtSeeks01);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtSeeks01.setText("");
+                FXUtil.SetNextFocus(txtSeeks01);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtSeeks01.setText("");
+            FXUtil.SetNextFocus(txtSeeks01);
+        }
+    }
     
     private void searchCitizenship(String fsKey, Object foValue, String fsFilter, String fsValue, boolean fbExact){
         JSONObject loJSON = _trans.searchCountry(fsKey, foValue, fsFilter, fsValue, fbExact);
@@ -433,44 +463,21 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             case "btnChild03": //email
                 loadEMail();
                 break;
-            case "btn01": //new
-                _loaded = false;
-                
-                createNew("");
+            case "btn01": //update
+                if (_trans.UpdateRecord())
+                    initButton();
+                else
+                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    
+                break;
+            case "btn02": //cancel update
+                _trans = new ClientMaster(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                _trans.setListener(_listener);
+
                 initButton();
                 clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
-                break;
-            case "btn02": //clear
-                if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
-                    _loaded = false;
-                    
-                    if (!_trans.TempTransactions().isEmpty()){
-                        createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
-                    } else {
-                        initButton();
-                        clearFields();
-
-                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-                    }
-                        
-                    _loaded = true;
-                }
                 break;
             case "btn03": //search
-                switch (_index){
-                    case 10:
-                        searchCitizenship("sCntryNme", txtField10.getText(), "", "", false);
-                        break;
-                    case 12:
-                        searchTownCity("sTownName", txtField12.getText(), "", "", false);
-                        break;
-                }
                 break;
             case "btn04": //save
                 _trans.setMaster("cCustomer", chkCustomer.isSelected() ? "1" : "0");
@@ -485,8 +492,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
                     initButton();
                     clearFields();
-                        
-                    cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
 
                    _loaded = true;
                 } else 
@@ -502,10 +507,11 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn09":
                 break;
-            case "btn10":
+            case "btn10": //AP Client
+                loadAPClient();
                 break;
-            case "btn11": //history
-                loadScreen(ScreenInfo.NAME.CLIENT_MASTER_HISTORY);
+            case "btn11": //AR Client
+                loadARClient();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -600,6 +606,56 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         }
     }
     
+    private void loadAPClient(){
+        if (_trans.getEditMode() != EditMode.READY){
+            MsgBox.showOk("No record loaded.", "Warning");
+            return;
+        }
+        
+        if (!((String) _trans.getMaster("cSupplier")).equals("1")){
+            MsgBox.showOk("Client is not a supplier.", "Warning");
+            return;
+        }
+        
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.AP_CLIENT);
+
+        if (loJSON != null){
+            APClientController instance = new APClientController();
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setClientID((String) _trans.getMaster("sClientID"));
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
+    private void loadARClient(){
+        if (_trans.getEditMode() != EditMode.READY){
+            MsgBox.showOk("No record loaded.", "Warning");
+            return;
+        }
+        
+        if (!((String) _trans.getMaster("cCustomer")).equals("1")){
+            MsgBox.showOk("Client is not a customer.", "Warning");
+            return;
+        }
+        
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.AR_CLIENT);
+
+        if (loJSON != null){
+            ARClientController instance = new ARClientController();
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setClientID((String) _trans.getMaster("sClientID"));
+
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }
+    }
+    
     private void initListener(){
         _listener = new LRecordMas() {
             @Override
@@ -634,7 +690,6 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
             @Override
             public void MasterRetreive(int fnIndex, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
         
@@ -645,6 +700,16 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                     foValue = (JSONObject) foValue.get("payload");
                 
                     switch (foField.getId()){
+                        case "txtSeeks01":
+                            if (_trans.OpenRecord((String) foValue.get("sClientID"))){
+                                clearFields();
+                                loadTransaction();
+                                initButton();
+                            } else {
+                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                clearFields();
+                            }
+                            break;
                         case "txtField10":
                             _trans.setMaster("sCitizenx", (String) foValue.get("sCntryCde"));
                             break;
@@ -734,8 +799,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("New");
-        btn02.setText("Clear");
+        btn01.setText("Update");
+        btn02.setText("Cnl Upd");
         btn03.setText("Search");
         btn04.setText("Save");
         btn05.setText("");
@@ -743,8 +808,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
-        btn11.setText("History");
+        btn10.setText("AP Record");
+        btn11.setText("AR Record");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -756,7 +821,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(false);
+        btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
@@ -764,50 +829,46 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         cmbClientTp.setItems(_clienttp);
         cmbCvilStat.setItems(_cvilstat);
         
-        cmbGenderCd.getSelectionModel().select(0);
-        cmbClientTp.getSelectionModel().select(0);
-        cmbCvilStat.getSelectionModel().select(0);
-        
         int lnEditMode = _trans.getEditMode();
         boolean lbShow = lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE;
         
+        btn01.setVisible(!lbShow);
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn10.setVisible(!lbShow);
+        btn11.setVisible(!lbShow);
         
-        txtField03.setDisable(!lbShow);
-        txtField04.setDisable(!lbShow);
-        txtField05.setDisable(!lbShow);
-        txtField06.setDisable(!lbShow);
-        txtField07.setDisable(!lbShow);
-        txtField10.setDisable(!lbShow);
-        txtField11.setDisable(!lbShow);
-        txtField12.setDisable(!lbShow);
-        txtField13.setDisable(!lbShow);
+        txtField03.setDisable(true);
+        txtField04.setDisable(true);
+        txtField05.setDisable(true);
+        txtField06.setDisable(true);
+        txtField07.setDisable(true);
+        txtField10.setDisable(true);
+        txtField11.setDisable(true);
+        txtField12.setDisable(true);
+        txtField13.setDisable(true);
         txtField14.setDisable(true);
-        txtField101.setDisable(!lbShow);
-        txtField102.setDisable(!lbShow);
-        txtField103.setDisable(!lbShow);
+        txtField101.setDisable(true);
+        txtField102.setDisable(true);
+        txtField103.setDisable(true);
         
-        cmbClientTp.setDisable(!lbShow);
+        cmbClientTp.setDisable(true);
+        cmbGenderCd.setDisable(true);
         cmbCvilStat.setDisable(!lbShow);
-        cmbGenderCd.setDisable(!lbShow);
         
         chkCustomer.setDisable(!lbShow);
         chkSupplier.setDisable(!lbShow);
         chkMechanic.setDisable(!lbShow);
         chkAdvisor.setDisable(!lbShow);
         
-        btnChild01.setVisible(lbShow);
-        btnChild02.setVisible(lbShow);
-        btnChild03.setVisible(lbShow);
+        btnChild01.setVisible(false);
+        btnChild02.setVisible(false);
+        btnChild03.setVisible(false);
     }
     
-    private void initFields(){       
-        cmbOrders.valueProperty().addListener((ObservableValue observable, Object oldValue, Object newValue) -> {
-            if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
-        });
-        
+    private void initFields(){               
+        txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
@@ -847,7 +908,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         ComboBox loButton = (ComboBox) event.getSource();
 
         int lnIndex = loButton.getSelectionModel().getSelectedIndex();
-        if (lnIndex >= 0) _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
+        if (lnIndex >= 0) 
+            _trans.setMaster("cCvilStat", String.valueOf(lnIndex));
     }
         
     private void cmbBox_KeyPressed(KeyEvent event) {

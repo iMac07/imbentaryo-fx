@@ -7,6 +7,8 @@ public class ScreenInfo {
     public static final String CONTROLLER_URL = "org.xersys.imbentaryofx.gui.";
     
     public enum NAME{
+        AP_CLIENT,
+        AR_CLIENT,
         JOB_ORDER,
         JOB_ESTIMATE,
         PARTS_INQUIRY,
@@ -27,6 +29,7 @@ public class ScreenInfo {
         CLIENT_MOBILE,
         CLIENT_EMAIL,
         CLIENT_ADDRESS,
+        CLIENT_MASTER_HISTORY,
         CASHIERING,
         PAYMENT,
         PAYMENT_NO_INVOICE,
@@ -107,6 +110,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "POReturn.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReturnController");
                 return loJSON;
+            case CLIENT_MASTER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "ClientMasterHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ClientMasterHistoryController");
+                return loJSON;
             case CLIENT_MASTER:
                 loJSON.put("resource", RESOURCE_URL + "ClientMaster.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ClientMasterController");
@@ -162,6 +169,14 @@ public class ScreenInfo {
             case PO_RECEIVING_DETAIL_UPDATE:
                 loJSON.put("resource", RESOURCE_URL + "POReceivingDetail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReceivingDetailController");
+                return loJSON;
+            case AP_CLIENT:
+                loJSON.put("resource", RESOURCE_URL + "APClient.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "APClientController");
+                return loJSON;
+            case AR_CLIENT:
+                loJSON.put("resource", RESOURCE_URL + "ARClient.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ARClientController");
                 return loJSON;
         }
         
