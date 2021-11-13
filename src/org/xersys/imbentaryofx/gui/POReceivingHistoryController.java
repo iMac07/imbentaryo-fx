@@ -114,6 +114,18 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     private TableView _table;
     @FXML
     private Label lblPayable;
+    @FXML
+    private TextField txtField15;
+    @FXML
+    private TextField txtField12;
+    @FXML
+    private TextField txtField13;
+    @FXML
+    private Label lblTranTotal;
+    @FXML
+    private Label lblTotalDisc;
+    @FXML
+    private Label lblFreight;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -197,10 +209,18 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         txtField06.setText("");
         txtField07.setText("");
         txtField08.setText("");
+        txtField12.setText("");
+        txtField13.setText("");
+        txtField15.setText("");
         txtField16.setText("");
         txtField17.setText("");
 
         _table_data.clear();
+        
+        lblTranTotal.setText("0.00");
+        lblTotalDisc.setText("0.00");
+        lblFreight.setText("0.00");
+        lblPayable.setText("0.00");
         
         cmbStatus.getSelectionModel().select(0);
         _transtat = 0;
@@ -228,8 +248,19 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     
     private void computeSummary(){
         double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
+        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        txtField12.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField13.setText(StringUtil.NumberFormat(lnAddDiscx, "###0.00"));
+        txtField15.setText(StringUtil.NumberFormat(lnFreightx, "###0.00"));
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
     }
     
     private void searchTransaction(String fsKey, Object foValue, boolean fbExact){
@@ -451,6 +482,13 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03":
+                if (_trans.CancelTransaction()){
+                    MsgBox.showOk("Transaction cancelled successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn04":
                 break;
@@ -539,7 +577,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         
         btn01.setText("Browse");
         btn02.setText("Confirm");
-        btn03.setText("");
+        btn03.setText("Cancel");
         btn04.setText("");
         btn05.setText("");
         btn06.setText("");
@@ -552,7 +590,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(false);
+        btn03.setVisible(true);
         btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);

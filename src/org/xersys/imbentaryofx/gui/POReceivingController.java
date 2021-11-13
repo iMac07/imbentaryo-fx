@@ -109,6 +109,18 @@ public class POReceivingController implements Initializable, ControlledScreen{
     private TextField txtField17;
     @FXML
     private TextField txtField08;
+    @FXML
+    private TextField txtField15;
+    @FXML
+    private TextField txtField12;
+    @FXML
+    private TextField txtField13;
+    @FXML
+    private Label lblTranTotal;
+    @FXML
+    private Label lblTotalDisc;
+    @FXML
+    private Label lblFreight;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -218,9 +230,15 @@ public class POReceivingController implements Initializable, ControlledScreen{
         txtField06.setText("");
         txtField07.setText("");
         txtField08.setText("");
+        txtField12.setText("0.00");
+        txtField13.setText("0.00");
+        txtField15.setText("0.00");
         txtField16.setText("");
         txtField17.setText("");
 
+        lblTranTotal.setText("0.00");
+        lblTotalDisc.setText("0.00");
+        lblFreight.setText("0.00");
         lblPayable.setText("0.00");
         
         //load temporary transactions
@@ -244,8 +262,19 @@ public class POReceivingController implements Initializable, ControlledScreen{
     
     private void computeSummary(){
         double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
+        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        txtField12.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField13.setText(StringUtil.NumberFormat(lnAddDiscx, "###0.00"));
+        txtField15.setText(StringUtil.NumberFormat(lnFreightx, "###0.00"));
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
     }
     
     private void loadTransaction(){
@@ -883,8 +912,11 @@ public class POReceivingController implements Initializable, ControlledScreen{
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField08.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField17.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField13.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField15.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField16.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField17.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
@@ -893,11 +925,17 @@ public class POReceivingController implements Initializable, ControlledScreen{
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         txtField07.setOnKeyPressed(this::txtField_KeyPressed);
         txtField08.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField15.setOnKeyPressed(this::txtField_KeyPressed);
         txtField16.setOnKeyPressed(this::txtField_KeyPressed);
         txtField17.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
+        txtField13.focusedProperty().addListener(txtField_Focus);
+        txtField15.focusedProperty().addListener(txtField_Focus);
         txtField16.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
@@ -932,6 +970,31 @@ public class POReceivingController implements Initializable, ControlledScreen{
                     break;
                 case 16: //remarks
                     _trans.setMaster("sRemarksx", lsValue);
+                    break;
+                case 12: //discount rate
+                case 13: //additional discount
+                case 15: //freight charge                    
+                    double x = 0.00;
+                    try {
+                        //this mus be numeric else it will throw an error
+                        x = Double.parseDouble(lsValue);
+                    } catch (NumberFormatException e) {
+                        MsgBox.showOk("Input was not numeric.", "Warning");
+                        txtField.requestFocus(); 
+                        break;
+                    }
+                    
+                    switch (lnIndex) {
+                        case 12:
+                            _trans.setMaster("nDiscount", x);
+                            break;
+                        case 13:
+                            _trans.setMaster("nAddDiscx", x);
+                            break;
+                        default:
+                            _trans.setMaster("nFreightx", x);
+                            break;
+                    }
                     break;
                 default:
                     MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");

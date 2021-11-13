@@ -707,9 +707,12 @@ public class POReturnController implements Initializable, ControlledScreen{
         btn02.setVisible(lnEditMode == EditMode.ADDNEW);
         btn03.setVisible(lnEditMode == EditMode.ADDNEW);
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
-        
+
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField09.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField10.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField16.setDisable(lnEditMode != EditMode.ADDNEW);
     }
