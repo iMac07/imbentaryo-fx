@@ -257,7 +257,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
         if (txtField05.isDisable())
             txtField06.requestFocus();
         else
-            txtField05.requestFocus();
+            txtField17.requestFocus();
     }
     
     private void computeSummary(){
@@ -343,11 +343,11 @@ public class POReceivingController implements Initializable, ControlledScreen{
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(true); index04.setStyle( "-fx-alignment: CENTER;");
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -506,12 +506,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 ex.printStackTrace();
                 MsgBox.showOk("ParseException detected.", "Warning");
                 txtField05.setText("");
-                FXUtil.SetNextFocus(txtField06);
+                FXUtil.SetNextFocus(txtField05);
             }
         } else {
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
             txtField05.setText("");
-            FXUtil.SetNextFocus(txtField06);
+            FXUtil.SetNextFocus(txtField05);
         }
     }
     
@@ -595,12 +595,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 ex.printStackTrace();
                 MsgBox.showOk("ParseException detected.", "Warning");
                 txtSeeks01.setText("");
-                FXUtil.SetNextFocus(txtSeeks01);
+                FXUtil.SetNextFocus(txtField17);
             }
         } else {
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
             txtSeeks01.setText("");
-            FXUtil.SetNextFocus(txtSeeks01);
+            FXUtil.SetNextFocus(txtField17);
         }
     }
     
@@ -641,7 +641,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 break;
             case "btn03": //search
                 break;
-            case "btn04": //pay
+            case "btn04": //save
                 if (_trans.SaveTransaction(true)){
                     MsgBox.showOk("Transaction saved successfully.", "Success");
                     
@@ -791,7 +791,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         loadDetail();
                         break;
-                    case "txtField06":
+                    case "txtField05":
                         _trans.setMaster("sSupplier", (String) foValue.get("sClientID"));
                         break;
                     case "txtField08":

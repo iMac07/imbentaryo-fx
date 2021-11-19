@@ -37,7 +37,7 @@ import org.xersys.commander.util.StringUtil;
 import org.xersys.purchasing.base.PurchaseOrder;
 
 public class PurchaseOrderHistoryController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
+    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Served");
     
     private XNautilus _nautilus;
     private PurchaseOrder _trans;
@@ -195,9 +195,12 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         txtField08.setText("");
         txtField10.setText("");
 
+        lblPayable.setText("0.00");
+        
         _table_data.clear();
         
         cmbStatus.getSelectionModel().select(0);
+        
         _transtat = 0;
         _trans.setTranStat(_transtat);
         
@@ -328,6 +331,10 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                             } else {
                                 MsgBox.showOk(_trans.getMessage(), "Warning");
                                 
+                                _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                                _trans.setSaveToDisk(false);
+                                _trans.setListener(_listener);
+                                
                                 initGrid();
                                 initButton();
                                 clearFields();
@@ -361,10 +368,10 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(true); index04.setStyle( "-fx-alignment: CENTER;");
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -444,7 +451,14 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                     clearFields();
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
-            case "btn04":
+            case "btn04": //cancel
+                if (_trans.CancelTransaction()){
+                    MsgBox.showOk("Transaction cancelled successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn05":
                 break;
@@ -532,7 +546,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         btn01.setText("Browse");
         btn02.setText("Print");
         btn03.setText("Confirm");
-        btn04.setText("");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -545,7 +559,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(false);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
@@ -580,7 +594,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 lblTranStat.setText("CANCELLED");
                 break;
             case "4":
-                lblTranStat.setText("VOIDED");
+                lblTranStat.setText("FULLY SERVED");
                 break;
             default:
                 lblTranStat.setText("UNKNOWN");

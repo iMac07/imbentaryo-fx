@@ -39,7 +39,9 @@ public class ScreenInfo {
         SP_INV_MASTER,
         POS_DETAIL_UPDATE,
         PO_DETAIL_UPDATE,
-        PO_RECEIVING_DETAIL_UPDATE
+        PO_RECEIVING_DETAIL_UPDATE,
+        PO_RETURN_DETAIL_UPDATE,
+        PO_RETURN_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
@@ -170,6 +172,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "POReceivingDetail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POReceivingDetailController");
                 return loJSON;
+            case PO_RETURN_DETAIL_UPDATE:
+                loJSON.put("resource", RESOURCE_URL + "POReturnDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReturnDetailController");
+                return loJSON;
             case AP_CLIENT:
                 loJSON.put("resource", RESOURCE_URL + "APClient.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "APClientController");
@@ -178,6 +184,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "ARClient.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ARClientController");
                 return loJSON;
+            case PO_RETURN_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "POReturnHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "POReturnHistoryController");
+                return loJSON;    
         }
         
         return null;
