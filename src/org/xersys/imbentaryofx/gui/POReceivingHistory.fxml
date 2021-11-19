@@ -36,7 +36,7 @@
                            <center>
                               <AnchorPane id="TransBody" prefHeight="489.0" prefWidth="905.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <GridPane layoutX="10.0" layoutY="14.0">
+                                    <GridPane layoutX="10.0" layoutY="14.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="15.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
@@ -54,7 +54,7 @@
                                           <TextField fx:id="txtSeeks02" focusTraversable="false" promptText="Search" GridPane.columnIndex="4" />
                                        </children>
                                     </GridPane>
-                                    <GridPane layoutX="717.0" layoutY="14.0" prefHeight="30.0" AnchorPane.topAnchor="14.0">
+                                    <GridPane layoutX="717.0" layoutY="14.0" prefHeight="30.0" AnchorPane.leftAnchor="717.0" AnchorPane.topAnchor="15.0">
                                       <columnConstraints>
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
@@ -87,10 +87,10 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Supplier:" />
-                                          <TextField fx:id="txtField05" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Order No.:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField17" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Order No.:" />
+                                          <TextField fx:id="txtField17" disable="true" GridPane.columnIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Supplier:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField05" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
                                           <Label prefHeight="30.0" prefWidth="93.0" text="Term:" GridPane.rowIndex="5">
                                              <GridPane.margin>
                                                 <Insets />
@@ -182,7 +182,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/okay.png" />
+                                                                  <Image url="@../icons/btn-approve.png" />
                                                                </image></ImageView>
                                                          </graphic>
                                                       </Button>
@@ -194,7 +194,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/clear.png" />
+                                                                  <Image url="@../icons/btn-disapprove.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>

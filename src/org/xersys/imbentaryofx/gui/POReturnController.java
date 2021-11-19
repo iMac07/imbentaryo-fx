@@ -101,13 +101,19 @@ public class POReturnController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField16;
     @FXML
-    private TextField txtField12;
-    @FXML
-    private TextField txtField11;
-    @FXML
     private TextField txtField09;
     @FXML
     private TextField txtField10;
+    @FXML
+    private TextField txtField11;
+    @FXML
+    private TextField txtField12;
+    @FXML
+    private Label lblTranTotal;
+    @FXML
+    private Label lblTotalDisc;
+    @FXML
+    private Label lblFreight;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -185,6 +191,14 @@ public class POReturnController implements Initializable, ControlledScreen{
                     searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
+                case "txtField05":
+                    searchSupplier("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField16":
+                    searchSource("a.sTransNox", lsValue, false);
+                    event.consume();
+                    return;
             }
         }
         
@@ -229,8 +243,19 @@ public class POReturnController implements Initializable, ControlledScreen{
     
     private void computeSummary(){
         double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
+        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField10.setText(StringUtil.NumberFormat(lnAddDiscx, "###0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "###0.00"));
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
     }
     
     private void loadTransaction(){       
@@ -261,11 +286,12 @@ public class POReturnController implements Initializable, ControlledScreen{
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnTranTotl = lnQuantity * lnUnitPrce;
             
-            _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
+            _table_data.add(new TableModel(
+                        String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
                         "",
@@ -293,16 +319,14 @@ public class POReturnController implements Initializable, ControlledScreen{
         TableColumn index05 = new TableColumn("");
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
-        TableColumn index08 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(true);
-        index05.setSortable(false); index05.setResizable(true); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index06.setSortable(false); index06.setResizable(true); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(true); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(true); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -318,25 +342,21 @@ public class POReturnController implements Initializable, ControlledScreen{
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(185);
         
-        index04.setText("Other Info"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(137);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Unit Price"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("Return"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Total"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(60);
-        
-        index08.setText("Total"); 
-        index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(85);
+        index07.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -345,7 +365,6 @@ public class POReturnController implements Initializable, ControlledScreen{
         _table.getColumns().add(index05);
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
-        _table.getColumns().add(index08);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -357,9 +376,9 @@ public class POReturnController implements Initializable, ControlledScreen{
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.PO_RETURN_DETAIL_UPDATE);
                 
-                POSDetailController instance = new POSDetailController();
+                POReturnDetailController instance = new POReturnDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -369,10 +388,10 @@ public class POReturnController implements Initializable, ControlledScreen{
                 instance.setDetailRow(_detail_row);
                 instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
-                instance.setOtherInfo(0);
-                instance.setOnHand((int) _trans.getDetail(_detail_row, "nQtyOnHnd"));
-                instance.setQtyOrder((int) _trans.getDetail(_detail_row, "nQuantity"));
-                instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
+                instance.setOnHand(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setQtyOrder(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQuantity"))));
+                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
+                instance.setFreight(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nFreightx"))));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
@@ -462,9 +481,9 @@ public class POReturnController implements Initializable, ControlledScreen{
                 break;
             case "btn03": //search
                 break;
-            case "btn04": //pay
+            case "btn04": //save
                 if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully and ready for paying.", "Success");
+                    MsgBox.showOk("Transaction saved successfully.", "Success");
                     
                     _loaded = false;
 
@@ -493,6 +512,7 @@ public class POReturnController implements Initializable, ControlledScreen{
                 loadScreen(ScreenInfo.NAME.PO_RECEIVING);
                 break;
             case "btn11": //History
+                loadScreen(ScreenInfo.NAME.PO_RETURN_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -580,6 +600,12 @@ public class POReturnController implements Initializable, ControlledScreen{
                     case "nFreightx":
                         computeSummary();
                         break;
+                    case "sSupplier":
+                        txtField05.setText((String) foValue);
+                        break;
+                    case "sSourceNo":
+                        loadTransaction();
+                        loadDetail();   
                 }
             }
 
@@ -600,6 +626,12 @@ public class POReturnController implements Initializable, ControlledScreen{
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         loadDetail();
+                        break;
+                    case "txtField05":
+                        _trans.setMaster("sSupplier", (String) foValue.get("sClientID"));
+                        break;
+                    case "txtField16":
+                        _trans.setMaster("sSourceNo", (String) foValue.get("sTransNox"));
                         break;
                 }
             }
@@ -680,7 +712,7 @@ public class POReturnController implements Initializable, ControlledScreen{
         btn01.setText("New");
         btn02.setText("Clear");
         btn03.setText("Search");
-        btn04.setText("Pay");
+        btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -720,8 +752,18 @@ public class POReturnController implements Initializable, ControlledScreen{
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField09.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField10.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField16.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField05.focusedProperty().addListener(txtField_Focus);
+        txtField09.focusedProperty().addListener(txtField_Focus);
+        txtField10.focusedProperty().addListener(txtField_Focus);
+        txtField11.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
+        txtField16.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -729,6 +771,95 @@ public class POReturnController implements Initializable, ControlledScreen{
                 if (_loaded) createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
             }
         });
+    }
+    
+    private void searchSupplier(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchSupplier(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sSupplier", (String) loJSON.get("sClientID"));
+                        FXUtil.SetNextFocus(txtField05);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchSupplier());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField05);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtField05.setText("");
+                FXUtil.SetNextFocus(txtField05);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtField05.setText("");
+            FXUtil.SetNextFocus(txtField05);
+        }
+    }
+    
+    private void searchSource(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchSource(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        _trans.setMaster("sSourceNo", (String) loJSON.get("sTransNox"));
+                        FXUtil.SetNextFocus(txtField16);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchSource());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField16);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                txtSeeks01.setText("");
+                FXUtil.SetNextFocus(txtField16);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            txtSeeks01.setText("");
+            FXUtil.SetNextFocus(txtField16);
+        }
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
@@ -741,16 +872,35 @@ public class POReturnController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
-                case 6: //po number
-                    _trans.setMaster("sReferNox", lsValue);
-                    break;
-                case 10: //remarks
+                case 12: //remarks
                     _trans.setMaster("sRemarksx", lsValue);
                     break;
+                case 9: //discount rate
+                case 10: //additional discount
+                case 11: //freight charge                    
+                    double x = 0.00;
+                    try {
+                        //this mus be numeric else it will throw an error
+                        x = Double.parseDouble(lsValue);
+                    } catch (NumberFormatException e) {
+                        MsgBox.showOk("Input was not numeric.", "Warning");
+                        txtField.requestFocus(); 
+                        break;
+                    }
+                    
+                    switch (lnIndex) {
+                        case 9:
+                            _trans.setMaster("nDiscount", x);
+                            break;
+                        case 10:
+                            _trans.setMaster("nAddDiscx", x);
+                            break;
+                        default:
+                            _trans.setMaster("nFreightx", x);
+                            break;
+                    }
+                    break;
                 case 5:
-                case 7:
-                case 8:
-                case 9:
                 case 16:
                     break;
                 default:
