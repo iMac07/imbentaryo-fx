@@ -440,6 +440,10 @@ public class ClientAddressController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
             }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+            }
 
             @Override
             public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {

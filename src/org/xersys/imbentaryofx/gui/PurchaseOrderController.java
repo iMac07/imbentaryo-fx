@@ -456,12 +456,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             } catch (ParseException ex) {
                 ex.printStackTrace();
                 MsgBox.showOk("ParseException detected.", "Warning");
-                txtSeeks01.setText("");
+                txtField06.setText("");
                 FXUtil.SetNextFocus(txtField06);
             }
         } else {
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
-            txtSeeks01.setText("");
+            txtField06.setText("");
             FXUtil.SetNextFocus(txtField06);
         }
     }
@@ -660,16 +660,28 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "nTranTtal":
-                    case "nDiscount":
-                    case "nAddDiscx":
-                    case "nFreightx":
+                    case "nTranTotl":
                         computeSummary();
                         break;
                     case "sSupplier":
                         txtField06.setText((String) foValue);
                         break;
                     case "sTermCode":
+                        txtField08.setText((String) foValue);
+                        break;
+                }
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 9: //nTranTotl                    
+                        computeSummary();
+                        break;
+                    case 6: //sSupplier
+                        txtField06.setText((String) foValue);
+                        break;
+                    case 8: //sTermCode
                         txtField08.setText((String) foValue);
                         break;
                 }

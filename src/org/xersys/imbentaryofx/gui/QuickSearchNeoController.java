@@ -384,7 +384,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         
         
         btn01.setVisible(true);
-        btn02.setVisible(true);
+        btn02.setVisible(false);
         btn03.setVisible(false);
         btn04.setVisible(false);
         btn05.setVisible(false);

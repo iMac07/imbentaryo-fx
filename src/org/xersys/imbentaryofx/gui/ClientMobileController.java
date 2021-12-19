@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
@@ -410,6 +408,10 @@ public class ClientMobileController implements Initializable, ControlledScreen{
         _listener = new LMasDetTrans() {
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
             }
 
             @Override

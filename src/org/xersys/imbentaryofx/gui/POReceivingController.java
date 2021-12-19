@@ -754,7 +754,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "nTranTtal":
+                    case "nTranTotl":
                     case "nDiscount":
                     case "nAddDiscx":
                     case "nFreightx":
@@ -767,6 +767,28 @@ public class POReceivingController implements Initializable, ControlledScreen{
                         txtField08.setText((String) foValue);
                         break;
                     case "sSourceNo":
+                        loadTransaction();
+                        loadDetail();
+                        break;
+                }
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 9: //nTranTotl
+                    case 12: //nDiscount
+                    case 13: //nAddDiscx
+                    case 15: //nFreightx
+                        computeSummary();
+                        break;
+                    case 5: //sSupplier
+                        txtField05.setText((String) foValue);
+                        break;
+                    case 8: //sTermCode
+                        txtField08.setText((String) foValue);
+                        break;
+                    case 17: //sSourceNo
                         loadTransaction();
                         loadDetail();
                         break;

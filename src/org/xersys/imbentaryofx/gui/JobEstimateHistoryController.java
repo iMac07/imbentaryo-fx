@@ -1,11 +1,9 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,8 +25,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.xersys.commander.contants.EditMode;
-import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -37,12 +33,13 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
-import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.JobEstimate;
 
-public class JobEstimateController implements Initializable, ControlledScreen{
+public class JobEstimateHistoryController implements Initializable, ControlledScreen{
+    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
+    
     private XNautilus _nautilus;
     private JobEstimate _trans;
     private LMasDetTrans _listener;
@@ -60,9 +57,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     private ObservableList<TableModel> _table_data2 = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
-    private int _index;
+    private int _index = 1;
     private int _parts_row;
     private int _labor_row;
+    private int _transtat;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -91,8 +89,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     @FXML
     private Button btn12;
     @FXML
-    private ComboBox cmbOrders;
-    @FXML
     private Label lblTranTotal;
     @FXML
     private Label lblPartsDisc;
@@ -119,6 +115,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     @FXML
     private TableView _table2;
     @FXML
+    private ComboBox cmbStatus;
+    @FXML
+    private Label lblTranStat;
+    @FXML
     private TextField txtField03;
     
     @Override
@@ -140,17 +140,11 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         initListener();        
         
         _trans = new JobEstimate(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
-        _trans.setSaveToDisk(true);
+        _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setOtherListener(_oth_listener);
         
         clearFields();
-        
-        if (!_trans.TempTransactions().isEmpty())
-            createNew(_trans.TempTransactions().get(0).getOrderNo());
-        
-        cmbOrders.getSelectionModel().select(0);
-        
         initButton();
         
         _loaded = true;
@@ -176,52 +170,19 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
-    private void createNew(String fsOrderNox){
-        if (!_trans.NewTransaction(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
-            System.exit(1);
-        }
-        
-        clearFields();
-        loadTransaction();
-    }
-    
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
-                
+        
         if (event.getCode() == KeyCode.ENTER){
-            switch (lsTxt){
+            switch(lsTxt){
                 case "txtSeeks01":
-                    searchLabor("sLaborCde", lsValue, false);
-                    event.consume();
-                    return;
+                    searchTransaction(txtSeeks01, "a.sTransNox", lsValue, false);
+                    break;
                 case "txtSeeks02":
-                    searchBranchInventory("sBarCodex", lsValue, false);
-                    event.consume();
-                    return;
-                case "txtField03":
-                    searchClient("a.sClientNm", lsValue, false);
-                    event.consume();
-                    return;
-                case "txtField06":
-                    searchMCDealer("sDescript", lsValue, false);
-                    event.consume();
-                    return;
-                case "txtField07":
-                    searchAdvisor("a.sClientNm", lsValue, false);
-                    event.consume();
-                    return;
-                case "txtField17":
-                    searchSerial(txtField17, "a.sSerial01", lsValue, false);
-                    event.consume();
-                    return;
-                case "txtField18":
-                    searchSerial(txtField18, "a.sSerial02", lsValue, false);
-                    event.consume();
-                    return;
+                    searchTransaction(txtSeeks02,"IFNULL(b.sClientNm, '')", lsValue, false);
+                    break;
             }
         }
         
@@ -252,22 +213,69 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         lblPartsDisc.setText("0.00");
         lblLaborDisc.setText("0.00");
         lblPayable.setText("0.00");
-        
-        //load temporary transactions
-        ArrayList<Temp_Transactions> laTemp = _trans.TempTransactions();
-        ObservableList<String> lsOrderNox = FXCollections.observableArrayList();
-        
-        if (laTemp.size() > 0){    
-            for (int lnCtr = 0; lnCtr <= laTemp.size()-1; lnCtr ++){
-                lsOrderNox.add(laTemp.get(lnCtr).getOrderNo() + " (" +SQLUtil.dateFormat(laTemp.get(lnCtr).getDateCreated(), SQLUtil.FORMAT_TIMESTAMP) + ")");
-            }
-        }
-        
-        cmbOrders.setItems(lsOrderNox);  
+         
         _table_data.clear();
         _table_data2.clear();
         
+        cmbStatus.getSelectionModel().select(0);
+        
+        _transtat = 0;
+        _trans.setTranStat(_transtat);
+        
+        setTranStat("-1");
+        
         txtSeeks01.requestFocus();
+    }
+    
+    private void searchTransaction(TextField foField, String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchTransaction(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        if (_trans.OpenTransaction((String) loJSON.get("sTransNox"))){
+                            loadTransaction();
+                            loadDetail();
+                        } else {
+                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            clearFields();
+                        }
+                        FXUtil.SetNextFocus(foField);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchTransaction());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(foField);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                MsgBox.showOk("ParseException detected.", "Warning");
+                foField.setText("");
+                FXUtil.SetNextFocus(foField);
+            }
+        } else {
+            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            foField.setText("");
+            FXUtil.SetNextFocus(foField);
+        }
     }
     
     private void computeSummary(){
@@ -282,6 +290,9 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     }
     
     private void loadTransaction(){        
+        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
+        txtSeeks02.setText((String) _trans.getMaster("xClientNm"));
+        
         txtField03.setText((String) _trans.getMaster("xClientNm"));
         txtField05.setText((String) _trans.getMaster("sJobDescr"));
         txtField06.setText((String) _trans.getMaster("xDealerNm"));
@@ -289,7 +300,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         txtField17.setText((String) _trans.getMaster("xEngineNo"));
         txtField18.setText((String) _trans.getMaster("xFrameNox"));
         
-        _index = 1;
+        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
         
         computeSummary();
         
@@ -335,9 +346,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         }
         
         computeSummary();
-        
-        txtSeeks01.setText("");
-        txtSeeks01.requestFocus();
     }
     
     private void loadParts(){
@@ -378,9 +386,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         }
         
         computeSummary();
-        
-        txtSeeks02.setText("");
-        txtSeeks02.requestFocus();
     }
     
     private void initGrid(){
@@ -524,64 +529,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     
     private void tableLaborClicked(MouseEvent event) { 
         _labor_row = _table2.getSelectionModel().getSelectedIndex();
-        
-        if (event.getClickCount() >= 2){
-            if (_labor_row >= 0){                
-                if (((String) _trans.getDetail(_labor_row, "sLaborCde")).isEmpty()) return;
-                
-                //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.JOB_ESTIMATE_DETAIL_UPDATE);
-                
-                JOEstimateDetailController instance = new JOEstimateDetailController();
-                
-                instance.setNautilus(_nautilus);
-                instance.setParentController(_main_screen_controller);
-                instance.setScreensController(_screens_controller);
-                instance.setCallback(_detail_update_callback);
-                
-                instance.setDetailRow(_labor_row);
-                instance.setLaborCode((String) _trans.getDetail(_labor_row, "sLaborCde"));
-                instance.setDescription((String) _trans.getDetail(_labor_row, "sLaborNme"));
-                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_labor_row, "nQuantity"))));
-                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_labor_row, "nUnitPrce"))));
-                instance.setDiscount(Double.valueOf(String.valueOf((double) _trans.getDetail(_labor_row, "nDiscount"))));
-                instance.setAdditional(Double.valueOf(String.valueOf((double) _trans.getDetail(_labor_row, "nAddDiscx"))));
-                
-                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-            }
-        }
     }
     
     private void tablePartsClicked(MouseEvent event) { 
         _parts_row = _table.getSelectionModel().getSelectedIndex();
-        
-        if (event.getClickCount() >= 2){
-            if (_parts_row >= 0){                
-                if (((String) _trans.getParts(_parts_row, "sBarCodex")).isEmpty()) return;
-                
-                //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
-                
-                POSDetailController instance = new POSDetailController();
-                
-                instance.setNautilus(_nautilus);
-                instance.setParentController(_main_screen_controller);
-                instance.setScreensController(_screens_controller);
-                instance.setCallback(_parts_update_callback);
-                
-                instance.setDetailRow(_parts_row);
-                instance.setPartNumber((String) _trans.getParts(_parts_row, "sBarCodex"));
-                instance.setDescription((String) _trans.getParts(_parts_row, "sDescript"));
-                instance.setOtherInfo(0);
-                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getParts(_parts_row, "nQtyOnHnd"))));
-                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getParts(_parts_row, "nQuantity"))));
-                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getParts(_parts_row, "nUnitPrce"))));
-                instance.setDiscount(Double.valueOf(String.valueOf((double) _trans.getParts(_parts_row, "nDiscount"))));
-                instance.setAdditional(Double.valueOf(String.valueOf((double) _trans.getParts(_parts_row, "nAddDiscx"))));
-                
-                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-            }
-        }
     }
     
     private void searchMCDealer(String fsKey, Object foValue, boolean fbExact){
@@ -625,50 +576,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
             txtField06.setText("");
             FXUtil.SetNextFocus(txtField06);
-        }
-    }
-    
-    private void searchClient(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchClient(fsKey, foValue, fbExact);
-        
-        if ("success".equals((String) loJSON.get("result"))){            
-            JSONParser loParser = new JSONParser();
-            
-            try {
-                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
-                
-                switch (loArray.size()){
-                    case 1: //one record found
-                        loJSON = (JSONObject) loArray.get(0);
-                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));       
-                        FXUtil.SetNextFocus(txtField03);
-                        break;
-                    default: //multiple records found
-                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-
-                        if (loScreen != null){
-                            QuickSearchNeoController instance = new QuickSearchNeoController();
-                            instance.setNautilus(_nautilus);
-                            instance.setParentController(_main_screen_controller);
-                            instance.setScreensController(_screens_controller);
-
-                            instance.setSearchObject(_trans.getSearchClient());
-                            instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtField03);
-
-                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-                        }
-                }
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
-                txtField03.setText("");
-                FXUtil.SetNextFocus(txtField03);
-            }
-        } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
-            txtField03.setText("");
-            FXUtil.SetNextFocus(txtField03);
         }
     }
     
@@ -851,74 +758,38 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01": //new
-                _loaded = false;
-                
-                createNew("");
-                initButton();
-                clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
+            case "btn01": //browse
+                if (_index == 1)
+                    searchTransaction(txtSeeks01, "a.sTransNox", "", false);
+                else
+                    searchTransaction(txtSeeks02, "a.sTransNox", "", false);
                 break;
-            case "btn02": //clear
-                if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
-                    _loaded = false;
+            case "btn02": //print
+                if (_trans.CloseTransaction()){
+                    MsgBox.showOk("Transaction closed successfully.", "Success");
                     
-                    if (!_trans.TempTransactions().isEmpty()){
-                        createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);
-                    } else {
-                        initButton();
-                        clearFields();
-
-                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-                    }
-                        
-                    _loaded = true;
-                }
-                break;
-            case "btn03": //search
-                switch (_index){
-                    case 1:
-                        searchLabor("sLaborCde", txtSeeks01.getText(), false);
-                        return;
-                    case 2:
-                        searchBranchInventory("sBarCodex", txtSeeks02.getText(), false);
-                        return;
-                    case 3:
-                        searchClient("a.sClientNm", txtField03.getText(), false);
-                        return;
-                    case 6:
-                        searchMCDealer("sDescript", txtField06.getText(), false);
-                        return;
-                    case 7:
-                        searchAdvisor("a.sClientNm", txtField07.getText(), false);
-                        return;
-                    case 17:
-                        searchSerial(txtField17, "a.sSerial01", txtField17.getText(), false);
-                        return;
-                    case 18:
-                        searchSerial(txtField18, "a.sSerial02", txtField18.getText(), false);
-                        return;       
-                }
-                break;
-            case "btn04":
-                if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
-                    
-                    _loaded = false;
-
+                    initGrid();
                     initButton();
                     clearFields();
-
-                    cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-
-                   _loaded = true;
-                } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                break;
+            case "btn03": //confirmation by supplier
+                if (_trans.PostTransaction()){
+                    MsgBox.showOk("Transaction confirmed successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                break;
+            case "btn04": //cancel
+                if (_trans.CancelTransaction()){
+                    MsgBox.showOk("Transaction cancelled successfully.", "Success");
+                    
+                    initGrid();
+                    initButton();
+                    clearFields();
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn05":
                 break;
@@ -930,11 +801,9 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 break;
             case "btn09":
                 break;
-            case "btn10": //job order
-                loadScreen(ScreenInfo.NAME.JOB_ORDER);
+            case "btn10":
                 break;
-            case "btn11": //history
-                loadScreen(ScreenInfo.NAME.JOB_ESTIMATE_HISTORY);
+            case "btn11":
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -979,213 +848,42 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     }
     
     private void initListener(){
-        _close_listener = new FormClosingCallback() {
-            @Override
-            public void FormClosing() {
-                _loaded = false;
-                
-                createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
-                initButton();
-                clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
-
-                initButton();
-            }
-        };
-        
-        _listener = new LMasDetTrans() {
-            @Override
-            public void MasterRetreive(String fsFieldNm, Object foValue) {
-                switch(fsFieldNm){
-                    case "nTranTotl":
-                    case "nLabrDisc":
-                    case "nPartDisc":
-                        computeSummary();
-                        break;
-                    case "xDealerNm":
-                        txtField06.setText((String) foValue);
-                        break;
-                    case "xSrvcAdvs":
-                        txtField07.setText((String) foValue);
-                        break;
-                    case "sJobDescr":
-                        txtField05.setText((String) foValue);
-                        break;
-                    case "xEngineNo":
-                        txtField17.setText((String) foValue);
-                        break;
-                    case "xFrameNox":
-                        txtField18.setText((String) foValue);
-                        break;
-                    case "xClientNm":
-                        txtField03.setText((String) foValue);
-                        break;
-                }
-            }
-            
-            @Override
-            public void MasterRetreive(int fnIndex, Object foValue) {
-                switch(fnIndex){
-                    case 10: //nTranTotl
-                    case 8: //nLabrDisc
-                    case 9: //nPartDisc
-                        computeSummary();
-                        break;
-                    case 5: //sJobDescr
-                        txtField05.setText((String) foValue);
-                        break;
-                    case 17: //xEngineNo
-                        txtField17.setText((String) foValue);
-                        break;
-                    case 18: //xFrameNox
-                        txtField18.setText((String) foValue);
-                        break;
-                    case 16:
-                        txtField03.setText((String) foValue);
-                        break;
-                }
-            }
-
-            @Override
-            public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                loadDetail();
-            }
-        };
-        
-        _oth_listener = new LOthTrans() {
-            @Override
-            public void OthersRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                loadParts();
-            }
-
-            @Override
-            public void OthersRetreive(int fnRow, int fnIndex, Object foValue) {
-                loadParts();
-            }
-        };
-        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
-                if (!"success".equals((String) foValue.get("result"))) return;
-                
-                foValue = (JSONObject) foValue.get("payload");
-                
                 switch (foField.getId()){
                     case "txtSeeks01":
-                        _trans.setDetail(_trans.getItemCount()- 1, "sLaborCde", (String) foValue.get("sLaborCde"));
-                        loadDetail();
-                        break;
                     case "txtSeeks02":
-                        _trans.setParts(_trans.getPartsCount()- 1, "sStockIDx", (String) foValue.get("sStockIDx"));
-                        loadParts();
-                        break;
-                    case "txtField03":
-                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
-                        break;
-                    case "txtField06":
-                        _trans.setMaster("sDealerCd", (String) foValue.get("sDealerCd"));
-                        break;
-                    case "txtField07":
-                        _trans.setMaster("sSrvcAdvs", (String) foValue.get("sClientID"));
-                        break;
-                    case "txtField17":
-                    case "txtField18":
-                        _trans.setMaster("sSerialID", (String) foValue.get("sSerialID"));
+                        if ("success".equals((String) foValue.get("result"))){
+                            foValue = (JSONObject) foValue.get("payload");
+                            
+                            if (_trans.OpenTransaction((String) foValue.get("sTransNox"))){
+                                loadTransaction();
+                            } else {
+                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                
+                                _trans = new JobEstimate(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                                _trans.setSaveToDisk(false);
+                                _trans.setListener(_listener);
+                                _trans.setOtherListener(_oth_listener);
+                                
+                                initGrid();
+                                initButton();
+                                clearFields();
+                            }
+                        } else {                            
+                            initGrid();
+                            initButton();
+                            clearFields();
+                        }
+                            
                         break;
                 }
             }
 
             @Override
             public void FormClosing(TextField foField) {
-                if (foField.getId().equals("txtSeeks01") ||
-                    foField.getId().equals("txtSeeks02")){
-                    foField.requestFocus();
-                } else{
-                    FXUtil.SetNextFocus(foField);
-                }    
-            }
-        };
-        
-        _detail_update_callback = new DetailUpdateCallback() {
-            @Override
-            public void Result(int fnRow, int fnIndex, Object foValue) {
-                switch(fnIndex){
-                    case 5:
-                    case 8:
-                    case 9:
-                        _trans.setDetail(fnRow, fnIndex, foValue);
-                        break;
-                }
-                loadDetail();
-            }
-            
-            @Override
-            public void Result(int fnRow, String fsIndex, Object foValue){
-                switch(fsIndex){
-                    case "nQuantity":
-                    case "nDiscount":
-                    case "nAddDiscx":
-                        _trans.setDetail(fnRow, fsIndex, foValue);
-                        break;
-                }
-                loadDetail();
-            }
-
-            @Override
-            public void RemovedItem(int fnRow) {
-                _trans.delDetail(fnRow);
-                loadDetail();
-                computeSummary();
-                txtSeeks01.requestFocus();
-            }
-
-            @Override
-            public void FormClosing() {
-                txtSeeks01.requestFocus();
-            }
-        };
-        
-        _parts_update_callback = new DetailUpdateCallback() {
-            @Override
-            public void Result(int fnRow, int fnIndex, Object foValue) {
-                switch(fnIndex){
-                    case 4:
-                    case 6:
-                    case 7:
-                        _trans.setParts(fnRow, fnIndex, foValue);
-                        break;
-                }
-                loadParts();
-            }
-
-            @Override
-            public void Result(int fnRow, String fsIndex, Object foValue) {
-                switch(fsIndex){
-                    case "nQuantity":
-                    case "nDiscount":
-                    case "nAddDiscx":
-                        _trans.setParts(fnRow, fsIndex, foValue);
-                        break;
-                }
-                loadParts();
-            }
-
-            @Override
-            public void RemovedItem(int fnRow) {
-                _trans.delParts(fnRow);
-                loadParts();
-                computeSummary();
-                txtSeeks02.requestFocus();
-            }
-
-            @Override
-            public void FormClosing() {
-                txtSeeks02.requestFocus();
+                foField.requestFocus();
             }
         };
     }
@@ -1217,17 +915,17 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
         
-        btn01.setText("New");
-        btn02.setText("Clear");
-        btn03.setText("Search");
-        btn04.setText("Save");
+        btn01.setText("Browse");
+        btn02.setText("Print");
+        btn03.setText("Confirm");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("Job Order");
-        btn11.setText("History");
+        btn10.setText("");
+        btn11.setText("");
         btn12.setText("Close");
         
         btn01.setVisible(true);
@@ -1242,48 +940,18 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
-        
-        int lnEditMode = _trans.getEditMode();
-        btn02.setVisible(lnEditMode == EditMode.ADDNEW);
-        btn03.setVisible(lnEditMode == EditMode.ADDNEW);
-        btn04.setVisible(lnEditMode == EditMode.ADDNEW);
-        
-        txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtSeeks02.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField17.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField18.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtSeeks02.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField17.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField18.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtSeeks01.focusedProperty().addListener(txtField_Focus);
         txtSeeks02.focusedProperty().addListener(txtField_Focus);
-        txtField03.focusedProperty().addListener(txtField_Focus);
-        txtField05.focusedProperty().addListener(txtField_Focus);
-        txtField06.focusedProperty().addListener(txtField_Focus);
-        txtField07.focusedProperty().addListener(txtField_Focus);
-        txtField17.focusedProperty().addListener(txtField_Focus);
-        txtField18.focusedProperty().addListener(txtField_Focus);
         
-        cmbOrders.valueProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (_loaded) 
-                    if (cmbOrders.getItems().size() > 0)
-                        createNew(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()).getOrderNo());
-            }
-        });
+        cmbStatus.setItems(_status);
+        cmbStatus.getSelectionModel().select(0);
+        _transtat = 0;
     }
     
     private void loadScreen(ScreenInfo.NAME  foValue){
@@ -1301,6 +969,34 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         }
     }
     
+    private void setTranStat(String fsValue){
+        switch(fsValue){
+            case "0":
+                lblTranStat.setText("OPEN");
+                break;
+            case "1":
+                lblTranStat.setText("CLOSED");
+                break;
+            case "2":
+                lblTranStat.setText("POSTED");
+                break;
+            case "3":
+                lblTranStat.setText("CANCELLED");
+                break;
+            case "4":
+                lblTranStat.setText("FULLY SERVED");
+                break;
+            default:
+                lblTranStat.setText("UNKNOWN");
+        }
+    }
+    
+    @FXML
+    private void cmbStatus_Click(ActionEvent event) {
+        _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
+        _trans.setTranStat(_transtat);
+    }
+    
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
         if (!_loaded) return;
         
@@ -1310,26 +1006,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
-            switch (lnIndex){
-                case 5: //sJobDescr
-                    _trans.setMaster("sJobDescr", lsValue);
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                case 6:
-                case 7:
-                case 17:
-                case 18:
-                    break;
-                default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
-            }
             _index = lnIndex;
         } else{ //Got Focus
             _index = lnIndex;
             txtField.selectAll();
         }
-        
     };    
 }

@@ -1,7 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
@@ -21,7 +19,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.json.simple.parser.ParseException;
 import org.xersys.clients.base.ClientEMail;
@@ -395,6 +392,10 @@ public class ClientEMailController implements Initializable, ControlledScreen{
         _listener = new LMasDetTrans() {
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
             }
 
             @Override
