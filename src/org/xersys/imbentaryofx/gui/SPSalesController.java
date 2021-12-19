@@ -281,9 +281,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        "1",
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        "-",
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
@@ -317,9 +317,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
-        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
@@ -339,17 +339,17 @@ public class SPSalesController implements Initializable, ControlledScreen{
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(200);
         
-        index04.setText("QOH"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(60);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("ROQ"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("Unit Price"); 
+        index06.setText("ROQ"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(80);
+        index06.prefWidthProperty().set(60);
         
         index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
@@ -605,10 +605,22 @@ public class SPSalesController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "nTranTtal":
+                    case "nTranTotl":
                     case "nDiscount":
                     case "nAddDiscx":
                     case "nFreightx":
+                        computeSummary();
+                        break;
+                }
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 8: //nTranTotl
+                    case 10: //nDiscount
+                    case 11: //nAddDiscx
+                    case 12: //nFreightx
                         computeSummary();
                         break;
                 }
@@ -711,7 +723,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn01.setText("New");
         btn02.setText("Clear");
         btn03.setText("Search");
-        btn04.setText("Pay");
+        btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");

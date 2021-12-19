@@ -41,7 +41,7 @@
                               <Font name="Arial Bold" size="12.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblUser" alignment="CENTER_RIGHT" layoutX="400.0" layoutY="4.0" prefHeight="17.0" prefWidth="489.0" text="June 4, 2021 10:27:00 PM" textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="lblUser" alignment="CENTER_RIGHT" layoutX="400.0" layoutY="4.0" prefHeight="17.0" prefWidth="489.0" text="Dec. 07, 2021 09:35:00 PM" textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
                            <font>
                               <Font name="Arial Bold" size="12.0" />
                            </font>

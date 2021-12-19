@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="JobEstimate" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="JobEstimateHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -25,7 +25,7 @@
                <top>
                   <AnchorPane id="TransHeader" prefHeight="25.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Job Estimate" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="Job Estimate History" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </top>
@@ -39,8 +39,8 @@
                                     <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                                     <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                        <children>
-                                          <ComboBox id="cmbOrder" fx:id="cmbOrders" layoutX="-27.0" prefWidth="200.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
-                                          <Label id="lblOrderNo" text="Order No." AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="0.0" />
+                                          <ComboBox id="cmbOrder" fx:id="cmbStatus" layoutX="-27.0" onAction="#cmbStatus_Click" prefHeight="25.0" prefWidth="104.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
+                                          <Label id="lblOrderNo" text="Status Filter:" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="124.0" AnchorPane.topAnchor="0.0" />
                                        </children>
                                     </AnchorPane>
                                  </children>
@@ -49,21 +49,39 @@
                            <center>
                               <AnchorPane id="TransBody" prefHeight="489.0" prefWidth="905.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <GridPane layoutX="14.0" layoutY="130.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
-                                      <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                      </rowConstraints>
+                                    <GridPane AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="30.0" prefWidth="75.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
                                        <children>
-                                          <Label prefHeight="30.0" prefWidth="95.0" text="Add Labor:" />
+                                          <Label prefHeight="30.0" prefWidth="102.0" text="Trans. No.:" />
                                           <TextField fx:id="txtSeeks01" promptText="Quick Search" GridPane.columnIndex="1" />
+                                          <Label prefHeight="30.0" prefWidth="102.0" text="Client:" GridPane.columnIndex="3" />
+                                          <TextField fx:id="txtSeeks02" promptText="Quick Search" GridPane.columnIndex="4" />
                                        </children>
                                     </GridPane>
-                                    <TableView fx:id="_table2" focusTraversable="false" layoutX="10.0" layoutY="45.0" prefHeight="140.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="45.0" />
-                                    <GridPane layoutX="672.0" layoutY="390.0" AnchorPane.leftAnchor="672.0" AnchorPane.topAnchor="390.0">
+                                    <GridPane prefHeight="30.0" AnchorPane.leftAnchor="717.0" AnchorPane.topAnchor="10.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label id="lblOrderNo" prefHeight="41.0" prefWidth="100.0" text="STATUS:" />
+                                          <Label id="lblOrderNo" fx:id="lblTranStat" prefHeight="30.0" prefWidth="116.0" text="OPEN" GridPane.columnIndex="1" />
+                                       </children>
+                                    </GridPane>
+                                    <TableView fx:id="_table2" focusTraversable="false" layoutX="10.0" layoutY="45.0" prefHeight="140.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0" />
+                                    <GridPane layoutX="672.0" layoutY="390.0" AnchorPane.leftAnchor="672.0" AnchorPane.topAnchor="370.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
@@ -87,21 +105,8 @@
                                           <Label fx:id="lblLaborDisc" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="140.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                        </children>
                                     </GridPane>
-                                    <GridPane layoutX="10.0" layoutY="195.0" AnchorPane.leftAnchor="10.0">
-                                       <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
-                                       </columnConstraints>
-                                       <rowConstraints>
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                       </rowConstraints>
-                                       <children>
-                                          <Label prefHeight="30.0" prefWidth="108.0" text="Add Parts:" />
-                                          <TextField fx:id="txtSeeks02" promptText="Quick Search" GridPane.columnIndex="1" />
-                                       </children>
-                                    </GridPane>
-                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="230.0" prefHeight="140.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="230.0" />
-                                    <GridPane layoutX="10.0" layoutY="413.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="390.0">
+                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="230.0" prefHeight="140.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="200.0" />
+                                    <GridPane layoutX="10.0" layoutY="413.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="370.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
@@ -119,17 +124,17 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Job Desc.:" />
-                                          <TextField fx:id="txtField05" GridPane.columnIndex="1" GridPane.columnSpan="6" />
+                                          <TextField fx:id="txtField05" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField03" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField03" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Engine No.:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField17" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField17" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
                                           <Label prefHeight="30.0" prefWidth="83.0" text="Frame No.:" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField18" promptText="Quick Search" GridPane.columnIndex="5" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField18" disable="true" GridPane.columnIndex="5" GridPane.columnSpan="2" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Dealer:" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtField06" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField06" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Srvc. Advisor:" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtField07" promptText="Quick Search" GridPane.columnIndex="5" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField07" disable="true" GridPane.columnIndex="5" GridPane.columnSpan="2" GridPane.rowIndex="3" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -165,7 +170,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/new.png" />
+                                                                  <Image url="@../icons/search.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -178,7 +183,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/clear.png" />
+                                                                  <Image url="@../icons/print-invoice.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -191,7 +196,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/search.png" />
+                                                                  <Image url="@../icons/btn-post.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -204,7 +209,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/save.png" />
+                                                                  <Image url="@../icons/btn-cancel.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -238,28 +243,12 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="9">
                                                    <children>
-                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                               <image>
-                                                                  <Image url="@../icons/job-order.png" />
-                                                               </image>
-                                                            </ImageView>
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">
                                                    <children>
-                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                               <image>
-                                                                  <Image url="@../icons/history.png" />
-                                                               </image>
-                                                            </ImageView>
-                                                         </graphic>
-                                                      </Button>
+                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="11">

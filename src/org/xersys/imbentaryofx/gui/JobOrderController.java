@@ -668,10 +668,22 @@ public class JobOrderController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "nTranTtal":
+                    case "nTranTotl":
                     case "nDiscount":
                     case "nAddDiscx":
                     case "nFreightx":
+                        computeSummary();
+                        break;
+                }
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 20: //nTranTotl
+                    case 24: //nDiscount
+                    case 25: //nAddDiscx
+                    case 26: //nFreightx
                         computeSummary();
                         break;
                 }

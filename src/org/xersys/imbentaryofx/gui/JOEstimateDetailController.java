@@ -20,7 +20,7 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 
-public class POSDetailController implements Initializable, ControlledScreen  {
+public class JOEstimateDetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private DetailUpdateCallback _callback;
@@ -29,9 +29,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private int _row;
     private String _part_number;
     private String _description;
-    private int _roq;
     private int _order;
-    private int _on_hand;
     private double _srp;
     private double _discount;
     private double _additional;
@@ -76,10 +74,6 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     private TextField txtDetail05;
     @FXML
     private TextField txtDetail06;
-    @FXML
-    private TextField txtDetail07;
-    @FXML
-    private TextField txtDetail08;
     @FXML
     private Label lblTotal;
 
@@ -127,20 +121,12 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         _order = fnValue;
     }
     
-    public void setOnHand(int fnValue){
-        _on_hand = fnValue;
-    }
-    
-    public void setPartNumber(String fsValue){
+    public void setLaborCode(String fsValue){
         _part_number = fsValue;
     }
     
     public void setDescription(String fsValue){
         _description = fsValue;
-    }
-    
-    public void setOtherInfo(int fnValue){
-        _roq = fnValue;
     }
     
     public void setSellingPrice(double fnValue){
@@ -217,26 +203,22 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         txtDetail04.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail05.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail08.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtDetail04.focusedProperty().addListener(txtField_Focus);
+        txtDetail05.focusedProperty().addListener(txtField_Focus);
         txtDetail06.focusedProperty().addListener(txtField_Focus);
-        txtDetail07.focusedProperty().addListener(txtField_Focus);
-        txtDetail08.focusedProperty().addListener(txtField_Focus);
-                
+        
         txtDetail01.setText(_part_number);
-        txtDetail02.setText(_description);
-        txtDetail03.setText(String.valueOf(_roq));
-        txtDetail04.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
-        txtDetail05.setText(String.valueOf(_on_hand));
-        txtDetail06.setText(String.valueOf(_order));
-        txtDetail07.setText(StringUtil.NumberFormat(_discount, "##0.00"));
-        txtDetail08.setText(StringUtil.NumberFormat(_additional, "##0.00"));
+        txtDetail02.setText(_description);        
+        txtDetail03.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
+        txtDetail04.setText(String.valueOf(_order));
+        txtDetail05.setText(StringUtil.NumberFormat(_discount, "##0.00"));
+        txtDetail06.setText(StringUtil.NumberFormat(_additional, "##0.00"));
         
         computeTotal();
         
-        txtDetail06.requestFocus();
-        txtDetail06.selectAll();
+        txtDetail04.requestFocus();
+        txtDetail04.selectAll();
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -309,9 +291,9 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         switch (event.getCode()){
         case ENTER:
         case DOWN:
-            if (txtField.getId().equals("txtDetail08")){
-                txtDetail06.selectAll();
-                txtDetail06.requestFocus();
+            if (txtField.getId().equals("txtDetail06")){
+                txtDetail04.selectAll();
+                txtDetail04.requestFocus();
                 event.consume();
                 return;
             }
@@ -334,7 +316,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
         
         if(!nv){
             switch (lnIndex){
-                case 6:
+                case 4:
                     if (StringUtil.isNumeric(lsValue))                    
                         txtField.setText(lsValue);                    
                     else{
@@ -345,7 +327,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
                     
                     _order = Integer.parseInt(txtField.getText());
                     break;
-                case 7:
+                case 5:
                     if (StringUtil.isNumeric(lsValue)){
                         double lnValue = Double.valueOf(lsValue);
                         
@@ -360,7 +342,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
                         
                     _discount = Double.valueOf(txtField.getText());
                     break;
-                case 8:
+                case 6:
                     if (StringUtil.isNumeric(lsValue)){
                         double lnValue = Double.valueOf(lsValue);
                         

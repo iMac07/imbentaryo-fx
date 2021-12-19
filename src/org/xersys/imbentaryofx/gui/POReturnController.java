@@ -594,7 +594,7 @@ public class POReturnController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "nTranTtal":
+                    case "nTranTotl":
                     case "nDiscount":
                     case "nAddDiscx":
                     case "nFreightx":
@@ -604,6 +604,24 @@ public class POReturnController implements Initializable, ControlledScreen{
                         txtField05.setText((String) foValue);
                         break;
                     case "sSourceNo":
+                        loadTransaction();
+                        loadDetail();   
+                }
+            }
+            
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 6: //nTranTotl
+                    case 9: //nDiscount
+                    case 10: //nAddDiscx
+                    case 11: //nFreightx
+                        computeSummary();
+                        break;
+                    case 5: //sSupplier
+                        txtField05.setText((String) foValue);
+                        break;
+                    case 14: //sSourceNo
                         loadTransaction();
                         loadDetail();   
                 }
