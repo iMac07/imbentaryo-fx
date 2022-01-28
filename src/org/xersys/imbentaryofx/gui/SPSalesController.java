@@ -630,6 +630,10 @@ public class SPSalesController implements Initializable, ControlledScreen{
             public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
                 loadDetail();
             }
+
+            @Override
+            public void DetailRetreive(int fnRow, int fnIndex, Object foValue) {
+            }
         };
         
         _search_callback = new QuickSearchCallback() {
