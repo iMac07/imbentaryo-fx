@@ -418,6 +418,10 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
                 loadDetail();
             }
+
+            @Override
+            public void DetailRetreive(int fnRow, int fnIndex, Object foValue) {
+            }
         };
     }
     

@@ -105,7 +105,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="btnOther03" layoutX="10.0" layoutY="65.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
-                              <Label text="Job Order" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Label text="Services" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
                                  <image>
                                     <Image url="@../icons/icon-job-order-32x32.png" />

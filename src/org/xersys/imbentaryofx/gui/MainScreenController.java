@@ -141,8 +141,8 @@ public class MainScreenController implements Initializable {
             case "btnOther02": //sales
                 loadScreen(ScreenInfo.NAME.SP_SALES);
                 break;
-            case "btnOther03": //job order
-                loadScreen(ScreenInfo.NAME.JOB_ORDER);
+            case "btnOther03": //services
+                loadScreen(ScreenInfo.NAME.JOB_ESTIMATE);
                 break;
             case "btnOther04": //customer order
                 //loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);

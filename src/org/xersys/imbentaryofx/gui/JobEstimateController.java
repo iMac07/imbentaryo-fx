@@ -1054,6 +1054,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
                 loadDetail();
             }
+
+            @Override
+            public void DetailRetreive(int fnRow, int fnIndex, Object foValue) {                
+            }
         };
         
         _oth_listener = new LOthTrans() {
@@ -1250,6 +1254,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtSeeks02.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField03.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
