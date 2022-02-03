@@ -56,6 +56,8 @@ public class POReturnHistoryController implements Initializable, ControlledScree
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
+    private String _old_trans = "";
+    
     private int _index;
     private int _detail_row;
     
@@ -254,6 +256,12 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         computeSummary();
         
         loadDetail();
+        
+        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
+        
+        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void loadDetail(){
@@ -393,8 +401,10 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                     MsgBox.showOk("Transaction closed successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(1);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03":
@@ -402,8 +412,10 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                     MsgBox.showOk("Transaction cancelled successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(3);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn04":

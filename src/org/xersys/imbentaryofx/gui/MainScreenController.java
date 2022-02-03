@@ -68,6 +68,16 @@ public class MainScreenController implements Initializable {
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
     }
+    
+    public void addNoTabScreen(String fsValue){
+        if (!_no_tab_screen.contains(fsValue)) 
+            _no_tab_screen += fsValue;
+    }
+    
+    public void delNoTabScreen(String fsValue){
+        if (_no_tab_screen.contains(fsValue)) 
+            _no_tab_screen = _no_tab_screen.replace(fsValue, "");
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -115,6 +125,20 @@ public class MainScreenController implements Initializable {
         //load the dashboard
         JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
         if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));          
+        
+        //set screens that will not trigger on window tabs
+        _no_tab_screen = "";
+        _no_tab_screen += "POSDetail";
+        _no_tab_screen += "QuickSearch";
+        _no_tab_screen += "QuickSearchFilter";
+        _no_tab_screen += "PartsInquiry";
+        _no_tab_screen += "PartsCatalogue";
+        _no_tab_screen += "PartsCatalogueDetail";
+        _no_tab_screen += "ClientAddress";
+        _no_tab_screen += "ClientMobile";
+        _no_tab_screen += "ClientEMail";
+        _no_tab_screen += "Cashiering";
+        _no_tab_screen += "Payment";
     }
     
     private void initButton(){
@@ -194,29 +218,16 @@ public class MainScreenController implements Initializable {
                 Node loNode = _screens_controller.getScreen(_screens_controller.getCurrentScreenIndex());
                 
                 //prevent some window to user prev/fwrd screen
-                switch(loNode.getId()){
-                    case "POSDetail":
-                    case "QuickSearch":
-                    case "QuickSearchFilter":
-                    case "PartsInquiry":
-                    case "PartsCatalogue":
-                    case "PartsCatalogueDetail":
-                    case "ClientAddress":
-                    case "ClientMobile":
-                    case "ClientEMail":
-                    case "Cashiering":
-                    case "Payment":     
-                        System.err.println("Request rejected.");
-                        break;
-                    default:
-                        if (_control_pressed){
-                            if (_shift_pressed)
-                                _screens_controller.prevScreen();
-                            else
-                                _screens_controller.fwrdScreen();
-                        }   
+                if (_no_tab_screen.contains(loNode.getId())){
+                    System.err.println("Request rejected.");
+                } else {
+                    if (_control_pressed){
+                        if (_shift_pressed)
+                            _screens_controller.prevScreen();
+                        else
+                            _screens_controller.fwrdScreen();
+                    } 
                 }
-
                 break;
         }
     }
@@ -224,6 +235,8 @@ public class MainScreenController implements Initializable {
     private static XNautilus _nautilus;
     private static ScreensController _screens_controller;
     private static ScreensController _screens_dashboard_controller;
+    
+    public String _no_tab_screen;
     
     private boolean _control_pressed;
     private boolean _shift_pressed;

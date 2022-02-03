@@ -19,24 +19,24 @@
 
 .table-view .column-header-background .label{
     -fx-background-color: transparent;
-    -fx-font-size: 10px;
+    -fx-font-size: 11px;
     -fx-text-fill: black;
 }
 
 .table-view .filler, .table-view .column-header {
     -fx-background-color: transparent;
-    -fx-size: 20px;
+    -fx-size: 23px;
 }
 
 .table-view .table-cell{
     -fx-text-fill: black;
-    -fx-font-size: 10px;
+    -fx-font-size: 12px;
     -fx-font-weight: 300;
     -fx-font-family: 'Open Sans','Helvetica Neue',Arial,sans-serif;
 }
 .table-row-cell{
     -fx-padding: 0.0em;
-    -fx-cell-size: 20px;
+    -fx-cell-size: 22px;
 }
 .table-row-cell:selected {
     -fx-background-color: #B3B6B7;

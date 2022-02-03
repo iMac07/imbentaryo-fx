@@ -124,6 +124,10 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         _text_field = foValue;
     }
     
+    public void setAddRecord(boolean fbValue){
+        _allow_create = fbValue;
+    }
+    
     private void loadDetail(){        
         if (_trans == null){
             System.err.println("UNSET Search Object.");
@@ -209,13 +213,13 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                     
                     switch (laFields.size()){
                         case 1:
-                            index01.prefWidthProperty().bind(table.widthProperty().multiply(1)); break;
+                            index01.prefWidthProperty().bind(table.widthProperty().multiply(0.995)); break;
                         case 2:
                         case 3:
                         case 4:
-                            index01.prefWidthProperty().bind(table.widthProperty().multiply(0.25)); break;
+                            index01.prefWidthProperty().bind(table.widthProperty().multiply(0.245)); break;
                         default:
-                            index01.prefWidthProperty().bind(table.widthProperty().multiply(0.20));
+                            index01.prefWidthProperty().bind(table.widthProperty().multiply(0.195));
                     }
                     break;
                 case 2: 
@@ -379,7 +383,7 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("");
+        btn11.setText("Add");
         btn12.setText("Close");              
         
         
@@ -393,13 +397,15 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
         btn08.setVisible(false);
         btn09.setVisible(false);
         btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn11.setVisible(_allow_create);
         btn12.setVisible(true);
     }
     
     private void cmdButton_Click(ActionEvent event) {
         String lsButton = ((Button) event.getSource()).getId();
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
+        
+        JSONObject loJSON;
         
         switch (lsButton){
             case "btn01": //load
@@ -424,10 +430,16 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
                 break;
             case "btn10":
                 break;
-            case "btn11":
+            case "btn11": //add record
+                loJSON = new JSONObject();
+                loJSON.put("result", "success");
+                loJSON.put("payload", null);
+                
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                _search_callback.Result(_text_field, loJSON);
                 break;
             case "btn12": //close screen
-                JSONObject loJSON = new JSONObject();
+                loJSON = new JSONObject();
                 loJSON.put("result", "error");
                 loJSON.put("message", "No record to load.");
                 _search_callback.Result(_text_field, loJSON);
@@ -493,7 +505,6 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
     private FormClosingCallback _filter_closing;
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
-    private TableModel _model;
     private JSONObject _json;
     
     private int pnSelectd = -1;
@@ -502,4 +513,6 @@ public class QuickSearchNeoController implements Initializable, ControlledScreen
     
     private TextField _text_field;
     private boolean _control_pressed;
+    private boolean _allow_create = false;
+    
 }

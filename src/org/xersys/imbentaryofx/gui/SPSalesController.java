@@ -182,14 +182,39 @@ public class SPSalesController implements Initializable, ControlledScreen{
         String lsValue = txtField.getText();
                 
         if (event.getCode() == KeyCode.ENTER){
-            switch (lsTxt){
-                case "txtSeeks01":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
-                    searchBranchInventory("sBarCodex", lsValue, false);
-                    event.consume();
-                    return;
-            }
+            
         }
+        switch (event.getCode()){
+            case ENTER:
+                switch (lsTxt){
+                    case "txtSeeks01":
+                        searchBranchInventory("sBarCodex", lsValue, false);
+                        event.consume();
+                        return;
+                }
+                break;
+            case F3:
+                switch (lsTxt){
+                    case "txtSeeks01":
+                        searchBranchInventory("sDescript", lsValue, false);
+                        event.consume();
+                        return;
+                }
+                break;
+            case DELETE:
+                switch (lsTxt){
+                    case "txtSeeks01":
+                        _trans.delDetail(_detail_row);
+                        loadDetail();
+                        computeSummary();
+                        txtSeeks01.requestFocus();
+                        event.consume();
+                        return;
+                }
+                break;
+        }
+        
+        
         
         switch (event.getCode()){
         case ENTER:
@@ -293,7 +318,50 @@ public class SPSalesController implements Initializable, ControlledScreen{
         if (!_table_data.isEmpty()){
             _table.getSelectionModel().select(lnRow - 1);
             _table.getFocusModel().focus(lnRow - 1); 
-            _detail_row = _table.getSelectionModel().getSelectedIndex();           
+            _detail_row = lnRow - 1;           
+        }
+        
+        computeSummary();
+        
+        txtSeeks01.setText("");
+        txtSeeks01.requestFocus();
+    }
+    
+    private void loadDetail(int fnRow){
+        int lnCtr;
+        int lnRow = _trans.getItemCount();
+        
+        _table_data.clear();
+        
+        double lnUnitPrce;
+        double lnDiscount;
+        double lnAddDiscx;
+        double lnTranTotl;
+        int lnQuantity;
+        
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
+            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
+            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
+            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            
+            _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
+                        (String) _trans.getDetail(lnCtr, "sBarCodex"),
+                        (String) _trans.getDetail(lnCtr, "sDescript"), 
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        "-",
+                        String.valueOf(lnQuantity),
+                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
+                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+        }
+
+        if (!_table_data.isEmpty()){
+            _table.getSelectionModel().select(fnRow);
+            _table.getFocusModel().focus(fnRow); 
+            _detail_row = lnRow - 1;           
         }
         
         computeSummary();
@@ -384,6 +452,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     
     private void tableClicked(MouseEvent event) { 
         _detail_row = _table.getSelectionModel().getSelectedIndex();
+        txtSeeks01.requestFocus();
         
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
@@ -628,7 +697,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
 
             @Override
             public void DetailRetreive(int fnRow, String fsFieldNm, Object foValue) {
-                loadDetail();
+                loadDetail(fnRow);
             }
 
             @Override
@@ -646,7 +715,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 switch (foField.getId()){
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
-                        loadDetail();
                         break;
                 }
             }
