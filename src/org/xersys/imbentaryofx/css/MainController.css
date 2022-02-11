@@ -33,7 +33,7 @@
 
 #btnOther01, #btnOther02, #btnOther03, #btnOther04, #btnOther05,
 #btnOther06, #btnOther07, #btnOther08, #btnOther09, #btnOther10,
-#btnOther11{
+#btnOther11, #btnOther12, #btnOther13, #btnOther14{
     -fx-border-width: 0px 0px 0px 0px;
     -fx-border-radius: 0px;
     -fx-border-color: #d2d9e2;
@@ -45,7 +45,7 @@
 
 #btnOther01:hover, #btnOther02:hover, #btnOther03:hover, #btnOther04:hover, #btnOther05:hover,
 #btnOther06:hover, #btnOther07:hover, #btnOther08:hover, #btnOther09:hover, #btnOther10:hover,
-#btnOther11:hover{
+#btnOther11:hover, #btnOther12:hover, #btnOther13:hover, #btnOther14:hover{
     -fx-background-color: #2c2c2c;
     -fx-text-fill: #ffffff;
     -fx-cursor: hand;

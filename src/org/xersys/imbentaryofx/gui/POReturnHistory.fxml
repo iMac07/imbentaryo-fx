@@ -170,7 +170,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/clear.png" />
+                                                                  <Image url="@../icons/btn-print.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -183,7 +183,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/search.png" />
+                                                                  <Image url="@../icons/btn-approve.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -196,7 +196,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/save.png" />
+                                                                  <Image url="@../icons/btn-disapprove.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>

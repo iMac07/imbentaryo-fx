@@ -481,7 +481,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    MsgBox.showOk("Transaction printed successfully.", "Success");
                     
                     initGrid();
                     clearFields();
@@ -491,6 +491,17 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03":
+                if (_trans.PostTransaction()){
+                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    
+                    initGrid();
+                    clearFields();
+                    
+                    _trans.setTranStat(2);
+                    searchTransaction("a.sTransNox", _old_trans, true);
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                break;
+            case "btn04": //
                 if (_trans.CancelTransaction()){
                     MsgBox.showOk("Transaction cancelled successfully.", "Success");
                     
@@ -500,8 +511,6 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                     _trans.setTranStat(3);
                     searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
-                break;
-            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -587,9 +596,9 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Confirm");
-        btn03.setText("Cancel");
-        btn04.setText("");
+        btn02.setText("Print");
+        btn03.setText("Confirm");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -602,7 +611,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(false);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

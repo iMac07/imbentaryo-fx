@@ -31,7 +31,7 @@
                <bottom>
                   <AnchorPane fx:id="AnchorPaneFooter" prefHeight="25.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Label fx:id="lblDate" layoutY="6.0" prefHeight="17.0" prefWidth="489.0" text="Cuison, Michael Torres" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="lblUser" layoutY="6.0" prefHeight="17.0" prefWidth="489.0" text="Cuison, Michael Torres" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <font>
                               <Font name="Arial Bold" size="12.0" />
                            </font>
@@ -41,7 +41,7 @@
                               <Font name="Arial Bold" size="12.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblUser" alignment="CENTER_RIGHT" layoutX="400.0" layoutY="4.0" prefHeight="17.0" prefWidth="489.0" text="Dec. 07, 2021 09:35:00 PM" textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="lblDate" alignment="CENTER_RIGHT" layoutX="400.0" layoutY="4.0" prefHeight="17.0" prefWidth="489.0" text="Dec. 07, 2021 09:35:00 PM" textAlignment="CENTER" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
                            <font>
                               <Font name="Arial Bold" size="12.0" />
                            </font>
@@ -158,6 +158,16 @@
                               </ImageView>
                            </children>
                         </AnchorPane>
+                        <AnchorPane fx:id="btnOther11" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label text="MC Serials" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/icon-customer-order-32x32.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
                         <AnchorPane fx:id="btnOther06" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
                            <children>
                               <Label text="Inventory" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -168,32 +178,37 @@
                               </ImageView>
                            </children>
                         </AnchorPane>
-                        <AnchorPane fx:id="btnOther12" prefHeight="30.0" prefWidth="200.0">
-                           <children>
-                              <Label text="MC Serials" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
-                                 <image>
-                                    <Image url="@../icons/side-icon-cashflow.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane fx:id="btnOther11" layoutX="10.0" layoutY="300.0" prefHeight="30.0" prefWidth="200.0">
-                           <children>
-                              <Label text="Cashflow" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
-                                 <image>
-                                    <Image url="@../icons/side-icon-cashflow.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane fx:id="btnOther07" layoutX="10.0" layoutY="95.0" prefHeight="30.0" prefWidth="200.0">
+                        <AnchorPane fx:id="btnOther07" prefHeight="30.0" prefWidth="200.0">
                            <children>
                               <Label text="Warehousing" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
                                  <image>
                                     <Image url="@../icons/icon-warehousing-32x32.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="AnchorPaneSeparator1" prefHeight="10.0" prefWidth="200.0">
+                           <children>
+                              <Separator prefWidth="50.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="5.0" />
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="btnOther12" layoutX="10.0" layoutY="360.0" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label text="AP Payment" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/side-icon-cashflow.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="btnOther13" layoutX="10.0" layoutY="390.0" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label text="AR Payment" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+                                 <image>
+                                    <Image url="@../icons/side-icon-cashflow.png" />
                                  </image>
                               </ImageView>
                            </children>

@@ -1,7 +1,13 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -11,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
@@ -64,6 +71,10 @@ public class MainScreenController implements Initializable {
     private AnchorPane btnOther11;
     @FXML
     private AnchorPane btnOther12;
+    @FXML
+    private AnchorPane AnchorPaneSeparator1;
+    @FXML
+    private AnchorPane btnOther13;
     
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
@@ -118,6 +129,9 @@ public class MainScreenController implements Initializable {
     }
     
     private void initScreen(){
+        showTime();
+        lblUser.setText((String) _nautilus.getUserInfo("xClientNm"));
+        
         //load main form and request focus on its button
         //loadScreen(ScreenInfo.NAME.POS);
         loadScreen(ScreenInfo.NAME.SP_SALES);
@@ -152,6 +166,9 @@ public class MainScreenController implements Initializable {
         btnOther08.setOnMouseClicked(this::cmdMouse_Click);
         btnOther09.setOnMouseClicked(this::cmdMouse_Click);
         btnOther10.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther11.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther12.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther13.setOnMouseClicked(this::cmdMouse_Click);
     }
     
     private void cmdMouse_Click(MouseEvent event) {
@@ -169,7 +186,6 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.JOB_ESTIMATE);
                 break;
             case "btnOther04": //customer order
-                //loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER);
                 break;
             case "btnOther05": //wholesale
                 break;
@@ -185,6 +201,13 @@ public class MainScreenController implements Initializable {
                 break;
             case "btnOther10": //clients
                 loadScreen(ScreenInfo.NAME.CLIENT_MASTER);                
+                break;
+            case "btnOther11": //mc serial
+                break;
+            case "btnOther12": //ap payment
+                loadScreen(ScreenInfo.NAME.AP_PAYMENT);                
+                break;
+            case "btnOther13": //ar payment
                 break;
         }
     }
@@ -230,6 +253,28 @@ public class MainScreenController implements Initializable {
                 }
                 break;
         }
+    }
+    
+    private void showTime(){
+        Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {            
+            Date date = new Date();
+            String strTimeFormat = "hh:mm:";
+            String strDateFormat = "MMMM dd, yyyy";
+            String secondFormat = "ss";
+
+            DateFormat timeFormat = new SimpleDateFormat(strTimeFormat + secondFormat);
+            DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+
+            String formattedTime= timeFormat.format(date);
+            String formattedDate= dateFormat.format(date);
+
+            lblDate.setText(formattedDate+ " | " + formattedTime);
+
+            }), new KeyFrame(Duration.seconds(1))
+        );
+        
+        clock.setCycleCount(Animation.INDEFINITE);
+        clock.play();
     }
     
     private static XNautilus _nautilus;

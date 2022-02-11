@@ -4,12 +4,17 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -36,6 +41,8 @@ public class APClientController implements Initializable, ControlledScreen{
     private ScreensController _screens_controller;
     private ScreensController _screens_dashboard_controller;
     private QuickSearchCallback _search_callback;
+    
+    private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private int _index;
     private boolean _loaded = false;
@@ -101,6 +108,8 @@ public class APClientController implements Initializable, ControlledScreen{
     private TextField txtField08;
     @FXML
     private TextField txtField09;
+    @FXML
+    private TableView _table;
     
     public void setClientID(String fsValue){
         _clientid = fsValue;
@@ -119,6 +128,7 @@ public class APClientController implements Initializable, ControlledScreen{
             System.exit(1);
         }
         
+        initGrid();
         initFields();
         initListener();
         
@@ -153,9 +163,48 @@ public class APClientController implements Initializable, ControlledScreen{
     private void openRecord(){
         clearFields();        
         
-        if (_trans.OpenRecord(_clientid)) loadTransaction();
+        if (_trans.OpenRecord(_clientid)) {
+            loadTransaction();
+            
+            if (_trans.getEditMode() == EditMode.READY)
+                loadLedger();
+            else
+                _table.setVisible(false);
+            
+        }
         
         initButton();
+    }
+    
+    private void loadLedger(){
+        int lnCtr;
+        int lnRow = _trans.getItemCount();
+        
+        _table_data.clear();
+        
+        double lnDebitxxx;
+        double lnCreditxx;
+        
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+            lnDebitxxx = ((Number)_trans.getDetail(lnCtr, "nDebitxxx")).doubleValue();
+            lnCreditxx = ((Number)_trans.getDetail(lnCtr, "nCreditxx")).doubleValue();
+            
+            _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
+                        String.valueOf(_trans.getDetail(lnCtr, "dTransact")),
+                        (String) _trans.getDetail(lnCtr, "xDescript"), 
+                        (String) _trans.getDetail(lnCtr, "sTransNox"), 
+                        "0".equals((String) _trans.getDetail(lnCtr, "cReversex")) ? "+" : "-",
+                        StringUtil.NumberFormat(lnDebitxxx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnCreditxx, "#,##0.00"),
+                        "",
+                        "",
+                        ""));
+        }
+
+        if (!_table_data.isEmpty()){
+            _table.getSelectionModel().select(lnRow - 1);
+            _table.getFocusModel().focus(lnRow - 1);        
+        }
     }
     
     private void txtField_KeyPressed(KeyEvent event) {
@@ -501,6 +550,64 @@ public class APClientController implements Initializable, ControlledScreen{
         txtField08.focusedProperty().addListener(txtField_Focus);
         txtField09.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
+    }
+    
+    private void initGrid(){
+        TableColumn index01 = new TableColumn("");
+        TableColumn index02 = new TableColumn("");
+        TableColumn index03 = new TableColumn("");
+        TableColumn index04 = new TableColumn("");
+        TableColumn index05 = new TableColumn("");
+        TableColumn index06 = new TableColumn("");
+        TableColumn index07 = new TableColumn("");
+        
+        index01.setSortable(false); index01.setResizable(false);
+        index02.setSortable(false); index02.setResizable(false); index02.setStyle( "-fx-alignment: CENTER;");
+        index03.setSortable(false); index03.setResizable(false);
+        index04.setSortable(false); index04.setResizable(false); 
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        
+        _table.getColumns().clear();        
+        
+        index01.setText("No."); 
+        index01.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index01"));
+        index01.prefWidthProperty().set(30);
+        
+        index02.setText("Date"); 
+        index02.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index02"));
+        index02.prefWidthProperty().set(130);
+        
+        index03.setText("Particular"); 
+        index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
+        index03.prefWidthProperty().set(200);
+        
+        index04.setText("Source No."); 
+        index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
+        index04.prefWidthProperty().set(150);
+        
+        index05.setText("+/-"); 
+        index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
+        index05.prefWidthProperty().set(30);
+        
+        index06.setText("Debit"); 
+        index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
+        index06.prefWidthProperty().set(150);
+        
+        index07.setText("Credit"); 
+        index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
+        index07.prefWidthProperty().set(150);
+        
+        _table.getColumns().add(index01);
+        _table.getColumns().add(index02);
+        _table.getColumns().add(index03);
+        _table.getColumns().add(index04);
+        _table.getColumns().add(index05);
+        _table.getColumns().add(index06);
+        _table.getColumns().add(index07);
+        
+        _table.setItems(_table_data);
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{

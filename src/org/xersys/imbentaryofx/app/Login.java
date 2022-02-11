@@ -40,6 +40,7 @@ public class Login {
         } else
             System.out.println("Application driver successfully initialized.");
         
+        System.out.println("Logged User: " + (String) loNautilus.getUserInfo("xClientNm"));
         
         Imbentaryo _instance = new Imbentaryo();
         _instance.setNautilus(loNautilus);
