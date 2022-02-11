@@ -41,6 +41,7 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
+import org.xersys.imbentaryofx.listener.DataCallback;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.JobOrder;
 
@@ -50,6 +51,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
     private LMasDetTrans _listener;
     private LOthTrans _oth_listener;
     private FormClosingCallback _close_listener;
+    private DataCallback _data_callback;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -858,6 +860,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
                             instance.setSearchObject(_trans.getSearchClient());
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtField03);
+                            instance.setAddRecord(true);
 
                             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                         }
@@ -1093,6 +1096,15 @@ public class JobOrderController implements Initializable, ControlledScreen{
     }
     
     private void initListener(){
+        _data_callback = new DataCallback() {
+            @Override
+            public void Payload(JSONObject foValue) {
+                _main_screen_controller.delNoTabScreen(_screens_controller.getScreen(_screens_controller.getCurrentScreenIndex()).getId());
+                _trans.setMaster("sClientID", (String) foValue.get("id"));
+                
+            }
+        };
+        
         _close_listener = new FormClosingCallback() {
             @Override
             public void FormClosing() {
@@ -1243,7 +1255,10 @@ public class JobOrderController implements Initializable, ControlledScreen{
                         loadParts();
                         break;
                     case "txtField03":
-                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
+                        if (foValue == null){
+                            createClient();
+                        } else
+                            _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
                         break;
                     case "txtField07":
                         _trans.setMaster("sDealerCd", (String) foValue.get("sDealerCd"));
@@ -1480,6 +1495,21 @@ public class JobOrderController implements Initializable, ControlledScreen{
             
             _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
         }
+    }
+    
+    private void createClient(){
+        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.CLIENT_MASTER);
+                
+        ClientMasterController instance = new ClientMasterController();
+
+        instance.setNautilus(_nautilus);
+        instance.setParentController(_main_screen_controller);
+        instance.setScreensController(_screens_controller);
+        instance.setDataCallback(_data_callback);
+        instance.isCustomer(true);
+
+        _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+        _main_screen_controller.addNoTabScreen(_screens_controller.getScreen(_screens_controller.getCurrentScreenIndex()).getId());
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{

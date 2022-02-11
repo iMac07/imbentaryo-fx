@@ -55,6 +55,8 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
+    private String _old_trans = "";
+    
     private int _index;
     private int _detail_row;
     
@@ -208,7 +210,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
     }
     
     private void loadTransaction(){
-        txtField05.setText("");
+        txtField05.setText((String) _trans.getMaster("xDestinat"));
         txtField06.setText((String) _trans.getMaster("sClientNm"));
         txtField07.setText((String) _trans.getMaster("sReferNox"));
         txtField08.setText((String) _trans.getMaster("sTermName"));
@@ -220,7 +222,11 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         computeSummary();
         
         loadDetail();
-        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        setTranStat((String) _trans.getMaster("cTranStat"));
+        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
+        
+        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void computeSummary(){
@@ -438,8 +444,10 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                     MsgBox.showOk("Transaction closed successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(1);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03": //confirmation by supplier
@@ -447,8 +455,10 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                     MsgBox.showOk("Transaction confirmed successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(2);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn04": //cancel
@@ -456,8 +466,10 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                     MsgBox.showOk("Transaction cancelled successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(3);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn05":

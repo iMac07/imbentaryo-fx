@@ -56,6 +56,8 @@ public class POReturnHistoryController implements Initializable, ControlledScree
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
+    private String _old_trans = "";
+    
     private int _index;
     private int _detail_row;
     
@@ -136,7 +138,7 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         initListener();
         
         _trans = new POReturn(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
-        _trans.setSaveToDisk(true);
+        _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         
         clearFields();
@@ -254,6 +256,12 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         computeSummary();
         
         loadDetail();
+        
+        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
+        
+        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void loadDetail(){
@@ -390,23 +398,36 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    MsgBox.showOk("Transaction printed successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(1);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
             case "btn03":
+                if (_trans.PostTransaction()){
+                    MsgBox.showOk("Transaction posted successfully.", "Success");
+                    
+                    initGrid();
+                    clearFields();
+                    
+                    _trans.setTranStat(2);
+                    searchTransaction("a.sTransNox", _old_trans, true);
+                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                break;
+            case "btn04":
                 if (_trans.CancelTransaction()){
                     MsgBox.showOk("Transaction cancelled successfully.", "Success");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(3);
+                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else MsgBox.showOk(_trans.getMessage(), "Warning");
-                break;
-            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -543,9 +564,9 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Confirm");
-        btn03.setText("Cancel");
-        btn04.setText("");
+        btn02.setText("Print");
+        btn03.setText("Confirm");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -558,7 +579,7 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(false);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

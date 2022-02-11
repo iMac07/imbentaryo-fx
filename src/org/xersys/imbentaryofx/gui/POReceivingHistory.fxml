@@ -105,7 +105,7 @@
                                           <TextField fx:id="txtField07" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Freight:" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                                           <TextField fx:id="txtField15" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Discount:" GridPane.rowIndex="6" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Disc. Rate:" GridPane.rowIndex="6" />
                                           <TextField fx:id="txtField12" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Adtl. Disc.:" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                                           <TextField fx:id="txtField13" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="6" />
@@ -182,7 +182,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/btn-approve.png" />
+                                                                  <Image url="@../icons/btn-print.png" />
                                                                </image></ImageView>
                                                          </graphic>
                                                       </Button>
@@ -194,7 +194,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/btn-disapprove.png" />
+                                                                  <Image url="@../icons/btn-approve.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -202,7 +202,14 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="3">
                                                    <children>
-                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/btn-disapprove.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="4">

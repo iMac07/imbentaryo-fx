@@ -569,6 +569,9 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
                 
                 switch (loArray.size()){
+                    case 0: //no record found
+                        FXUtil.SetNextFocus(txtField17);
+                        break;
                     case 1: //one record found
                         loJSON = (JSONObject) loArray.get(0);
                         

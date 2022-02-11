@@ -135,6 +135,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     private CheckBox chkAdvisor;
     @FXML
     private TextField txtSeeks01;
+    @FXML
+    private TextField txtSeeks02;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -204,7 +206,11 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchRecord("a.sClientNm", lsValue, false);
+                    searchRecord(txtField, "a.sClientID", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtSeeks02":
+                    searchRecord(txtField, "a.sClientNm", lsValue, false);
                     event.consume();
                     return;
                 case "txtField10":
@@ -236,6 +242,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         cmbCvilStat.getSelectionModel().select(0);
         
         txtSeeks01.setText("");
+        txtSeeks02.setText("");
         txtField03.setText("");
         txtField04.setText("");
         txtField05.setText("");
@@ -255,13 +262,14 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         chkMechanic.setSelected(false);
         chkAdvisor.setSelected(false);
         
-        txtSeeks01.requestFocus();
-        txtSeeks01.selectAll();
+        txtSeeks02.requestFocus();
+        txtSeeks02.selectAll();
     }
     
     private void loadTransaction(){
         try {
-            txtSeeks01.setText((String) _trans.getMaster("sClientNm"));
+            txtSeeks01.setText((String) _trans.getMaster("sClientID"));
+            txtSeeks02.setText((String) _trans.getMaster("sClientNm"));
             txtField03.setText((String) _trans.getMaster("sLastName"));
             txtField04.setText((String) _trans.getMaster("sFrstName"));
             txtField05.setText((String) _trans.getMaster("sMiddName"));
@@ -309,7 +317,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         }
     }    
     
-    private void searchRecord(String fsKey, Object foValue, boolean fbExact){
+    private void searchRecord(TextField foField, String fsKey, Object foValue, boolean fbExact){
         JSONObject loJSON = _trans.searchRecord(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
@@ -330,7 +338,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                             MsgBox.showOk(_trans.getMessage(), "Warning");
                             clearFields();
                         }
-                        FXUtil.SetNextFocus(txtSeeks01);
+                        FXUtil.SetNextFocus(foField);
                         break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
@@ -343,7 +351,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
 
                             instance.setSearchObject(_trans.getSearchRecord());
                             instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtSeeks01);
+                            instance.setTextField(foField);
 
                             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                         }
@@ -351,13 +359,13 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
             } catch (ParseException ex) {
                 ex.printStackTrace();
                 MsgBox.showOk("ParseException detected.", "Warning");
-                txtSeeks01.setText("");
-                FXUtil.SetNextFocus(txtSeeks01);
+                foField.setText("");
+                FXUtil.SetNextFocus(foField);
             }
         } else {
             MsgBox.showOk((String) loJSON.get("message"), "Warning");
-            txtSeeks01.setText("");
-            FXUtil.SetNextFocus(txtSeeks01);
+            foField.setText("");
+            FXUtil.SetNextFocus(foField);
         }
     }
     
@@ -701,6 +709,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 
                     switch (foField.getId()){
                         case "txtSeeks01":
+                        case "txtSeeks02":
                             if (_trans.OpenRecord((String) foValue.get("sClientID"))){
                                 clearFields();
                                 loadTransaction();
@@ -869,6 +878,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     
     private void initFields(){               
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtSeeks02.setOnKeyPressed(this::txtField_KeyPressed);
+        
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
@@ -904,7 +915,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         if (lnIndex >= 0) _trans.setMaster("cGenderCd", String.valueOf(lnIndex));
     }
     
-    private void cmbCvilStat_Click(Event event) {
+    private void cmbCvilStat_Click(Event event) {        
         ComboBox loButton = (ComboBox) event.getSource();
 
         int lnIndex = loButton.getSelectionModel().getSelectedIndex();

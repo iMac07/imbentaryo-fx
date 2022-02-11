@@ -40,6 +40,7 @@ import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.CommonUtil;
+import org.xersys.imbentaryofx.listener.DataCallback;
 
 public class ClientMasterController implements Initializable, ControlledScreen{
     private ObservableList<String> _gendercd = FXCollections.observableArrayList("Male", "Female", "LGBTQ+");
@@ -52,6 +53,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private CachedRowsetCallback _mobile_listener;
     private CachedRowsetCallback _address_listener;
     private CachedRowsetCallback _email_listener;
+    private DataCallback _data_callback;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -60,6 +62,11 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     
     private int _index;
     private boolean _loaded = false;
+    
+    private boolean _customer = false;
+    private boolean _supplier = false;
+    private boolean _mechanic = false;
+    private boolean _advisor = false;
     
     @FXML
     private Button btnChild01;
@@ -158,14 +165,13 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
+        initButton();
         clearFields();
         
-        if (!_trans.TempTransactions().isEmpty())
+        if (_data_callback != null)
+            createNew("");
+        else if (!_trans.TempTransactions().isEmpty())
             createNew(_trans.TempTransactions().get(0).getOrderNo());
-        
-        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size()-1);
-        
-        initButton();
         
         _loaded = true;
     }    
@@ -190,15 +196,49 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
+    public void setDataCallback(DataCallback foValue){
+        _data_callback = foValue;
+    }
+    
+    public void isCustomer(boolean fbValue){
+        _customer = fbValue;
+    }
+    
+    public void isSupplier(boolean fbValue){
+        _supplier = fbValue;
+    }
+    
+    public void isMechanic(boolean fbValue){
+        _mechanic = fbValue;
+    }
+    
+    public void isServiceAdvisor(boolean fbValue){
+        _advisor = fbValue;
+    }
+    
     private void createNew(String fsOrderNox){
+        _loaded = false;
+        
         if (!_trans.NewRecord(fsOrderNox)){
             System.err.println(_trans.getMessage());
             MsgBox.showOk(_trans.getMessage(), "Warning");
             System.exit(1);
         }
         
+        if (fsOrderNox.isEmpty()){
+            if (_customer) _trans.setMaster("cCustomer", "1");
+            if (_supplier) _trans.setMaster("cSupplier", "1");
+            if (_mechanic) _trans.setMaster("cMechanic", "1");
+            if (_advisor) _trans.setMaster("cSrvcAdvs", "1");
+        }
+        
+        initButton();
         clearFields();
         loadTransaction();
+        
+        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size()-1);
+        
+        _loaded = true;
     }
     
     private void txtArea_KeyPressed(KeyEvent event) {
@@ -302,6 +342,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
 
             chkCustomer.setSelected(((String) _trans.getMaster("cCustomer")).equals("1"));
             chkSupplier.setSelected(((String) _trans.getMaster("cSupplier")).equals("1"));
+            chkMechanic.setSelected(((String) _trans.getMaster("cMechanic")).equals("1"));
+            chkAdvisor.setSelected(((String) _trans.getMaster("cSrvcAdvs")).equals("1"));
             
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -323,7 +365,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             else
                 cmbCvilStat.getSelectionModel().select(0);
 
-            cmbClientTp.requestFocus();
+            txtField03.requestFocus();
+            txtField03.selectAll();
         } catch (NumberFormatException ex) {
             MsgBox.showOk(ex.getMessage(), "Warning");
             ex.printStackTrace();
@@ -434,16 +477,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 loadEMail();
                 break;
             case "btn01": //new
-                _loaded = false;
-                
                 createNew("");
-                initButton();
-                clearFields();
-                loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-               
-               _loaded = true;
                 break;
             case "btn02": //clear
                 if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
@@ -472,23 +506,26 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         break;
                 }
                 break;
-            case "btn04": //save
-                _trans.setMaster("cCustomer", chkCustomer.isSelected() ? "1" : "0");
-                _trans.setMaster("cSupplier", chkSupplier.isSelected() ? "1" : "0");
-                _trans.setMaster("cMechanic", chkMechanic.isSelected() ? "1" : "0");
-                _trans.setMaster("cSrvcAdvs", chkAdvisor.isSelected() ? "1" : "0");
-                
+            case "btn04": //save                
                 if (_trans.SaveRecord()){
-                    MsgBox.showOk("Record saved successfully.", "Success");
+                    if (_data_callback == null){
+                        MsgBox.showOk("Record saved successfully.", "Success");
                     
-                    _loaded = false;
+                        _loaded = false;
 
-                    initButton();
-                    clearFields();
+                        initButton();
+                        clearFields();
+
+                        cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+
+                       _loaded = true;
+                    } else {
+                        JSONObject loJSON = new JSONObject();
+                        loJSON.put("id", (String) _trans.getMaster("sClientID"));
+                        _data_callback.Payload(loJSON);
                         
-                    cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
-
-                   _loaded = true;
+                        closeScreen();
+                    }
                 } else 
                     MsgBox.showOk(_trans.getMessage(), "Warning");
                 break;
@@ -508,14 +545,20 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 loadScreen(ScreenInfo.NAME.CLIENT_MASTER_HISTORY);
                 break;
             case "btn12": //close screen
-                if (_screens_controller.getScreenCount() > 1)
-                    _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
-                        System.exit(0);
-                    }
-                }
+                closeScreen();
                 break;
+        }
+    }
+    
+    private void closeScreen(){
+        if (_data_callback != null) _trans.RemoveTempTranssaction();
+        
+        if (_screens_controller.getScreenCount() > 1)
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+        else{
+            if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                System.exit(0);
+            }
         }
     }
     
@@ -605,36 +648,61 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsIndex, Object foValue) {
                 switch (fsIndex){
-                case "sLastName":
-                    txtField03.setText((String) foValue); break;
-                case "sFrstName":
-                    txtField04.setText((String) foValue); break;
-                case "sMiddName":
-                    txtField05.setText((String) foValue); break;
-                case "sSuffixNm":
-                    txtField06.setText((String) foValue); break;
-                case "sClientNm":
-                    txtField07.setText((String) foValue); break;
-                case "dBirthDte":
-                    txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
-                case "sAddlInfo":
-                    txtField13.setText((String) foValue); break;
-                case "xMobileNo":
-                    txtField101.setText((String) foValue); break;
-                case "xAddressx":
-                    txtField102.setText((String) foValue); break;
-                case "xEmailAdd":
-                    txtField103.setText((String) foValue); break;
-                case "sCntryNme":
-                    txtField10.setText((String) foValue); break;
-                case "sTownName":
-                    txtField12.setText((String) foValue); break;
-            }
+                    case "sLastName":
+                        txtField03.setText((String) foValue); break;
+                    case "sFrstName":
+                        txtField04.setText((String) foValue); break;
+                    case "sMiddName":
+                        txtField05.setText((String) foValue); break;
+                    case "sSuffixNm":
+                        txtField06.setText((String) foValue); break;
+                    case "sClientNm":
+                        txtField07.setText((String) foValue); break;
+                    case "dBirthDte":
+                        txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
+                    case "sAddlInfo":
+                        txtField13.setText((String) foValue); break;
+                    case "xMobileNo":
+                        txtField101.setText((String) foValue); break;
+                    case "xAddressx":
+                        txtField102.setText((String) foValue); break;
+                    case "xEmailAdd":
+                        txtField103.setText((String) foValue); break;
+                    case "sCntryNme":
+                        txtField10.setText((String) foValue); break;
+                    case "sTownName":
+                        txtField12.setText((String) foValue); break;
+                }
             }
 
             @Override
             public void MasterRetreive(int fnIndex, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                switch (fnIndex){
+                    case 3: //sLastName
+                        txtField03.setText((String) foValue); break;
+                    case 4: //sFrstName
+                        txtField04.setText((String) foValue); break;
+                    case 5: //sMiddName
+                        txtField05.setText((String) foValue); break;
+                    case 6: //sSuffixNm
+                        txtField06.setText((String) foValue); break;
+                    case 7: //sClientNm
+                        txtField07.setText((String) foValue); break;
+                    case 11: //dBirthDte
+                        txtField11.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
+                    case 13: //sAddlInfo
+                        txtField13.setText((String) foValue); break;
+                    case 101: //xMobileNo
+                        txtField101.setText((String) foValue); break;
+                    case 102: //xAddressx
+                        txtField102.setText((String) foValue); break;
+                    case 103: //xEmailAdd
+                        txtField103.setText((String) foValue); break;
+                    case 21: //sCntryNme
+                        txtField10.setText((String) foValue); break;
+                    case 22: //sTownName
+                        txtField12.setText((String) foValue); break;
+                }
             }
         };
         
@@ -693,6 +761,34 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             public void FormClosing() {
             }
         };
+        
+        chkCustomer.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean old_val, Boolean new_val) {
+                _trans.setMaster("cCustomer", new_val ? "1" : "0");
+            }
+        });
+        
+        chkAdvisor.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean old_val, Boolean new_val) {
+                _trans.setMaster("cSrvcAdvs", new_val ? "1" : "0");
+            }
+        });
+        
+        chkSupplier.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean old_val, Boolean new_val) {
+                _trans.setMaster("cSupplier", new_val ? "1" : "0");
+            }
+        });
+        
+        chkMechanic.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean old_val, Boolean new_val) {
+                _trans.setMaster("cMechanic", new_val ? "1" : "0");
+            }
+        });
     }
     
     private void initButton(){
@@ -747,8 +843,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn11.setText("History");
         btn12.setText("Close");              
         
-        btn01.setVisible(true);
-        btn02.setVisible(true);
+        btn01.setVisible(_data_callback == null);
+        btn02.setVisible(_data_callback == null);
         btn03.setVisible(true);
         btn04.setVisible(true);
         btn05.setVisible(false);
@@ -757,7 +853,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btn08.setVisible(false);
         btn09.setVisible(false);
         btn10.setVisible(false);
-        btn11.setVisible(true);
+        btn11.setVisible(_data_callback == null);
         btn12.setVisible(true);
         
         cmbGenderCd.setItems(_gendercd);
@@ -771,7 +867,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         int lnEditMode = _trans.getEditMode();
         boolean lbShow = lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE;
         
-        btn02.setVisible(lbShow);
+        btn02.setVisible(lbShow && _data_callback == null);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
         
@@ -801,6 +897,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         btnChild01.setVisible(lbShow);
         btnChild02.setVisible(lbShow);
         btnChild03.setVisible(lbShow);
+        
+        cmbOrders.setDisable(_data_callback != null);
     }
     
     private void initFields(){       
@@ -834,6 +932,11 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         txtField13.focusedProperty().addListener(txtArea_Focus);
         
         txtField07.setEditable(false);
+        
+        chkAdvisor.setVisible(_data_callback == null);
+        chkCustomer.setVisible(_data_callback == null);
+        chkMechanic.setVisible(_data_callback == null);
+        chkSupplier.setVisible(_data_callback == null);
     }
     
     private void cmbGenderCd_Click(Event event) {

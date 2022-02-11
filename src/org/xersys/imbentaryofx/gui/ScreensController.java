@@ -10,7 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
-import org.xersys.imbentaryofx.gui.MainScreenController;
 import org.xersys.commander.base.Nautilus;
 
 /**
@@ -22,7 +21,7 @@ import org.xersys.commander.base.Nautilus;
 public class ScreensController{
     private ArrayList<Node> _screens = new ArrayList<>(); //holds the screens to be displayed
     private int _index; //index of the currently load screen
-    
+    private int _prev_index; //previously loaded screen index
     
     private AnchorPane _anchor; //the parent anchorpane
     private MainScreenController _controller;
@@ -115,26 +114,15 @@ public class ScreensController{
     //First it makes sure the screen has been already loaded.  Then if there is more than
     //one screen the new screen is been added second, and then the current screen is removed.
     //If there isn't any screen being displayed, the new screen is just added to the root.
-    private boolean setScreen(final int index) {       
+    private boolean setScreen(int index) {               
         if (_screens.get(index) != null) {   //screen loaded
+            //get previously loaded screen
+            _prev_index = _index;
+            
             final DoubleProperty opacity = _anchor.opacityProperty();
 
-            if (!_anchor.getChildren().isEmpty()) {    //if there is more than one screen
-//                Timeline fade = new Timeline(
-//                        new KeyFrame(Duration.ZERO, new KeyValue(opacity, 1.0)),
-//                        new KeyFrame(new Duration(1), new EventHandler<ActionEvent>() {
-//                    @Override
-//                    public void handle(ActionEvent t) {                                     
-//                        _anchor.getChildren().remove(0);                        //remove the displayed screen
-//                        _anchor.getChildren().add(0, _screens.get(index));      //add the screen
-//                        Timeline fadeIn = new Timeline(
-//                                new KeyFrame(Duration.ZERO, new KeyValue(opacity, 0.0)),
-//                                new KeyFrame(new Duration(1), new KeyValue(opacity, 1.0)));
-//                        fadeIn.play();
-//                    }
-//                }, new KeyValue(opacity, 0.0)));
-//                fade.play();
-                _anchor.getChildren().remove(0);                        //remove the displayed screen
+            if (!_anchor.getChildren().isEmpty()) {     //if there is more than one screen
+                _anchor.getChildren().remove(0);        //remove the displayed screen
                 _anchor.getChildren().add(0, _screens.get(index));      //add the screen
             } else {
                 _anchor.setOpacity(0.0);
@@ -144,7 +132,8 @@ public class ScreensController{
                         new KeyFrame(new Duration(1), new KeyValue(opacity, 1.0)));
                 fadeIn.play();
             }
-            
+
+            //set new index
             _index = index;
             return true;
         } else {
@@ -159,13 +148,17 @@ public class ScreensController{
             System.out.println("Screen didn't exist");
             return false;
         } else {
-            if (index - 1 < 0)
-                setScreen(0);
-            else
-                setScreen(index - 1);
-            
-            return true;
+            int lnCtr = getScreenCount();
+            if (_prev_index > lnCtr)
+                setScreen(lnCtr - 1);
+            else if (_prev_index == lnCtr)
+                setScreen(_prev_index -1);
+            else{
+                setScreen(_prev_index);   
+            }
         }
+        
+        return true;
     }
     
     public void prevScreen(){

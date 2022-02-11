@@ -95,7 +95,7 @@
                                           <TextField fx:id="txtField08" promptText="Search" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Freight:" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                                           <TextField fx:id="txtField15" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Discount:" GridPane.rowIndex="6" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Disc. Rate:" GridPane.rowIndex="6" />
                                           <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Adtl. Disc.:" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                                           <TextField fx:id="txtField13" GridPane.columnIndex="4" GridPane.rowIndex="6" />
