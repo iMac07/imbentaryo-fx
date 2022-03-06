@@ -45,7 +45,9 @@ public class ScreenInfo {
         JOB_ESTIMATE_DETAIL_UPDATE,
         JOB_ESTIMATE_HISTORY,
         JOB_ORDER_HISTORY,
-        AP_PAYMENT
+        AP_PAYMENT,
+        REPORTS,
+        REPORT_CRITERIA
     }
     
     public static JSONObject get(NAME foModule){
@@ -207,6 +209,14 @@ public class ScreenInfo {
             case AP_PAYMENT:
                 loJSON.put("resource", RESOURCE_URL + "APPayment.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "APPaymentController");
+                return loJSON;    
+            case REPORTS:
+                loJSON.put("resource", RESOURCE_URL + "Reports.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ReportsController");
+                return loJSON;    
+            case REPORT_CRITERIA:
+                loJSON.put("resource", RESOURCE_URL + "ReportCriteria.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ReportCriteriaController");
                 return loJSON;    
         }
         

@@ -140,10 +140,14 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         
         switch (lsButton){
             case "btnSearch":
+//                _trans.setMaster("sCategrCd", "ENGINE");
+//                _trans.setMaster("sBrandCde", "YAMAHA");
+//                _trans.setMaster("sModelCde", "AL115C");
+//                _trans.setMaster("sSeriesID", "X0012102");
                 _trans.setMaster("sCategrCd", "ENGINE");
-                _trans.setMaster("sBrandCde", "YAMAHA");
-                _trans.setMaster("sModelCde", "AL115C");
-                _trans.setMaster("sSeriesID", "X0012102");
+                _trans.setMaster("sBrandCde", "HONDA");
+                _trans.setMaster("sModelCde", "CCG125WH");
+                _trans.setMaster("sSeriesID", "X0012101");
                 
                 if (_trans.LoadFigures()){
                     displayImages();
