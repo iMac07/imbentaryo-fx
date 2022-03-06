@@ -33,7 +33,7 @@ public class Login {
         loNautilus.setConnection(loConn);
         loNautilus.setEncryption(CryptFactory.make(CryptFactory.CrypType.AESCrypt));
         
-        loNautilus.setUserID("0001210001");
+        loNautilus.setUserID("000100210001");
         if (!loNautilus.load(PRODUCTID)){
             System.err.println(loNautilus.getMessage());
             System.exit(1);

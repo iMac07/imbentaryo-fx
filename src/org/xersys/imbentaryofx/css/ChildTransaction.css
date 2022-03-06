@@ -21,6 +21,14 @@
     -fx-background-color: transparent;
 }
 
+#Title .label{
+    -fx-font-family: "Verdana";
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #ffffff; 
+    -fx-background-color: transparent;
+}
+
 #TransButtons{
     -fx-background-color: #ebebeb;
 }

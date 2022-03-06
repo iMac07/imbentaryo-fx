@@ -144,6 +144,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
     private CheckBox chkMechanic;
     @FXML
     private CheckBox chkAdvisor;
+    @FXML
+    private CheckBox chkEmployee;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -322,6 +324,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         chkSupplier.setSelected(false);
         chkMechanic.setSelected(false);
         chkAdvisor.setSelected(false);
+        chkEmployee.setSelected(false);
     }
     
     private void loadTransaction(){
@@ -344,6 +347,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             chkSupplier.setSelected(((String) _trans.getMaster("cSupplier")).equals("1"));
             chkMechanic.setSelected(((String) _trans.getMaster("cMechanic")).equals("1"));
             chkAdvisor.setSelected(((String) _trans.getMaster("cSrvcAdvs")).equals("1"));
+            chkEmployee.setSelected(((String) _trans.getMaster("cEmployee")).equals("1"));
             
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -789,6 +793,13 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 _trans.setMaster("cMechanic", new_val ? "1" : "0");
             }
         });
+        
+        chkEmployee.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean old_val, Boolean new_val) {
+                _trans.setMaster("cEmployee", new_val ? "1" : "0");
+            }
+        });
     }
     
     private void initButton(){
@@ -893,6 +904,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         chkSupplier.setDisable(!lbShow);
         chkMechanic.setDisable(!lbShow);
         chkAdvisor.setDisable(!lbShow);
+        chkEmployee.setDisable(!lbShow);
         
         btnChild01.setVisible(lbShow);
         btnChild02.setVisible(lbShow);
@@ -937,6 +949,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         chkCustomer.setVisible(_data_callback == null);
         chkMechanic.setVisible(_data_callback == null);
         chkSupplier.setVisible(_data_callback == null);
+        chkEmployee.setVisible(_data_callback == null);
     }
     
     private void cmbGenderCd_Click(Event event) {

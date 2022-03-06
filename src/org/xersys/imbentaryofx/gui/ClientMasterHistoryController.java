@@ -137,6 +137,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     private TextField txtSeeks01;
     @FXML
     private TextField txtSeeks02;
+    @FXML
+    private CheckBox chkEmployee;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -261,6 +263,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         chkSupplier.setSelected(false);
         chkMechanic.setSelected(false);
         chkAdvisor.setSelected(false);
+        chkEmployee.setSelected(false);
         
         txtSeeks02.requestFocus();
         txtSeeks02.selectAll();
@@ -288,6 +291,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
             chkSupplier.setSelected(((String) _trans.getMaster("cSupplier")).equals("1"));
             chkMechanic.setSelected(((String) _trans.getMaster("cMechanic")).equals("1"));
             chkAdvisor.setSelected(((String) _trans.getMaster("cSrvcAdvs")).equals("1"));
+            chkEmployee.setSelected(((String) _trans.getMaster("cEmployee")).equals("1"));
             
             if (_trans.getMaster("dBirthDte") != null)
                 txtField11.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dBirthDte"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -492,6 +496,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 _trans.setMaster("cSupplier", chkSupplier.isSelected() ? "1" : "0");
                 _trans.setMaster("cMechanic", chkMechanic.isSelected() ? "1" : "0");
                 _trans.setMaster("cSrvcAdvs", chkAdvisor.isSelected() ? "1" : "0");
+                _trans.setMaster("cEmployee", chkEmployee.isSelected() ? "1" : "0");
                 
                 if (_trans.SaveRecord()){
                     MsgBox.showOk("Record saved successfully.", "Success");
@@ -870,6 +875,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         chkSupplier.setDisable(!lbShow);
         chkMechanic.setDisable(!lbShow);
         chkAdvisor.setDisable(!lbShow);
+        chkEmployee.setDisable(!lbShow);
         
         btnChild01.setVisible(false);
         btnChild02.setVisible(false);

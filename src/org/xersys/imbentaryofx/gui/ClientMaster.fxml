@@ -124,6 +124,7 @@
                                           <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Mobile No:" GridPane.rowIndex="1" />
@@ -170,6 +171,7 @@
                                           </Button>
                                           <CheckBox fx:id="chkMechanic" mnemonicParsing="false" text="Mechanic" GridPane.columnIndex="1" GridPane.rowIndex="11" />
                                           <CheckBox fx:id="chkAdvisor" mnemonicParsing="false" text="Service Advisor" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="11" />
+                                          <CheckBox fx:id="chkEmployee" mnemonicParsing="false" text="Employee" GridPane.columnIndex="1" GridPane.rowIndex="12" />
                                        </children>
                                     </GridPane>
                                  </children>
