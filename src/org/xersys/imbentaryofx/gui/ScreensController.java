@@ -70,6 +70,10 @@ public class ScreensController{
         return _screens.get(index);
     }
     
+    public void clear(){
+        _screens.clear();
+    }
+    
     //loads the fxml file, add the screen to the screens collection and
     //finally injects the screenPane to the controller.
     public boolean loadScreen(String resource, ControlledScreen controller) {

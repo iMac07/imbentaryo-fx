@@ -22,7 +22,6 @@ import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.payment.base.PaymentFactory;
@@ -100,12 +99,12 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
         clearFields();
         
         if (_source_code.isEmpty()){
-            MsgBox.showOk("Transaction source code was not found.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction source code was not found.", "Warning", "");
             System.exit(1);
         }
         
         if (_source_number.isEmpty()){
-            MsgBox.showOk("Transaction source number was not found.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction source number was not found.", "Warning", "");
             System.exit(1);
         }
 
@@ -118,7 +117,7 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
         if (_trans.NewTransaction()){
             loadTransaction();
         } else {
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             System.exit(1);
         }
         _loaded = true;
@@ -269,12 +268,12 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
         switch (lsButton){
             case "btn01":
                 if (_trans.SaveTransaction()){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     //close this screen
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 } else {
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 }
                 break;
             case "btn02":
@@ -360,12 +359,12 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField01.setText("");
                 FXUtil.SetNextFocus(txtField01);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField01.setText("");
             FXUtil.SetNextFocus(txtField01);
         }

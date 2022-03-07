@@ -1,7 +1,6 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -35,11 +34,9 @@ import org.xersys.commander.iface.LOthTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.lib.pojo.Temp_Transactions;
 import org.xersys.sales.base.JobOrder;
 
 public class JobOrderHistoryController implements Initializable, ControlledScreen{
@@ -281,7 +278,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                             loadTransaction();
                             loadDetail();
                         } else {
-                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                             clearFields();
                         }
                         FXUtil.SetNextFocus(foField);
@@ -304,12 +301,12 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 foField.setText("");
                 FXUtil.SetNextFocus(foField);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             foField.setText("");
             FXUtil.SetNextFocus(foField);
         }
@@ -619,30 +616,33 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
                     
                     initGrid();
                     initButton();
                     clearFields();
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn03": //cancel
                 if (_trans.CancelTransaction()){
-                    MsgBox.showOk("Transaction cancelled successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "", "", "");
                     
                     initGrid();
                     initButton();
                     clearFields();
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn04": //confirm
                 if (_trans.PostTransaction()){
-                    MsgBox.showOk("Transaction confirmed successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
                     
                     initGrid();
                     initButton();
                     clearFields();
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -662,9 +662,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -713,7 +712,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                             if (_trans.OpenTransaction((String) foValue.get("sTransNox"))){
                                 loadTransaction();
                             } else {
-                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                                 
                                 _trans = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
                                 _trans.setSaveToDisk(false);

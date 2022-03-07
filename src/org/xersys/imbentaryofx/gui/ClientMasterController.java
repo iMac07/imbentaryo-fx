@@ -25,7 +25,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
 import javafx.scene.control.CheckBox;
@@ -222,8 +221,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         _loaded = false;
         
         if (!_trans.NewRecord(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -372,7 +370,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             txtField03.requestFocus();
             txtField03.selectAll();
         } catch (NumberFormatException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             ex.printStackTrace();
             System.exit(1);
         }
@@ -411,12 +409,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField10.setText("");
                 FXUtil.SetNextFocus(txtField10);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField10.setText("");
             FXUtil.SetNextFocus(txtField10);
         }
@@ -455,12 +453,12 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField12.setText("");
                 FXUtil.SetNextFocus(txtField10);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField12.setText("");
             FXUtil.SetNextFocus(txtField12);
         }
@@ -513,7 +511,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             case "btn04": //save                
                 if (_trans.SaveRecord()){
                     if (_data_callback == null){
-                        MsgBox.showOk("Record saved successfully.", "Success");
+                        ShowMessageFX.Information(_main_screen_controller.getStage(), "Record saved successfully.", "Success", "");
                     
                         _loaded = false;
 
@@ -531,7 +529,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                         closeScreen();
                     }
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -560,9 +558,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         if (_screens_controller.getScreenCount() > 1)
             _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         else{
-            if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+            if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                 System.exit(0);
-            }
         }
     }
     
@@ -1012,7 +1009,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                     _trans.setMaster("sAddlInfo", lsValue);
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus
@@ -1050,7 +1047,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                     if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
                         _trans.setMaster("dBirthDte", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
                     } else {
-                        MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning", "");
                         txtField.requestFocus();
                     }
                     break;
@@ -1058,7 +1055,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
                 case 12: //birth place
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus

@@ -19,7 +19,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.clients.base.ARClient;
 import org.xersys.commander.util.StringUtil;
 import org.json.simple.parser.JSONParser;
@@ -159,7 +158,7 @@ public class ARClientController implements Initializable, ControlledScreen{
             loadTransaction();
             initButton();
         } else
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
     }
     
     private void txtField_KeyPressed(KeyEvent event) {
@@ -261,12 +260,12 @@ public class ARClientController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField09.setText("");
                 FXUtil.SetNextFocus(txtField09);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField09.setText("");
             FXUtil.SetNextFocus(txtField09);
         }
@@ -279,7 +278,7 @@ public class ARClientController implements Initializable, ControlledScreen{
         switch (lsButton){
             case "btn01": //update
                 if (!_trans.UpdateRecord())
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 else
                     initButton();
                 break;
@@ -293,9 +292,9 @@ public class ARClientController implements Initializable, ControlledScreen{
                 break;
             case "btn04": //save
                 if (!_trans.SaveRecord())
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 else {
-                    MsgBox.showOk("Update was saved successfully.", "Notice");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Update was saved successfully.", "Success", "");
                     openRecord();
                 }
                 break;
@@ -317,9 +316,8 @@ public class ARClientController implements Initializable, ControlledScreen{
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -553,7 +551,7 @@ public class ARClientController implements Initializable, ControlledScreen{
                         _trans.setMaster(lnIndex, Double.valueOf(lsValue));
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
         } else{ //Got Focus        
             switch (lnIndex){

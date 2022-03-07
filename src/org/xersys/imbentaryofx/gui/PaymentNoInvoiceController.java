@@ -21,7 +21,6 @@ import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.PaymentFactory;
 import org.xersys.imbentaryofx.listener.PaymentListener;
@@ -106,12 +105,12 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
         clearFields();
         
         if (_source_code.isEmpty()){
-            MsgBox.showOk("Transaction source code was not found.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction source code was not found.", "Warning", "");
             System.exit(1);
         }
         
         if (_source_number.isEmpty()){
-            MsgBox.showOk("Transaction source number was not found.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction source number was not found.", "Warning", "");
             System.exit(1);
         }
 
@@ -124,7 +123,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
         if (_trans.NewTransaction()){
             loadTransaction();
         } else {
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -292,13 +291,12 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
         switch (lsButton){
             case "btn01":
                 if (_trans.SaveTransaction()){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     //close this screen
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                } else {
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
-                }
+                } else
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn02":
                 loadCreditCard();
@@ -347,7 +345,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
             anchorPaymentType.getChildren().add(root);
         } catch (IOException ex) {
             ex.printStackTrace();
-            MsgBox.showOk("Unable to load Credit Card Payment form.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to load Credit Card Payment form.", "Warning", "");
         }
     }
     
@@ -364,7 +362,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
             anchorPaymentType.getChildren().add(root);
         } catch (IOException ex) {
             ex.printStackTrace();
-            MsgBox.showOk("Unable to load Cheque Payment form.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to load Cheque Payment form.", "Warning", "");
         }
     }
     
@@ -381,7 +379,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
             anchorPaymentType.getChildren().add(root);
         } catch (IOException ex) {
             ex.printStackTrace();
-            MsgBox.showOk("Unable to load Gift Cheque Payment form.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to load Gift Cheque Payment form.", "Warning", "");
         }
     }   
     
@@ -418,7 +416,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
             switch (lnIndex){
                 case 12: //nCashAmtx
                     if (!StringUtil.isNumeric(lsValue)){
-                        MsgBox.showOk("Cash amount value must be numeric.", "Notice");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount value must be numeric.", "Warning", "");
                         _trans.setMaster("nCashAmtx", 0.00);
                         return;
                     }
@@ -426,7 +424,7 @@ public class PaymentNoInvoiceController implements Initializable, ControlledScre
                     _trans.setMaster("nCashAmtx", Double.valueOf(lsValue));
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus     

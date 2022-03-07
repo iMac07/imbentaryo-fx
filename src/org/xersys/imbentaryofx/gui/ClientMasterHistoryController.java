@@ -23,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import java.util.Date;
 import javafx.scene.control.CheckBox;
@@ -315,7 +314,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
 
             cmbClientTp.requestFocus();
         } catch (NumberFormatException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             ex.printStackTrace();
             System.exit(1);
         }
@@ -339,7 +338,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                             loadTransaction();
                             initButton();
                         } else {
-                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                             clearFields();
                         }
                         FXUtil.SetNextFocus(foField);
@@ -362,12 +361,12 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 foField.setText("");
                 FXUtil.SetNextFocus(foField);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             foField.setText("");
             FXUtil.SetNextFocus(foField);
         }
@@ -406,12 +405,12 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField10.setText("");
                 FXUtil.SetNextFocus(txtField10);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField10.setText("");
             FXUtil.SetNextFocus(txtField10);
         }
@@ -450,12 +449,12 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField12.setText("");
                 FXUtil.SetNextFocus(txtField10);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField12.setText("");
             FXUtil.SetNextFocus(txtField12);
         }
@@ -479,7 +478,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 if (_trans.UpdateRecord())
                     initButton();
                 else
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                     
                 break;
             case "btn02": //cancel update
@@ -499,7 +498,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 _trans.setMaster("cEmployee", chkEmployee.isSelected() ? "1" : "0");
                 
                 if (_trans.SaveRecord()){
-                    MsgBox.showOk("Record saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Record saved successfully.", "Success", "");
                     
                     _loaded = false;
 
@@ -508,7 +507,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
 
                    _loaded = true;
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -530,9 +529,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -621,12 +619,12 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     
     private void loadAPClient(){
         if (_trans.getEditMode() != EditMode.READY){
-            MsgBox.showOk("No record loaded.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record loaded.", "Warning", "");
             return;
         }
         
         if (!((String) _trans.getMaster("cSupplier")).equals("1")){
-            MsgBox.showOk("Client is not a supplier.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Client is not a supplier.", "Warning", "");
             return;
         }
         
@@ -646,12 +644,12 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     
     private void loadARClient(){
         if (_trans.getEditMode() != EditMode.READY){
-            MsgBox.showOk("No record loaded.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record loaded.", "Warning", "");
             return;
         }
         
         if (!((String) _trans.getMaster("cCustomer")).equals("1")){
-            MsgBox.showOk("Client is not a customer.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Client is not a customer.", "Warning", "");
             return;
         }
         
@@ -720,7 +718,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                                 loadTransaction();
                                 initButton();
                             } else {
-                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                                 clearFields();
                             }
                             break;
@@ -975,7 +973,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                     _trans.setMaster("sAddlInfo", lsValue);
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus
@@ -1013,7 +1011,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                     if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
                         _trans.setMaster("dBirthDte", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
                     } else {
-                        MsgBox.showOk("Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning", "");
                         txtField.requestFocus();
                     }
                     break;
@@ -1021,7 +1019,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
                 case 12: //birth place
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus

@@ -51,11 +51,19 @@
                <center>
                   <AnchorPane>
                      <children>
-                        <StackPane fx:id="StackPaneBody" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <StackPane fx:id="StackPaneBody" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
                               <BorderPane prefHeight="200.0" prefWidth="200.0">
                                  <center>
-                                    <AnchorPane fx:id="AnchorPaneBody" BorderPane.alignment="CENTER" />
+                                    <BorderPane>
+                                       <center>
+                                          <ImageView fitHeight="150.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../icons/Icarus%20Logo%20-%20Red.png" />
+                                             </image>
+                                          </ImageView>
+                                       </center>
+                                    </BorderPane>
                                  </center>
                                  <right>
                                     <AnchorPane fx:id="AnchorPaneMonitor" prefWidth="300.0" BorderPane.alignment="CENTER" />

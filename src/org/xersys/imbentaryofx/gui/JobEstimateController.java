@@ -36,7 +36,6 @@ import org.xersys.commander.iface.LOthTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.DataCallback;
@@ -180,8 +179,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
     
     private void createNew(String fsOrderNox){
         if (!_trans.NewTransaction(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -634,12 +632,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField06.setText("");
                 FXUtil.SetNextFocus(txtField06);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField06.setText("");
             FXUtil.SetNextFocus(txtField06);
         }
@@ -679,12 +677,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField03.setText("");
                 FXUtil.SetNextFocus(txtField03);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField03.setText("");
             FXUtil.SetNextFocus(txtField03);
         }
@@ -723,12 +721,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField07.setText("");
                 FXUtil.SetNextFocus(txtField07);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField07.setText("");
             FXUtil.SetNextFocus(txtField07);
         }
@@ -767,12 +765,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 foField.setText("");
                 FXUtil.SetNextFocus(foField);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             foField.setText("");
             FXUtil.SetNextFocus(foField);
         }
@@ -810,12 +808,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks01.setText("");
                 FXUtil.SetNextFocus(txtSeeks01);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks01.setText("");
             FXUtil.SetNextFocus(txtSeeks01);
         }
@@ -853,12 +851,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks02.setText("");
                 FXUtil.SetNextFocus(txtSeeks02);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks02.setText("");
             FXUtil.SetNextFocus(txtSeeks02);
         }
@@ -925,7 +923,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 break;
             case "btn04":
                 if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     _loaded = false;
 
@@ -936,7 +934,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
 
                    _loaded = true;
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -958,9 +956,8 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -1358,7 +1355,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 case 18:
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus

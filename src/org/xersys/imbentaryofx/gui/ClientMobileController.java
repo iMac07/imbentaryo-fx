@@ -25,7 +25,6 @@ import org.xersys.clients.base.ClientMobile;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import javax.sql.rowset.CachedRowSet;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
@@ -143,7 +142,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
     private void createNew(){
         try {
             if (!_trans.LoadRecord(_data)){
-                MsgBox.showOk(_trans.getMessage(), "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 System.exit(1);
             }
             
@@ -151,7 +150,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             loadDetail();
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -167,7 +166,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
                     case "txtField01":
                         if (!StringUtil.isValidMobile(lsValue)){
                             event.consume();
-                            MsgBox.showOk("Invalid mobile number detected.", "Warning");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Invalid mobile number detected.", "Warning", "");
                             return;
                         }
 
@@ -176,7 +175,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
                 }
             } catch (SQLException | ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk(ex.getMessage(), "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
                 System.exit(1);
             }
             
@@ -208,7 +207,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             _trans.setDetail(_detail_row, "cIncdMktg", loButton.isSelected() ? "1" : "0");
         }catch (SQLException | ParseException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -221,7 +220,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             _trans.setDetail(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -247,7 +246,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -273,7 +272,7 @@ public class ClientMobileController implements Initializable, ControlledScreen{
             txtField01.requestFocus();
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -362,15 +361,14 @@ public class ClientMobileController implements Initializable, ControlledScreen{
                     if (_screens_controller.getScreenCount() > 1)
                         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                     else{
-                        if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                        if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                             System.exit(0);
-                        }
                     }
                     break;
             }
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }

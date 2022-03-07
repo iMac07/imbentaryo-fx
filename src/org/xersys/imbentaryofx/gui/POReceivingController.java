@@ -37,7 +37,6 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
@@ -177,8 +176,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
     
     private void createNew(String fsOrderNox){
         if (!_trans.NewTransaction(fsOrderNox)){
-            System.err.println(_trans.getMessage());
-            MsgBox.showOk(_trans.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             System.exit(1);
         }
         
@@ -460,12 +458,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks01.setText("");
                 FXUtil.SetNextFocus(txtSeeks01);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks01.setText("");
             FXUtil.SetNextFocus(txtSeeks01);
         }
@@ -504,12 +502,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField05.setText("");
                 FXUtil.SetNextFocus(txtField05);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField05.setText("");
             FXUtil.SetNextFocus(txtField05);
         }
@@ -548,12 +546,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField08.setText("");
                 FXUtil.SetNextFocus(txtField08);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField08.setText("");
             FXUtil.SetNextFocus(txtField08);
         }
@@ -596,12 +594,12 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks01.setText("");
                 FXUtil.SetNextFocus(txtField17);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks01.setText("");
             FXUtil.SetNextFocus(txtField17);
         }
@@ -646,7 +644,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 break;
             case "btn04": //save
                 if (_trans.SaveTransaction(true)){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     _loaded = false;
 
@@ -658,7 +656,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
 
                    _loaded = true;
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -681,9 +679,8 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -1008,7 +1005,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                         //this mus be numeric else it will throw an error
                         x = Double.parseDouble(lsValue);
                     } catch (NumberFormatException e) {
-                        MsgBox.showOk("Input was not numeric.", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Input was not numeric.", "Warning", "");
                         txtField.requestFocus(); 
                         break;
                     }
@@ -1026,7 +1023,7 @@ public class POReceivingController implements Initializable, ControlledScreen{
                     }
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus

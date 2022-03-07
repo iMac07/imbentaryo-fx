@@ -26,7 +26,6 @@ import org.xersys.commander.iface.LRecordMas;
 import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.PartsCatalogue;
 import org.xersys.sales.base.SP_Sales;
@@ -152,7 +151,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                 if (_trans.LoadFigures()){
                     displayImages();
                 } else {
-                    MsgBox.showOk(_trans.getMessage(), "Notice");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 }
                 break;
             case "btn01": //add to POS
@@ -185,10 +184,10 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                     } catch (ParseException ex) {
                         ex.printStackTrace();
-                        MsgBox.showOk("ParseException on " + lsProcName, "Notice"); 
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException on " + lsProcName, "Notice", "");
                     }                    
                 } else {
-                    MsgBox.showOk("No item on shopping cart.", "Notice");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No item on shopping cart.", "Notice", "");
                 }
                 break;
             case "btn02":
@@ -217,9 +216,8 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                     _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 } else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }

@@ -23,7 +23,6 @@ import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.MsgBox;
 
 public class PartsCatalogueDetailController implements Initializable, ControlledScreen{
     @FXML
@@ -253,9 +252,8 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }

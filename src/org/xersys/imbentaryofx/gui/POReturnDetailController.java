@@ -17,7 +17,6 @@ import javafx.scene.layout.VBox;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 
 public class POReturnDetailController implements Initializable, ControlledScreen  {
@@ -321,7 +320,7 @@ public class POReturnDetailController implements Initializable, ControlledScreen
                     if (StringUtil.isNumeric(lsValue))                    
                         txtField.setText(lsValue);                    
                     else{
-                        MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
                         txtField.setText("0");
                     } 
                     
@@ -333,7 +332,7 @@ public class POReturnDetailController implements Initializable, ControlledScreen
                         
                         txtField.setText(StringUtil.NumberFormat(lnValue, "###0.00"));                            
                     } else {
-                        MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
                         txtField.setText("0.00");
                     }
                         
@@ -345,7 +344,7 @@ public class POReturnDetailController implements Initializable, ControlledScreen
                         
                         txtField.setText(StringUtil.NumberFormat(lnValue, "###0.00"));                            
                     } else {
-                        MsgBox.showOk("Please encode a numeric value with correct format.", "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
                         txtField.setText("0.00");
                     }
                         
