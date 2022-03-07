@@ -26,7 +26,6 @@ import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPaymentInfo;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.PaymentListener;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
@@ -211,7 +210,7 @@ public class PaymentCreditCardController implements Initializable {
         switch (lsButton){
             case "btn01": //add
                 if (!p_oTrans.addDetail())
-                    MsgBox.showOk(p_oTrans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), p_oTrans.getMessage(), "Warning", "");
                 else{
                     loadDetail();
                     clearFields();
@@ -222,7 +221,7 @@ public class PaymentCreditCardController implements Initializable {
                 break;
             case "btn02": //remove
                 if (!p_oTrans.delDetail(_detail_row + 1)) 
-                    MsgBox.showOk(p_oTrans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), p_oTrans.getMessage(), "Warning", "");
                 else{
                     loadDetail();
                     clearFields();
@@ -399,12 +398,12 @@ public class PaymentCreditCardController implements Initializable {
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField02.setText("");
                 FXUtil.SetNextFocus(txtField02);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField02.setText("");
             FXUtil.SetNextFocus(txtField02);
         }
@@ -426,19 +425,19 @@ public class PaymentCreditCardController implements Initializable {
                 case 3: //sCardNoxx
                     if (!lsValue.isEmpty()){
                         if (!StringUtil.isNumeric(lsValue)){
-                            MsgBox.showOk("Card number value must be numeric.", "Notice");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Card number value must be numeric.", "Warning", "");
                             p_oTrans.setDetail(_detail_row + 1, "sCardNoxx", "");
                             return;
                         }
                         
                         if (lsValue.length() < 4){
-                            MsgBox.showOk("Invalid card number.", "Notice");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Invalid card number.", "Warning", "");
                             p_oTrans.setDetail(_detail_row + 1, "sCardNoxx", "");
                             return;
                         }
                         
                         if (lsValue.length() > 16){
-                            MsgBox.showOk("Invalid card number size.", "Notice");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Invalid card number size.", "Warning", "");
                             p_oTrans.setDetail(_detail_row + 1, "sCardNoxx", "");
                             return;
                         }
@@ -449,7 +448,7 @@ public class PaymentCreditCardController implements Initializable {
                 case 4: //sApprovNo
                     if (!lsValue.isEmpty()){
                         if (!StringUtil.isNumeric(lsValue)){
-                            MsgBox.showOk("Approval number value must be numeric.", "Notice");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Approval number value must be numeric.", "Warning", "");
                             p_oTrans.setDetail(_detail_row + 1, "sApprovNo", "");
                             return;
                         }
@@ -459,7 +458,7 @@ public class PaymentCreditCardController implements Initializable {
                     break;
                 case 5: //nAmountxx
                     if (!StringUtil.isNumeric(lsValue)){
-                        MsgBox.showOk("Cash amount value must be numeric.", "Notice");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount value must be numeric.", "Warning", "");
                         p_oTrans.setDetail(_detail_row + 1, "nAmountxx", 0.00);
                         return;
                     }
@@ -467,7 +466,7 @@ public class PaymentCreditCardController implements Initializable {
                     p_oTrans.setDetail(_detail_row + 1, "nAmountxx", Double.valueOf(lsValue));
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus     

@@ -33,7 +33,6 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.purchasing.base.POReceiving;
@@ -287,7 +286,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                             loadTransaction();
                             loadDetail();
                         } else {
-                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                             clearFields();
                         }
                         FXUtil.SetNextFocus(txtSeeks01);
@@ -310,12 +309,12 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks01.setText("");
                 FXUtil.SetNextFocus(txtSeeks01);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks01.setText("");
             FXUtil.SetNextFocus(txtSeeks01);
         }
@@ -372,7 +371,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                                 loadTransaction();
                                 loadDetail();
                             } else {
-                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                                 
                                 initGrid();
                                 initButton();
@@ -481,36 +480,39 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    MsgBox.showOk("Transaction printed successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
                     
                     initGrid();
                     clearFields();
                     
                     _trans.setTranStat(1);
                     searchTransaction("a.sTransNox", _old_trans, true);
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn03":
                 if (_trans.PostTransaction()){
-                    MsgBox.showOk("Transaction closed successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
                     
                     initGrid();
                     clearFields();
                     
                     _trans.setTranStat(2);
                     searchTransaction("a.sTransNox", _old_trans, true);
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn04": //
                 if (_trans.CancelTransaction()){
-                    MsgBox.showOk("Transaction cancelled successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
                     initGrid();
                     clearFields();
                     
                     _trans.setTranStat(3);
                     searchTransaction("a.sTransNox", _old_trans, true);
-                } else MsgBox.showOk(_trans.getMessage(), "Warning");
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -530,9 +532,8 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }

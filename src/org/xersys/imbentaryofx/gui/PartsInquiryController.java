@@ -10,7 +10,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
-import org.xersys.commander.base.Nautilus;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 

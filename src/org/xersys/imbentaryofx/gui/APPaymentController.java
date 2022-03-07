@@ -34,7 +34,6 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 
@@ -224,7 +223,7 @@ public class APPaymentController implements Initializable, ControlledScreen {
                     clearFields();
                     loadTransaction();
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
 
                _loaded = true;
                 break;    
@@ -240,7 +239,7 @@ public class APPaymentController implements Initializable, ControlledScreen {
                 break;
             case "btn04": //save
                 if (_trans.SaveTransaction()){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     _loaded = false;
 
@@ -250,7 +249,7 @@ public class APPaymentController implements Initializable, ControlledScreen {
 
                    _loaded = true;
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
             case "btn06":
@@ -266,9 +265,8 @@ public class APPaymentController implements Initializable, ControlledScreen {
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -607,12 +605,12 @@ public class APPaymentController implements Initializable, ControlledScreen {
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtField03.setText("");
                 FXUtil.SetNextFocus(txtField03);
             }
-        } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+        } else {            
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField03.setText("");
             FXUtil.SetNextFocus(txtField03);
         }
@@ -633,7 +631,7 @@ public class APPaymentController implements Initializable, ControlledScreen {
                     _trans.setMaster(lnIndex, lsValue);
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
         } else{ //Got Focus        
             _index = lnIndex;

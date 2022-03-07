@@ -20,7 +20,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.CashierTrans;
 
@@ -97,10 +96,10 @@ public class CashieringController implements Initializable, ControlledScreen {
             if (_trans.LoadTransactions())
                 loadDetail();
             else
-                MsgBox.showOk(_trans.getMessage(), "Notice");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Notice", "");
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk("Error loading cashier transactions.", "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Error loading cashier transactions.", "Warning", "");
             System.exit(1);
         }
     }    
@@ -161,7 +160,7 @@ public class CashieringController implements Initializable, ControlledScreen {
                 _source_number = (String) _trans.getDetail(pnSelectd + 1, "sTransNox");
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("Error in retreiving transaction information.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Error in retreiving transaction information.", "Warning", "");
                 System.exit(1);
             }
         }
@@ -278,10 +277,10 @@ public class CashieringController implements Initializable, ControlledScreen {
         switch (lsButton){
             case "btn01": //pay
                 if (!_source_code.isEmpty() && !_source_number.isEmpty()) {
-                    if (MsgBox.showYesNo("Do you want to issue an invoice?", "Confirm") == MsgBox.RESP_YES_OK)
-                        payWithInvoice();
-                    else
-                        payNoInvoice();
+                    payWithInvoice();
+                    
+                    //option for non invoice payment
+                    //payNoInvoice();
                 }
                 break;
             case "btn02": //release

@@ -22,7 +22,6 @@ import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import javafx.scene.control.CheckBox;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
@@ -299,7 +298,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
             lnValue = Integer.parseInt((String) _trans.getMaster("cRecdStat"));
             chkActive.setSelected(lnValue == 1);
         } catch (NumberFormatException ex) {
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             ex.printStackTrace();
             System.exit(1);
         }
@@ -333,8 +332,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 _loaded = false;
                 
                 if (!_trans.NewRecord()){
-                    System.err.println(_trans.getMessage());
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                     System.exit(1);
                 }
 
@@ -355,7 +353,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 break;
             case "btn04": //save                
                 if (_trans.SaveRecord()){
-                    MsgBox.showOk("Transaction saved successfully.", "Success");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
                     _loaded = false;
 
@@ -364,7 +362,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
 
                    _loaded = true;
                 } else 
-                    MsgBox.showOk(_trans.getMessage(), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -383,9 +381,9 @@ public class MCSerialController implements Initializable, ControlledScreen{
                     initButton();
                     
                     if (_trans.getInvMaster().getEditMode() != EditMode.READY){
-                        if (MsgBox.showYesNo("This is item is not on your branch inventory.\n\n" +
-                                "Do you want to add this item to inventory?", "Confirm") == MsgBox.RESP_YES_OK){
-
+                        if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), 
+                                "This is item is not on your branch inventory.\n\n" +
+                                "Do you want to add this item to inventory?", "Confirm", "")){
                             if (_trans.getInvMaster().NewRecord()){
                                 loadMaster();
                                 disableMasterFields(true);
@@ -399,9 +397,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
-                    if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                         System.exit(0);
-                    }
                 }
                 break;
         }
@@ -495,7 +492,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                                 
                                 if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
                             } else {
-                                MsgBox.showOk(_trans.getMessage(), "Warning");
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                                 clearFields();
                             }
                         case "txtField10":
@@ -697,7 +694,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField10.setText("");
             FXUtil.SetNextFocus(txtField10);
         }
@@ -722,7 +719,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField07.setText("");
             FXUtil.SetNextFocus(txtField07);
         }
@@ -747,7 +744,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField08.setText("");
             FXUtil.SetNextFocus(txtField08);
         }
@@ -771,7 +768,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                             
                             if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
                         } else {
-                            MsgBox.showOk(_trans.getMessage(), "Warning");
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                             clearFields();
                         }
                         FXUtil.SetNextFocus(txtSeeks01);
@@ -794,12 +791,12 @@ public class MCSerialController implements Initializable, ControlledScreen{
                 }
             } catch (ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk("ParseException detected.", "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
                 txtSeeks01.setText("");
                 FXUtil.SetNextFocus(txtSeeks01);
             }
         } else {
-            MsgBox.showOk((String) loJSON.get("message"), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtSeeks01.setText("");
             FXUtil.SetNextFocus(txtSeeks01);
         }
@@ -874,7 +871,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
                     
                     break;
                 default:
-                    MsgBox.showOk("Text field with name " + txtField.getId() + " not registered.", "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
         } else{ //Got Focus

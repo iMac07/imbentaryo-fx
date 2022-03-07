@@ -21,15 +21,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.json.simple.JSONObject;
 import org.xersys.commander.contants.UserLevel;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
-import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.MiscUtil;
-import org.xersys.commander.util.MsgBox;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringHelper;
 
@@ -210,12 +210,47 @@ public class MainScreenController implements Initializable {
         AnchorPaneMain.setOnKeyPressed(this::keyPressed);
         AnchorPaneMain.setOnKeyReleased(this::keyReleased);
         
-        _logged = false;
+        initButton();        
+        load("");
+    }    
+    
+    public void load(String fsUserID){
+        if (!fsUserID.isEmpty()){
+            _nautilus.setUserID(fsUserID);
+            if (!_nautilus.load("icarus")){
+                ShowMessageFX.Warning(getStage(), _nautilus.getMessage(), "Warning", "");
+                return;
+            }
+
+            _logged = true;
+        }
         
         initScreen();
-        initButton();
         initMenu();
-    }    
+    }
+    
+    public void seekApproval(){
+        try {
+            SeekApproval loSeek = new SeekApproval();
+            
+            System.setProperty("sUserName", "");
+            System.setProperty("sPassword", "");
+        
+            Stage stage = new Stage();
+            stage.initModality(Modality.NONE);
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setAlwaysOnTop(true);
+            loSeek.start(stage);  
+            
+            System.setProperty("sUserName", loSeek.getUsername());
+            System.setProperty("sPassword", loSeek.getPassword());
+            
+            loSeek = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
     
     private void loadScreen(ScreenInfo.NAME  foValue){
         JSONObject loJSON = ScreenInfo.get(foValue);
@@ -233,18 +268,23 @@ public class MainScreenController implements Initializable {
     }
     
     private void initScreen(){
+        _screens_controller.clear();
+        
         showTime();
         if (_logged){
             lblUser.setText((String) _nautilus.getUserInfo("xClientNm"));
             
             loadScreen(ScreenInfo.NAME.SP_SALES);
-        
-            //load the dashboard
-            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
-            if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));          
-        } else
+        } else{
             lblUser.setText("Not Logged In");
+            
+            loadScreen(ScreenInfo.NAME.BACKGROUND);
+        }
         
+        //load the dashboard
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
+        if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));          
+                    
         //set screens that will not trigger on window tabs
         _no_tab_screen = "";
         _no_tab_screen += "POSDetail";
@@ -258,6 +298,8 @@ public class MainScreenController implements Initializable {
         _no_tab_screen += "ClientEMail";
         _no_tab_screen += "Cashiering";
         _no_tab_screen += "Payment";
+        _no_tab_screen += "Login";
+        _no_tab_screen += "Background";
     }
     
     private void initMenu(){        
@@ -466,18 +508,15 @@ public class MainScreenController implements Initializable {
             case "payments":
                 loadScreen(ScreenInfo.NAME.AP_PAYMENT); break;
             case "login":
-                //login form
-                break;
+                loadScreen(ScreenInfo.NAME.LOGIN); break;
             case "logout & exit":
-                //logout form
-                break;
             case "exit":
                 if (ShowMessageFX.YesNo(getStage(), "Do you want to exit the application?", "Please confirm", ""))
                     System.exit(0);
         }
     }
     
-    private Stage getStage(){
+    public Stage getStage(){
         return (Stage) btnOther.getScene().getWindow();
     }
     

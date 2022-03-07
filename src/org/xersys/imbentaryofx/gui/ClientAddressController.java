@@ -25,7 +25,6 @@ import org.xersys.clients.base.ClientAddress;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.MsgBox;
 import javax.sql.rowset.CachedRowSet;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
@@ -149,7 +148,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
     private void createNew(){
         try {
             if (!_trans.LoadRecord(_data)){
-                MsgBox.showOk(_trans.getMessage(), "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(),_trans.getMessage(), "Warning", "");
                 System.exit(1);
             }
             
@@ -157,7 +156,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
             loadDetail();
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -185,7 +184,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
                 }
             } catch (SQLException | ParseException ex) {
                 ex.printStackTrace();
-                MsgBox.showOk(ex.getMessage(), "Warning");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
                 System.exit(1);
             }
         }
@@ -219,7 +218,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
             _trans.setDetail(_detail_row, "cRecdStat", loButton.isSelected() ? "1" : "0");
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -245,7 +244,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
 
@@ -275,7 +274,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
             txtField01.requestFocus();
         } catch (SQLException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -375,7 +374,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
 
                         setDetailInfo(_detail_row);
                     } else {
-                        MsgBox.showOk(_trans.getMessage(), "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                         txtField04.requestFocus();
                     }
                     break;
@@ -393,15 +392,14 @@ public class ClientAddressController implements Initializable, ControlledScreen{
                     if (_screens_controller.getScreenCount() > 1)
                         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                     else{
-                        if (MsgBox.showOkCancel("This action will exit the application.", "Please confirm...") == MsgBox.RESP_YES_OK){
+                        if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
                             System.exit(0);
-                        }
                     }
                     break;
             }
         } catch (SQLException | ParseException ex) {
             ex.printStackTrace();
-            MsgBox.showOk(ex.getMessage(), "Warning");
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             System.exit(1);
         }
     }
@@ -472,7 +470,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
                         }
                     } catch (SQLException | ParseException e) {
                         e.printStackTrace();
-                        MsgBox.showOk(e.getMessage(), "Warning");
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), e.getMessage(), "Warning", "");
                     }
                 }
             }
@@ -574,7 +572,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
                         _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                     }
                 } else {
-                    MsgBox.showOk((String) loJSON.get("message"), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
                     txtField03.setText("");
                     FXUtil.SetNextFocus(txtField03);
                 }
@@ -598,7 +596,7 @@ public class ClientAddressController implements Initializable, ControlledScreen{
                         _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                     }
                 } else {
-                    MsgBox.showOk((String) loJSON.get("message"), "Warning");
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
                     txtField04.setText("");
                     FXUtil.SetNextFocus(txtField04);
                 }
