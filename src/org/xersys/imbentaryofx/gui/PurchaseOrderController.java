@@ -179,7 +179,22 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchBranchInventory("sBarCodex", lsValue, false);
+                    searchBranchInventory("sBarCodex", lsValue, true);
+                    event.consume();
+                    return;
+                case "txtField06":
+                    searchSupplier("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField08":
+                    searchTerm("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+            }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
+                    searchBranchInventory("sDescript", lsValue, false);
                     event.consume();
                     return;
                 case "txtField06":

@@ -49,7 +49,14 @@ public class ScreenInfo {
         REPORTS,
         REPORT_CRITERIA,
         BACKGROUND,
-        LOGIN
+        LOGIN,
+        SP_WHOLESALE,
+        SP_WHOLESALE_HISTORY,
+        MC_SERIAL,
+        INV_REQUEST,
+        INV_REQUEST_HISTORY,
+        INV_TRANSFER,
+        INV_TRANSFER_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
@@ -228,6 +235,34 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "Login.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "LoginController");
                 return loJSON;        
+            case SP_WHOLESALE:
+                loJSON.put("resource", RESOURCE_URL + "SPWholeSale.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWholeSaleController");
+                return loJSON;
+            case SP_WHOLESALE_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPWholeSaleHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWholeSaleHistoryController");
+                return loJSON;
+            case MC_SERIAL:
+                loJSON.put("resource", RESOURCE_URL + "MCSerial.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "MCSerialController");
+                return loJSON;
+            case INV_REQUEST:
+                loJSON.put("resource", RESOURCE_URL + "InvRequest.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvRequestController");
+                return loJSON;
+            case INV_REQUEST_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "InvRequestHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvRequestHistoryController");
+                return loJSON;
+            case INV_TRANSFER:
+                loJSON.put("resource", RESOURCE_URL + "InvTransfer.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvTransferController");
+                return loJSON;
+            case INV_TRANSFER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "InvTransferHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvTransferHistoryController");
+                return loJSON;
         }
         
         return null;

@@ -37,7 +37,7 @@ import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.JobEstimate;
 
 public class JobEstimateHistoryController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
+    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Selected");
     
     private XNautilus _nautilus;
     private JobEstimate _trans;
@@ -60,6 +60,8 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
     private int _parts_row;
     private int _labor_row;
     private int _transtat;
+    
+    private String _old_trans = "";
     
     @FXML
     private AnchorPane AnchorMain;
@@ -299,7 +301,10 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
         txtField17.setText((String) _trans.getMaster("xEngineNo"));
         txtField18.setText((String) _trans.getMaster("xFrameNox"));
         
+        _old_trans = (String) _trans.getMaster("sTransNox");
+        
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
         
         computeSummary();
         
@@ -768,8 +773,10 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(1);
+                    searchTransaction(txtSeeks01, "a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
@@ -778,8 +785,10 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(2);
+                    searchTransaction(txtSeeks01, "a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
@@ -788,8 +797,10 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
                     initGrid();
-                    initButton();
                     clearFields();
+                    
+                    _trans.setTranStat(3);
+                    searchTransaction(txtSeeks01, "a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
@@ -985,7 +996,7 @@ public class JobEstimateHistoryController implements Initializable, ControlledSc
                 lblTranStat.setText("CANCELLED");
                 break;
             case "4":
-                lblTranStat.setText("FULLY SERVED");
+                lblTranStat.setText("SELECTED");
                 break;
             default:
                 lblTranStat.setText("UNKNOWN");

@@ -5,20 +5,31 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -59,6 +70,14 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
     private TableView _table;
     @FXML
     private Label lblBlockTitle;
+    @FXML
+    private ScrollPane scroll;
+    @FXML
+    private BorderPane border;
+    @FXML
+    private GridPane grid;
+    @FXML
+    private StackPane imageHolder;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -74,7 +93,40 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         if (_data != null){
             try {            
                 FileInputStream inputstream = new FileInputStream((String) _data.get("path"));
+                
+                image.setPreserveRatio(true);
+                
+                if (Double.valueOf(System.getProperty("system.screen.height")) >= 1050.0){
+                    image.setFitWidth(1200.00);
+                    image.setFitHeight(1200.00);
+                } else {
+                    image.setFitWidth(600.00);
+                    image.setFitHeight(600.00);
+                }
+                
                 image.setImage(new Image(inputstream));
+                
+                final DoubleProperty zoomProperty = new SimpleDoubleProperty(200);
+                zoomProperty.addListener((Observable arg0) -> {
+                    image.setFitWidth(zoomProperty.get() * 4);
+                    image.setFitHeight(zoomProperty.get() * 3);
+                });
+
+                imageHolder.minWidthProperty().bind(Bindings.createDoubleBinding(() -> 
+                    scroll.getViewportBounds().getWidth(), scroll.viewportBoundsProperty()));
+                
+                grid.setAlignment(Pos.CENTER);
+        
+                scroll.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+                    @Override
+                    public void handle(ScrollEvent event) {
+                        if (event.getDeltaY() > 0) {
+                            zoomProperty.set(zoomProperty.get() * 1.1);
+                        } else if (event.getDeltaY() < 0) {
+                            zoomProperty.set(zoomProperty.get() / 1.1);
+                        }
+                    }
+                });
                 
                 lblBlockTitle.setText((String) _data.get("title"));
                 _parts = (JSONArray) _data.get("parts");
@@ -185,27 +237,27 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         
         index02.setText("Part Number"); 
         index02.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index02"));
-        index02.prefWidthProperty().set(120);
+        index02.prefWidthProperty().set(150);
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index03"));
-        index03.prefWidthProperty().set(180);
+        index03.prefWidthProperty().set(200);
         
         index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index04"));
-        index04.prefWidthProperty().set(50);
+        index04.prefWidthProperty().set(100);
         
         index05.setText("ROQ"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index05"));
-        index05.prefWidthProperty().set(50);
+        index05.prefWidthProperty().set(100);
         
         index06.setText("Series"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,String>("index06"));
-        index06.prefWidthProperty().set(50);
+        index06.prefWidthProperty().set(150);
         
         index07.setText("Select"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableCatalogParts,Boolean>("index07"));
-        index07.prefWidthProperty().set(50);
+        index07.prefWidthProperty().set(100);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);

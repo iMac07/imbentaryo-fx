@@ -65,14 +65,9 @@ public class PartsCatalogueChildController implements Initializable {
             lblBlockTitle.setText(_block_title);
             lblAddressNo.setText(_address_no);
             
-            FileInputStream inputstream = new FileInputStream(_image_path);
-//            Rectangle2D loRec = new Rectangle2D(140, 0, 632, 480);
-//            //Rectangle2D loRec = new Rectangle2D(400, 200, 632, 480);
-//            
+            FileInputStream inputstream = new FileInputStream(_image_path);        
             image.setImage(new Image(inputstream));
-//            image.setPreserveRatio(true);
-//            image.setSmooth(true);
-//            image.setViewport(loRec);
+
             Image img = image.getImage();
             if (img != null) {
                 double w = 0;
@@ -93,7 +88,7 @@ public class PartsCatalogueChildController implements Initializable {
 
                 image.setX((image.getFitWidth() - w) / 2);
                 image.setY((image.getFitHeight() - h) / 2);
-            }
+            }            
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }

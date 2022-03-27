@@ -16,7 +16,7 @@ import javafx.stage.StageStyle;
 import org.xersys.commander.iface.XNautilus;
 
 public class Imbentaryo extends Application {
-    private final String FORM_TITLE = "Imbentaryo v1.0";
+    private final String FORM_TITLE = "icarus v1.0";
     private final String FORM_NAME = "MainScreen.fxml";
     
     private static XNautilus _instance;

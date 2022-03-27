@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.Image?>
@@ -33,15 +34,33 @@
                      <children>
                         <BorderPane prefHeight="200.0" prefWidth="200.0">
                            <center>
-                              <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                              <StackPane>
                                  <children>
-                                    <ImageView fx:id="image" fitHeight="256.0" fitWidth="514.0" pickOnBounds="true">
-                                       <VBox.margin>
-                                          <Insets top="5.0" />
-                                       </VBox.margin>
-                                    </ImageView>
+                                    <BorderPane fx:id="border">
+                                       <center>
+                                          <ScrollPane fx:id="scroll">
+                                             <content>
+                                                <GridPane fx:id="grid">
+                                                   <columnConstraints>
+                                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                   </columnConstraints>
+                                                   <rowConstraints>
+                                                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                   </rowConstraints>
+                                                   <children>
+                                                      <StackPane fx:id="imageHolder">
+                                                         <children>
+                                                            <ImageView fx:id="image" pickOnBounds="true" preserveRatio="true" />
+                                                         </children>
+                                                      </StackPane>
+                                                   </children>
+                                                </GridPane>
+                                             </content>
+                                          </ScrollPane>
+                                       </center>
+                                    </BorderPane>
                                  </children>
-                              </VBox>
+                              </StackPane>
                            </center>
                            <top>
                               <AnchorPane id="TransButtons" prefHeight="26.0" BorderPane.alignment="CENTER">
@@ -53,7 +72,7 @@
                            <bottom>
                               <VBox alignment="CENTER" fillWidth="false">
                                  <children>
-                                    <TableView fx:id="_table" focusTraversable="false" prefHeight="250.0" stylesheets="@../css/Tables.css">
+                                    <TableView fx:id="_table" focusTraversable="false" prefHeight="260.0" stylesheets="@../css/Tables.css">
                                        <columns>
                                           <TableColumn prefWidth="30.0" text="No." />
                                        </columns>

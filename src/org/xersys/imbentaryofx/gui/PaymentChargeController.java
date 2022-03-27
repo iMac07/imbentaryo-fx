@@ -200,10 +200,12 @@ public class PaymentChargeController implements Initializable, ControlledScreen 
         lblNetPayable.setText("0.00");
     }
     
-    private void loadTransaction(){
+    private void loadTransaction(){        
         lblAdvancePayment.setText("0.00");        
         lblTranTotal.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAmountxx"), "#,##0.00"));
         lblNetPayable.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAmountxx"), "#,##0.00"));
+        
+        txtField01.setDisable(!txtField01.getText().equals(""));
     }
     
     private void initButton(){

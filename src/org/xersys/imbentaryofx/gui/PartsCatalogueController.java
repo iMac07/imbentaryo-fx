@@ -301,7 +301,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                 instance.setScreensController(_screens_controller);
                 instance.setDashboardScreensController(_screens_dashboard_controller);
                 
-                _screens_controller.loadScreen("PartsCatalogueDetailVertical.fxml", (ControlledScreen) instance);
+                _screens_controller.loadScreen("PartsCatalogueDetail.fxml", (ControlledScreen) instance);
             }
         };
         
@@ -315,9 +315,9 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
 
                 PartsCatalogueChildController controller = new PartsCatalogueChildController();
                 controller.setData(_listener);
-                controller.setImagePath((String) _trans.getFigure(lnCtr, "sImageNme"));
+                controller.setImagePath((String) _nautilus.getAppConfig("sApplPath") +  _trans.getFigure(lnCtr, "sImageNme"));
                 controller.setBlockNo("");
-                controller.setBlockTitle((String) _trans.getFigure(lnCtr, "sDescript"));
+                controller.setBlockTitle((String) _trans.getFigure(lnCtr, "sModelCde") + " - " +(String) _trans.getFigure(lnCtr, "sDescript"));
                 controller.setAddressNo("");
                 controller.setParts(_trans.getFigureParts(lnCtr));
 
