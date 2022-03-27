@@ -87,7 +87,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         table.setOnMouseClicked(this::mouseClicked);
         
         _trans = new CashierTrans(_nautilus);
-        _trans.setSourceCd("SO");
+        _trans.setSourceCd("SO;JO;WS");
         
         initButton();
         initGrid();

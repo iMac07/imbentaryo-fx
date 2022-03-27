@@ -26,6 +26,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -41,6 +43,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     private XNautilus _nautilus;
     private SP_Sales _trans;
     private LMasDetTrans _listener;
+    private LApproval _approval;
     
     private SalesSearch _trans_search;
     private int _transtat;
@@ -139,6 +142,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
+        _trans.setApprvListener(_approval);
 
         clearFields();
         initButton();
@@ -226,7 +230,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     private void loadTransaction(){
         txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
-        txtField07.setText((String) _trans.getMaster("sSalesman"));
+        txtField07.setText((String) _trans.getMaster("xSalesman"));
         
         txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nDiscount"), "##0.00"));
         txtField11.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAddDiscx"), "#,##0.00"));
@@ -236,8 +240,11 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         loadDetail();
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
         
         btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
     }
     
     private void searchTransaction(){
@@ -336,7 +343,14 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         computeSummary();
     }
     
-    private void initListener(){        
+    private void initListener(){      
+        _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
@@ -463,11 +477,20 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             case "btn01":
                 searchTransaction();
                 break;
-            case "btn02":
+            case "btn02": //pay
+                payWithInvoice();
                 break;
-            case "btn03":
+            case "btn03": //release
+                payCharge();
                 break;
-            case "btn04":
+            case "btn04": //cancel
+                if (_trans.CancelTransaction()){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
+                    
+                    initGrid();
+                    clearFields();
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -491,6 +514,47 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                         System.exit(0);
                 }
                 break;
+        }
+    }
+    
+    private void payCharge(){
+        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
+            PaymentChargeController instance = new PaymentChargeController();
+
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setSourceCd("SO");
+            instance.setSourceNo((String) _trans.getMaster("sTransNox"));
+
+            //close this screen
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //load the payment screen
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        } else{
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+        }
+    }
+    
+    private void payWithInvoice(){
+        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
+                PaymentController instance = new PaymentController();
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd("SO");
+                instance.setSourceNo((String) _trans.getMaster("sTransNox"));
+
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        } else{
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
         }
     }
     
@@ -553,8 +617,8 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         btn01.setText("Browse");
         btn02.setText("Pay");
-        btn03.setText("");
-        btn04.setText("");
+        btn03.setText("Release");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -566,8 +630,8 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         btn01.setVisible(true);
         btn02.setVisible(true);
-        btn03.setVisible(false);
-        btn04.setVisible(false);
+        btn03.setVisible(true);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

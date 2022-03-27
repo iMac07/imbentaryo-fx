@@ -1,7 +1,6 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -18,7 +17,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -28,25 +26,28 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.purchasing.base.POReceiving;
+import org.xersys.sales.base.WholeSale;
+import org.xersys.sales.search.SalesSearch;
 
-public class POReceivingHistoryController implements Initializable, ControlledScreen{
+public class SPWholeSaleHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
     
     private XNautilus _nautilus;
-    private POReceiving _trans;
+    private WholeSale _trans;
     private LMasDetTrans _listener;
     private LApproval _approval;
     
+    private SalesSearch _trans_search;
     private int _transtat;
+    private String _old_trans;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -58,8 +59,6 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     private boolean _loaded = false;
-    private String _old_trans = "";
-    
     private int _index;
     private int _detail_row;
     
@@ -94,41 +93,33 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     @FXML
     private Button btn12;
     @FXML
-    private TextField txtSeeks01;
-    @FXML
-    private TextField txtSeeks02;
-    @FXML
-    private TextField txtField05;
-    @FXML
-    private TextField txtField06;
-    @FXML
-    private TextField txtField07;
-    @FXML
-    private TextField txtField08;
-    @FXML
-    private TextField txtField16;
-    @FXML
-    private TextField txtField17;
-    @FXML
-    private Label lblTranStat;
-    @FXML
-    private ComboBox cmbStatus;
-    @FXML
-    private TableView _table;
-    @FXML
-    private Label lblPayable;
-    @FXML
-    private TextField txtField15;
-    @FXML
     private TextField txtField12;
-    @FXML
-    private TextField txtField13;
     @FXML
     private Label lblTranTotal;
     @FXML
     private Label lblTotalDisc;
     @FXML
+    private Label lblPayable;
+    @FXML
+    private TableView _table;
+    @FXML
     private Label lblFreight;
+    @FXML
+    private Label lblTranStat;
+    @FXML
+    private Label lblPaymTotl;
+    @FXML
+    private ComboBox cmbStatus;
+    @FXML
+    private TextField txtSeeks01;
+    @FXML
+    private TextField txtField13;
+    @FXML
+    private TextField txtField14;
+    @FXML
+    private TextField txtField08;
+    @FXML
+    private TextField txtField04;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -147,7 +138,9 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         initGrid();
         initListener();
         
-        _trans = new POReceiving(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchSPWholeSale);
+        
+        _trans = new WholeSale(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setApprvListener(_approval);
@@ -183,26 +176,6 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
         
-        if (event.getCode() == KeyCode.ENTER){
-            switch(lsTxt){
-                case "txtSeeks01":
-                    searchTransaction("a.sReferNox", lsValue, true);
-                    break;
-                case "txtSeeks02":
-                    searchTransaction("IFNULL(b.sClientNm, '')", lsValue, false);
-                    break;
-            }
-        } else if (event.getCode() == KeyCode.F3){
-            switch(lsTxt){
-                case "txtSeeks01":
-                    searchTransaction("a.sReferNox", lsValue, false);
-                    break;
-                case "txtSeeks02":
-                    searchTransaction("IFNULL(b.sClientNm, '')", lsValue, false);
-                    break;
-            }
-        }
-        
         switch (event.getCode()){
         case ENTER:
         case DOWN:
@@ -217,51 +190,23 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         initGrid();
         
         txtSeeks01.setText("");
-        txtSeeks02.setText("");
-        txtField05.setText("");
-        txtField06.setText("");
-        txtField07.setText("");
         txtField08.setText("");
-        txtField12.setText("");
-        txtField13.setText("");
-        txtField15.setText("");
-        txtField16.setText("");
-        txtField17.setText("");
-
-        _table_data.clear();
+        txtField04.setText("");
+        txtField12.setText("0.00");
+        txtField13.setText("0.00");
+        txtField14.setText("0.00");
         
         lblTranTotal.setText("0.00");
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
         lblPayable.setText("0.00");
+
+        _table_data.clear();
         
         cmbStatus.getSelectionModel().select(0);
         _transtat = 0;
-        _trans.setTranStat(_transtat);
         
         setTranStat("-1");
-    }
-    
-    private void loadTransaction(){
-        txtField05.setText((String) _trans.getMaster("sClientNm"));
-        txtField06.setText((String) _trans.getMaster("sReferNox"));
-        txtField07.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dRefernce"), SQLUtil.FORMAT_MEDIUM_DATE));
-        txtField08.setText((String) _trans.getMaster("sTermName"));
-        txtField17.setText((String) _trans.getMaster("sRemarksx"));
-        txtField17.setText((String) _trans.getMaster("sSourceNo"));
-        
-        txtSeeks01.setText(txtField06.getText());
-        txtSeeks02.setText(txtField05.getText());
-        
-        computeSummary();
-        
-        loadDetail();
-        
-        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
-        
-        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
-        
-        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void computeSummary(){
@@ -270,19 +215,45 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
         double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
         
         txtField12.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField13.setText(StringUtil.NumberFormat(lnAddDiscx, "###0.00"));
-        txtField15.setText(StringUtil.NumberFormat(lnFreightx, "###0.00"));
+        txtField13.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        txtField14.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
     }
     
-    private void searchTransaction(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchTransaction(fsKey, foValue, fbExact);
+    private void loadTransaction(){
+        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
+        txtField08.setText((String) _trans.getMaster("sRemarksx"));
+        txtField04.setText((String) _trans.getMaster("sClientNm"));
+        
+        txtField12.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nDiscount"), "##0.00"));
+        txtField13.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAddDiscx"), "#,##0.00"));
+        txtField14.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nFreightx"), "#,##0.00"));
+        
+        computeSummary();
+        
+        loadDetail();
+        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+    }
+    
+    private void searchTransaction(){
+        _trans_search.setKey("a.sTransNox");
+        _trans_search.setValue("");
+        _trans_search.setExact(false);
+        _trans_search.addFilter("Status", cmbStatus.getSelectionModel().getSelectedIndex());
+        
+        JSONObject loJSON =  _trans_search.Search();
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -312,7 +283,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans.getSearchTransaction());
+                            instance.setSearchObject(_trans_search);
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtSeeks01);
 
@@ -339,31 +310,33 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnFreightx;
+        double lnDiscount;
+        double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
         
-        for(lnCtr = 0; lnCtr <= lnRow -1; lnCtr++){           
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnFreightx = ((Number)_trans.getDetail(lnCtr, "nFreightx")).doubleValue();
-            lnTranTotl = lnQuantity * lnUnitPrce;
+            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
+            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
-                        StringUtil.NumberFormat(lnFreightx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
-                        ""));
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        "-",
+                        String.valueOf(lnQuantity),
+                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
+                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
         }
 
         if (!_table_data.isEmpty()){
-            _table.getSelectionModel().select(_detail_row);
-            _table.getFocusModel().focus(_detail_row); 
+            _table.getSelectionModel().select(lnRow - 1);
+            _table.getFocusModel().focus(lnRow - 1); 
             _detail_row = _table.getSelectionModel().getSelectedIndex();           
         }
         
@@ -371,13 +344,13 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     }
     
     private void initListener(){        
-         _approval = new LApproval() {
+        _approval = new LApproval() {
             @Override
             public void Request() {
                 _main_screen_controller.seekApproval();
             }
         };
-         
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
@@ -391,17 +364,11 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                                 loadDetail();
                             } else {
                                 ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
-                                
-                                initGrid();
-                                initButton();
                                 clearFields();
                             }
-                        } else {                            
-                            initGrid();
-                            initButton();
-                            clearFields();
-                        }
-                            
+                        } else 
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) foValue.get("message"), "Warning", "");
+                        
                         break;
                 }
             }
@@ -422,15 +389,19 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
+        TableColumn index09 = new TableColumn("");
+        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");
-        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
+        index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -446,25 +417,33 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(200);
         
-        index04.setText("QOH"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(60);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Qty"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("Unit Price"); 
+        index06.setText("ROQ"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(80);
+        index06.prefWidthProperty().set(60);
         
-        index07.setText("Freight"); 
+        index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(80);
+        index07.prefWidthProperty().set(60);
         
-        index08.setText("Total"); 
+        index08.setText("Disc."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(85);
+        index08.prefWidthProperty().set(60);
+        
+        index09.setText("Adtl."); 
+        index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
+        index09.prefWidthProperty().set(60);
+        
+        index10.setText("Total"); 
+        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
+        index10.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -474,6 +453,8 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
+        _table.getColumns().add(index09);
+        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -486,7 +467,6 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
     @FXML
     private void cmbStatus_Click(ActionEvent event) {
         _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
-        _trans.setTranStat(_transtat);
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -494,42 +474,21 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btn01": //browse
-                searchTransaction("a.sTransNox", "", false);
+            case "btn01":
+                searchTransaction();
                 break;
-            case "btn02": //print
-                if (_trans.CloseTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                    
-                    _trans.setTranStat(1);
-                    searchTransaction("a.sTransNox", _old_trans, true);
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            case "btn02": //pay
+                payWithInvoice();
                 break;
-            case "btn03":
-                if (_trans.PostTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                    
-                    _trans.setTranStat(2);
-                    searchTransaction("a.sTransNox", _old_trans, true);
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            case "btn03": //release
+                payCharge();
                 break;
-            case "btn04": //
+            case "btn04": //cancel
                 if (_trans.CancelTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
                     initGrid();
                     clearFields();
-                    
-                    _trans.setTranStat(3);
-                    searchTransaction("a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
@@ -555,6 +514,48 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                         System.exit(0);
                 }
                 break;
+        }
+    }
+    
+    private void payCharge(){
+        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
+            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
+            PaymentChargeController instance = new PaymentChargeController();
+
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            instance.setSourceCd("WS");
+            instance.setSourceNo((String) _trans.getMaster("sTransNox"));
+
+            //close this screen
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+            //load the payment screen
+            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        }  else{
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+        }
+    }
+    
+    private void payWithInvoice(){
+        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
+                PaymentController instance = new PaymentController();
+
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd("WS");
+                instance.setSourceNo((String) _trans.getMaster("sTransNox"));
+
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+        } else{
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
         }
     }
     
@@ -616,8 +617,8 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Print");
-        btn03.setText("Confirm");
+        btn02.setText("Pay");
+        btn03.setText("Release");
         btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
@@ -642,9 +643,17 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn12.setVisible(true);
     }
     
-    private void initFields(){        
-        txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
-        txtSeeks02.setOnKeyPressed(this::txtField_KeyPressed);
+    private void initFields(){
+        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField08.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField14.setOnKeyPressed(this::txtField_KeyPressed);        
+        
+        txtField08.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
+        txtField13.focusedProperty().addListener(txtField_Focus);
+        txtField14.focusedProperty().addListener(txtField_Focus);
         
         cmbStatus.setItems(_status);
         cmbStatus.getSelectionModel().select(0);

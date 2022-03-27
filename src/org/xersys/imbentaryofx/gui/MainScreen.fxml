@@ -58,7 +58,7 @@
                                     <AnchorPane fx:id="AnchorPaneBody" BorderPane.alignment="CENTER" />
                                  </center>
                                  <right>
-                                    <AnchorPane fx:id="AnchorPaneMonitor" prefWidth="300.0" BorderPane.alignment="CENTER" />
+                                    <AnchorPane fx:id="AnchorPaneMonitor" BorderPane.alignment="CENTER" />
                                  </right>
                               </BorderPane>
                            </children>

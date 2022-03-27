@@ -830,8 +830,12 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 
                 switch (loArray.size()){
                     case 1: //one record found
-                        txtSeeks02.setText((String) loJSON.get("sDescript"));
-                        FXUtil.SetNextFocus(txtSeeks02);
+                        loJSON = (JSONObject) loArray.get(0);
+                        
+                        _trans.setParts(_trans.getPartsCount()- 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                        loadParts();
+                        
+                        txtSeeks02.requestFocus();
                         break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);

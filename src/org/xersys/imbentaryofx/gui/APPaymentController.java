@@ -583,7 +583,7 @@ public class APPaymentController implements Initializable, ControlledScreen {
                 switch (loArray.size()){
                     case 1: //one record found
                         loJSON = (JSONObject) loArray.get(0);
-                        _trans.setMaster("sSupplier", (String) loJSON.get("sClientID"));
+                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
                         FXUtil.SetNextFocus(txtField03);
                         break;
                     default: //multiple records found

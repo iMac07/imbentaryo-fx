@@ -233,6 +233,7 @@ public class MainScreenController implements Initializable {
         try {
             SeekApproval loSeek = new SeekApproval();
             
+            System.setProperty("sUserIDxx", "");
             System.setProperty("sUserName", "");
             System.setProperty("sPassword", "");
         
@@ -267,24 +268,28 @@ public class MainScreenController implements Initializable {
         }
     }
     
+    private void loadDashboard(){
+        //load the dashboard
+        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
+        if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));          
+    }
+    
     private void initScreen(){
         _screens_controller.clear();
+        _screens_dashboard_controller.clear();
         
         showTime();
         if (_logged){
             lblUser.setText((String) _nautilus.getUserInfo("xClientNm"));
             
             loadScreen(ScreenInfo.NAME.SP_SALES);
+            loadDashboard();
         } else{
             lblUser.setText("Not Logged In");
             
             loadScreen(ScreenInfo.NAME.BACKGROUND);
         }
         
-        //load the dashboard
-        JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.DASHBOARD);
-        if (loJSON != null) _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller")));          
-                    
         //set screens that will not trigger on window tabs
         _no_tab_screen = "";
         _no_tab_screen += "POSDetail";
@@ -495,25 +500,38 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.PURCHASE_ORDER); break;
             case "point-of-sales":
                 loadScreen(ScreenInfo.NAME.SP_SALES); break;
+            case "whole sale":
+                loadScreen(ScreenInfo.NAME.SP_WHOLESALE); break;
             case "mc repair":
                 loadScreen(ScreenInfo.NAME.JOB_ORDER); break;
             case "stocks":
                 loadScreen(ScreenInfo.NAME.SP_INV_MASTER); break;
+            case "inv. request":
+                loadScreen(ScreenInfo.NAME.INV_REQUEST); break;
+            case "inv. transfer":
+                loadScreen(ScreenInfo.NAME.INV_TRANSFER); break;
             case "pay/release sale":
                 loadScreen(ScreenInfo.NAME.CASHIERING); break;
             case "reports":
-                loadScreen(ScreenInfo.NAME.REPORTS); break;
+                loadScreen(ScreenInfo.NAME.REPORTS); 
+                return;
             case "clients":
                 loadScreen(ScreenInfo.NAME.CLIENT_MASTER); break;
             case "payments":
                 loadScreen(ScreenInfo.NAME.AP_PAYMENT); break;
+            case "mc serial":
+                loadScreen(ScreenInfo.NAME.MC_SERIAL); break;
             case "login":
-                loadScreen(ScreenInfo.NAME.LOGIN); break;
+                loadScreen(ScreenInfo.NAME.LOGIN);
+                return;
             case "logout & exit":
             case "exit":
                 if (ShowMessageFX.YesNo(getStage(), "Do you want to exit the application?", "Please confirm", ""))
                     System.exit(0);
+                else return;
         }
+        
+        loadDashboard();
     }
     
     public Stage getStage(){
@@ -553,10 +571,20 @@ public class MainScreenController implements Initializable {
                     System.err.println("Request rejected.");
                 } else {
                     if (_control_pressed){
-                        if (_shift_pressed)
+                        if (_shift_pressed){
+                            if (_screens_controller.getCurrentScreenIndex() != 0){
+                                Node loPrev = _screens_controller.getScreen(_screens_controller.getCurrentScreenIndex()-1);
+                                if (loPrev.getId().equalsIgnoreCase("reports")) AnchorPaneMonitor.getChildren().clear();
+                            }
                             _screens_controller.prevScreen();
-                        else
+                        } else{
+                            if (_screens_controller.getCurrentScreenIndex() != _screens_controller.getScreenCount() - 1){
+                                Node loFrwrd = _screens_controller.getScreen(_screens_controller.getCurrentScreenIndex() + 1);
+                                if (loFrwrd.getId().equalsIgnoreCase("reports")) AnchorPaneMonitor.getChildren().clear();
+                            }
                             _screens_controller.fwrdScreen();
+                        }
+                            
                     } 
                 }
                 break;

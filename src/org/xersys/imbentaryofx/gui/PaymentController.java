@@ -137,10 +137,14 @@ public class PaymentController implements Initializable, ControlledScreen {
             System.exit(1);
         }
         
-        if (_source_code.equals("SO"))
-            _trans = new PaymentFactory().make(InvoiceType.SALES_INVOICE, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
-        else
-            _trans = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
+        switch (_source_code){
+            case "SO":
+            case "WS":
+                _trans = new PaymentFactory().make(InvoiceType.SALES_INVOICE, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
+                break;
+            default:
+                _trans = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
+        }
         
         _trans.setListener(_listener);
         _trans.setSourceCd(_source_code);
@@ -307,13 +311,10 @@ public class PaymentController implements Initializable, ControlledScreen {
         lblNetPayable.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nTranTotl"), "#,##0.00"));
         lblTotalPayment.setText("0.00");
         
-        txtField05.setText("");
-        txtAddress.setText("");
-        txtTIN.setText("");
-        
         txtField04.setText("");
         txtField12.setText("0.00");
         
+        txtField05.setDisable(!txtField05.getText().isEmpty());
         txtField04.requestFocus();
     }
     

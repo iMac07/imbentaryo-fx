@@ -1,16 +1,24 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
@@ -22,15 +30,25 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.SQLUtil;
+import org.xersys.reports.ReportMaster;
 
 public class ReportsController implements Initializable, ControlledScreen{
-
     @FXML
     private AnchorPane AnchorMain;
     @FXML
     private AnchorPane ReportPane;
-
-    private JasperPrint jasperPrint;
+    @FXML
+    private AnchorPane AnchorCriteria;
+    @FXML
+    private ComboBox cmbReport;
+    
+    private ReportMaster _trans;
+    private JasperPrint _jprint;
+    @FXML
+    private Button btn01;
+    @FXML
+    private Button btn02;
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -40,9 +58,34 @@ public class ReportsController implements Initializable, ControlledScreen{
         AnchorMain.setLeftAnchor(AnchorMain, 0.0);
         AnchorMain.setRightAnchor(AnchorMain, 0.0); 
         
+        _main_screen_controller.AnchorPaneMonitor.getChildren().clear();
+        
+        if (_nautilus  == null) {
+            System.err.println("Application driver is not set.");
+            System.exit(1);
+        }
+        
+        _trans = new ReportMaster(_nautilus);
+        
+        if (_trans.LoadReports()){
+            ArrayList<String> loList = new ArrayList<>();
+            
+            int lnRow = _trans.getItemCount();
+            
+            for (int lnCtr = 0; lnCtr<=lnRow-1; lnCtr++){
+                loList.add((String) _trans.getMaster(lnCtr, "sReportNm"));
+            }
+            
+            ObservableList<String> list = FXCollections.observableArrayList(loList);
+            cmbReport.setItems(list);
+            cmbReport.getSelectionModel().select(0);
+        }
+        
+        loadCriteria();
+        
         //loadInventory();
-        loadPayables();
-        //loadFastMovingAccount();
+        //loadPayables();
+        loadFastMovingAccount();
         //loadPurchaseVSSales();
     }    
 
@@ -96,11 +139,11 @@ public class ReportsController implements Initializable, ControlledScreen{
         params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
         
         try {
-            jasperPrint = JasperFillManager.fillReport(lsReport,
+            _jprint = JasperFillManager.fillReport(lsReport,
                                                         params, 
                                                         jrRS);
             
-            if (jasperPrint != null) showReport();
+            if (_jprint != null) showReport();
         } catch (JRException e) {
             e.printStackTrace();
         }
@@ -184,11 +227,11 @@ public class ReportsController implements Initializable, ControlledScreen{
             InputStream stream = new ByteArrayInputStream(loArray.toJSONString().getBytes("UTF-8"));
             JsonDataSource jrjson = new JsonDataSource(stream); 
             
-            jasperPrint = JasperFillManager.fillReport(lsReport,
+            _jprint = JasperFillManager.fillReport(lsReport,
                                                         params, 
                                                         jrjson);
             
-            if (jasperPrint != null) showReport();
+            if (_jprint != null) showReport();
         } catch (JRException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException ex) {
@@ -239,11 +282,11 @@ public class ReportsController implements Initializable, ControlledScreen{
             InputStream stream = new ByteArrayInputStream(loArray.toJSONString().getBytes("UTF-8"));
             JsonDataSource jrjson = new JsonDataSource(stream); 
             
-            jasperPrint = JasperFillManager.fillReport(lsReport,
+            _jprint = JasperFillManager.fillReport(lsReport,
                                                         params, 
                                                         jrjson);
             
-            if (jasperPrint != null) showReport();
+            if (_jprint != null) showReport();
         } catch (JRException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException ex) {
@@ -310,11 +353,11 @@ public class ReportsController implements Initializable, ControlledScreen{
         params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
         
         try {
-            jasperPrint = JasperFillManager.fillReport(lsReport,
+            _jprint = JasperFillManager.fillReport(lsReport,
                                                         params, 
                                                         jrRS);
             
-            if (jasperPrint != null) showReport();
+            if (_jprint != null) showReport();
         } catch (JRException e) {
             e.printStackTrace();
         }
@@ -324,7 +367,7 @@ public class ReportsController implements Initializable, ControlledScreen{
     
     private void showReport(){
         SwingNode swingNode = new SwingNode();
-        JRViewer jrViewer =  new JRViewer(jasperPrint);
+        JRViewer jrViewer =  new JRViewer(_jprint);
         jrViewer.setOpaque(true);
         jrViewer.setVisible(true);
         jrViewer.setFitPageZoomRatio();
@@ -335,6 +378,22 @@ public class ReportsController implements Initializable, ControlledScreen{
         ReportPane.setLeftAnchor(swingNode,0.0);
         ReportPane.setRightAnchor(swingNode,0.0);
         ReportPane.getChildren().add(swingNode);
+    }
+    
+    private void loadCriteria(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("ReportCriteriaDate.fxml"));
+
+            ReportCriteriaDateController loCriteria = new ReportCriteriaDateController();
+            fxmlLoader.setController(loCriteria);
+
+            Parent loadScreen = (Parent) fxmlLoader.load();
+
+            AnchorCriteria.getChildren().add(loadScreen);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     XNautilus _nautilus;

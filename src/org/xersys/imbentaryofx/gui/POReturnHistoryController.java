@@ -26,6 +26,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -42,6 +43,8 @@ public class POReturnHistoryController implements Initializable, ControlledScree
     private XNautilus _nautilus;
     private POReturn _trans;
     private LMasDetTrans _listener;
+    private LApproval _approval;
+    
     private FormClosingCallback _close_listener;
     
     private int _transtat;
@@ -139,6 +142,7 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         _trans = new POReturn(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
+        _trans.setApprvListener(_approval);
         
         clearFields();
         initButton();
@@ -501,6 +505,13 @@ public class POReturnHistoryController implements Initializable, ControlledScree
     }
     
     private void initListener(){
+         _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {

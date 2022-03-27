@@ -27,6 +27,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -41,6 +42,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
     private XNautilus _nautilus;
     private PurchaseOrder _trans;
     private LMasDetTrans _listener;
+    private LApproval _approval;
     
     private int _transtat;
     
@@ -132,6 +134,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
+        _trans.setApprvListener(_approval);
 
         clearFields();
         initButton();
@@ -166,6 +169,15 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         
         if (event.getCode() == KeyCode.ENTER){
             switch(lsTxt){
+                case "txtSeeks01":
+                    searchTransaction("a.sReferNox", lsValue, false);
+                    break;
+                case "txtSeeks02":
+                    searchTransaction("IFNULL(b.sClientNm, '')", lsValue, false);
+                    break;
+            }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
                 case "txtSeeks01":
                     searchTransaction("a.sReferNox", lsValue, false);
                     break;
@@ -322,6 +334,13 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
     }
     
     private void initListener(){        
+        _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
@@ -339,6 +358,7 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                                 _trans = new PurchaseOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
                                 _trans.setSaveToDisk(false);
                                 _trans.setListener(_listener);
+                                _trans.setApprvListener(_approval);
                                 
                                 initGrid();
                                 initButton();
@@ -440,6 +460,8 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
+                    //print the transaction here
+                    
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
                     
                     initGrid();
@@ -627,7 +649,6 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
         } else{ //Got Focus
             _index = lnIndex;
             txtField.selectAll();
-        }
-        
+        }       
     };    
 }
