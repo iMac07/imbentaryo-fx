@@ -1029,7 +1029,19 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 break;
             case "btn07":
                 break;
-            case "btn08":
+            case "btn08": //catalogue
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
+
+                if (loJSON != null){
+                    PartsCatalogueController instance = new PartsCatalogueController();
+                    instance.setNautilus(_nautilus);
+                    instance.setParentController(_main_screen_controller);
+                    instance.setScreensController(_screens_controller);
+                    instance.setDashboardScreensController(_screens_dashboard_controller);
+                    instance.setFormCloseListener(_close_listener);
+
+                    _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                }
                 break;
             case "btn09": //load job estimate
                 searchEstimate(txtSeeks03, "a.sTransNox", "", false);
@@ -1396,7 +1408,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn05.setText("End");
         btn06.setText("Save");
         btn07.setText("");
-        btn08.setText("");
+        btn08.setText("Catalogue");
         btn09.setText("Load Est");
         btn10.setText("Estimate");
         btn11.setText("History");
@@ -1409,7 +1421,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn05.setVisible(true);
         btn06.setVisible(true);
         btn07.setVisible(false);
-        btn08.setVisible(false);
+        btn08.setVisible(true);
         btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);

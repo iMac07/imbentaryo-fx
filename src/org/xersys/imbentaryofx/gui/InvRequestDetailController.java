@@ -28,12 +28,9 @@ public class InvRequestDetailController implements Initializable, ControlledScre
     private int _row;
     private String _part_number;
     private String _description;
+    private int _on_hand;
     private int _roq;
     private int _order;
-    private int _on_hand;
-    private double _srp;
-    private double _discount;
-    private double _additional;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -73,15 +70,6 @@ public class InvRequestDetailController implements Initializable, ControlledScre
     private TextField txtDetail04;
     @FXML
     private TextField txtDetail05;
-    @FXML
-    private TextField txtDetail06;
-    @FXML
-    private TextField txtDetail07;
-    @FXML
-    private TextField txtDetail08;
-    private Label lblTotal;
-    @FXML
-    private TextField txtDetail09;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -141,18 +129,6 @@ public class InvRequestDetailController implements Initializable, ControlledScre
     
     public void setOtherInfo(int fnValue){
         _roq = fnValue;
-    }
-    
-    public void setSellingPrice(double fnValue){
-        _srp = fnValue;
-    }
-    
-    public void setDiscount(double fnValue){
-        _discount = fnValue;
-    }
-    
-    public void setAdditional(double fnValue){
-        _additional = fnValue;
     }
     
     private void initButton(){
@@ -216,27 +192,17 @@ public class InvRequestDetailController implements Initializable, ControlledScre
         txtDetail03.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail04.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail05.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail07.setOnKeyPressed(this::txtField_KeyPressed);
-        txtDetail08.setOnKeyPressed(this::txtField_KeyPressed);
         
-        txtDetail06.focusedProperty().addListener(txtField_Focus);
-        txtDetail07.focusedProperty().addListener(txtField_Focus);
-        txtDetail08.focusedProperty().addListener(txtField_Focus);
+        txtDetail05.focusedProperty().addListener(txtField_Focus);
                 
         txtDetail01.setText(_part_number);
         txtDetail02.setText(_description);
-        txtDetail03.setText(String.valueOf(_roq));
-        txtDetail04.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
-        txtDetail05.setText(String.valueOf(_on_hand));
-        txtDetail06.setText(String.valueOf(_order));
-        txtDetail07.setText(StringUtil.NumberFormat(_discount, "##0.00"));
-        txtDetail08.setText(StringUtil.NumberFormat(_additional, "##0.00"));
+        txtDetail03.setText(String.valueOf(_on_hand));
+        txtDetail04.setText(String.valueOf(_roq));
+        txtDetail05.setText(String.valueOf(_order));
         
-        computeTotal();
-        
-        txtDetail06.requestFocus();
-        txtDetail06.selectAll();
+        txtDetail05.requestFocus();
+        txtDetail05.selectAll();
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -283,8 +249,6 @@ public class InvRequestDetailController implements Initializable, ControlledScre
         
         //load the data
         _callback.Result(_row, "nQuantity", _order);
-        _callback.Result(_row, "nDiscount", _discount);
-        _callback.Result(_row, "nAddDiscx", _additional);
         
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         _callback.FormClosing();
@@ -297,21 +261,15 @@ public class InvRequestDetailController implements Initializable, ControlledScre
         _callback.FormClosing();
     }
     
-    private void computeTotal(){        
-        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - _additional;
-        
-        lblTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
-    }
-    
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
         
         switch (event.getCode()){
         case ENTER:
         case DOWN:
-            if (txtField.getId().equals("txtDetail08")){
-                txtDetail06.selectAll();
-                txtDetail06.requestFocus();
+            if (txtField.getId().equals("txtDetail05")){
+                txtDetail05.selectAll();
+                txtDetail05.requestFocus();
                 event.consume();
                 return;
             }
@@ -334,47 +292,17 @@ public class InvRequestDetailController implements Initializable, ControlledScre
         
         if(!nv){
             switch (lnIndex){
-                case 6:
+                case 5:
                     if (StringUtil.isNumeric(lsValue))                    
                         txtField.setText(lsValue);                    
                     else{
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
                         txtField.setText("0");
                     } 
-                        
-                    
+
                     _order = Integer.parseInt(txtField.getText());
                     break;
-                case 7:
-                    if (StringUtil.isNumeric(lsValue)){
-                        double lnValue = Double.valueOf(lsValue);
-                        
-                        if (lnValue > 100)
-                            txtField.setText("100.00");
-                        else
-                            txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));
-                    } else {
-                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
-                        txtField.setText("0.00");
-                    }
-                        
-                    _discount = Double.valueOf(txtField.getText());
-                    break;
-                case 8:
-                    if (StringUtil.isNumeric(lsValue)){
-                        double lnValue = Double.valueOf(lsValue);
-                        
-                        txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));                            
-                    } else {
-                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
-                        txtField.setText("0.00");
-                    }
-                        
-                    _additional = Double.valueOf(txtField.getText());
-                    break;
             }
-            
-            computeTotal();
         }
     };
 }

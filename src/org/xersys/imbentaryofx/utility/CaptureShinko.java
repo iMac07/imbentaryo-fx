@@ -16,9 +16,9 @@ import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
-public class CaptureHJC {
+public class CaptureShinko {
     public static void main(String [] args){
-        final String BRANDCODE = "HJC";
+        final String BRANDCODE = "SHINKO";
         final String PRODUCTID = "Daedalus";
         
         //get database property
@@ -52,7 +52,7 @@ public class CaptureHJC {
         
         
         try  {  
-            File file = new File("F:\\xurpas\\Book1.xlsx");   //creating a new file instance  
+            File file = new File("F:\\xurpas\\Shinko.xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -71,7 +71,6 @@ public class CaptureHJC {
                     int lnCtr = 0;
                     String lsValue;
                     String lsDescript = "";
-                    String lsSizeName = "";
                     String lsBarCodex = "";
                     String lsStockIDx = "";
                     double lnUnitPrce = 0.00;
@@ -86,13 +85,7 @@ public class CaptureHJC {
                                 lsDescript = cell.getStringCellValue().trim();
                                 break;
                             case 1:
-                                lsSizeName = cell.getStringCellValue().trim();
-                                break;
-                            case 2:
                                 lnSelPrice = cell.getNumericCellValue();
-                                break;
-                            case 3:
-                                lnQtyOnHnd = (int) cell.getNumericCellValue();
                                 break;
                         }
                         lnCtr ++;
@@ -101,7 +94,6 @@ public class CaptureHJC {
                     lnUnitPrce = 0.00;
                     lsStockIDx = MiscUtil.getNextCode("Inventory", "sStockIDx", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));
                     lsBarCodex = MiscUtil.getNextCode("Inventory", "sBarCodex", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));
-                    lsDescript = lsDescript + " (" + lsSizeName + ")";
                     
                     lsValue = "SELECT" +
                                     " sStockIDx" +
@@ -149,41 +141,41 @@ public class CaptureHJC {
                         loNautilus.rollbackTrans();
                         System.exit(1);
                     }
-                    
-                    lsValue = "INSERT INTO Inv_Master SET" +
-                                    "  sStockIDx = " + SQLUtil.toSQL(lsStockIDx) +
-                                    ", sBranchCd = " + SQLUtil.toSQL((String) loNautilus.getBranchConfig("sBranchCd")) +
-                                    ", sLocatnCd = ''" + 
-                                    ", nBinNumbr = 0" + 
-                                    ", dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-                                    ", nBegQtyxx = " + lnQtyOnHnd +
-                                    ", nQtyOnHnd = " + lnQtyOnHnd +
-                                    ", nMinLevel = 0" + 
-                                    ", nMaxLevel = 0" + 
-                                    ", nAvgMonSl = 0.00" + 
-                                    ", nAvgCostx = 0.00" + 
-                                    ", cClassify = 'F'" + 
-                                    ", nBackOrdr = 0" + 
-                                    ", nResvOrdr = 0" + 
-                                    ", nFloatQty = 0" + 
-                                    ", cRecdStat = '1'" + 
-                                    ", dDeactive = NULL" + 
-                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
-                                " ON DUPLICATE KEY UPDATE" +
-                                    "  dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-                                    ", nBegQtyxx = " + lnQtyOnHnd +
-                                    ", nQtyOnHnd = " + lnQtyOnHnd +
-                                    ", cRecdStat = '1'" + 
-                                    ", dDeactive = NULL" + 
-                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate());
-                    
-                    if (loNautilus.executeUpdate(lsValue) <= 0) {
-                        System.err.println(loNautilus.getMessage());
-                        loNautilus.rollbackTrans();
-                        System.exit(1);
-                    }
+//                    
+//                    lsValue = "INSERT INTO Inv_Master SET" +
+//                                    "  sStockIDx = " + SQLUtil.toSQL(lsStockIDx) +
+//                                    ", sBranchCd = " + SQLUtil.toSQL((String) loNautilus.getBranchConfig("sBranchCd")) +
+//                                    ", sLocatnCd = ''" + 
+//                                    ", nBinNumbr = 0" + 
+//                                    ", dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
+//                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
+//                                    ", nBegQtyxx = " + lnQtyOnHnd +
+//                                    ", nQtyOnHnd = " + lnQtyOnHnd +
+//                                    ", nMinLevel = 0" + 
+//                                    ", nMaxLevel = 0" + 
+//                                    ", nAvgMonSl = 0.00" + 
+//                                    ", nAvgCostx = 0.00" + 
+//                                    ", cClassify = 'F'" + 
+//                                    ", nBackOrdr = 0" + 
+//                                    ", nResvOrdr = 0" + 
+//                                    ", nFloatQty = 0" + 
+//                                    ", cRecdStat = '1'" + 
+//                                    ", dDeactive = NULL" + 
+//                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
+//                                " ON DUPLICATE KEY UPDATE" +
+//                                    "  dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
+//                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
+//                                    ", nBegQtyxx = " + lnQtyOnHnd +
+//                                    ", nQtyOnHnd = " + lnQtyOnHnd +
+//                                    ", cRecdStat = '1'" + 
+//                                    ", dDeactive = NULL" + 
+//                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate());
+//                    
+//                    if (loNautilus.executeUpdate(lsValue) <= 0) {
+//                        System.err.println(loNautilus.getMessage());
+//                        loNautilus.rollbackTrans();
+//                        System.exit(1);
+//                    }
                 }
                 
                 lnRow++;

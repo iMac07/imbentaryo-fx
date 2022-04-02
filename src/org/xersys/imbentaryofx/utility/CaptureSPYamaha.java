@@ -97,10 +97,10 @@ public class CaptureSPYamaha {
                                 lsDescript = cell.getStringCellValue().trim();
                                 break;                            
                             case 4:
-                                lnUnitPrce = cell.getNumericCellValue();
+                                lnSelPrice = cell.getNumericCellValue();
                                 break;
                             case 5:
-                                lnSelPrice = cell.getNumericCellValue();
+                                lnUnitPrce = cell.getNumericCellValue();
                                 break;
 //                            case 6:
 //                                lsAltBarCd = cell.getStringCellValue().trim();

@@ -948,7 +948,19 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09":
+            case "btn09": //catalogue
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
+
+                if (loJSON != null){
+                    PartsCatalogueController instance = new PartsCatalogueController();
+                    instance.setNautilus(_nautilus);
+                    instance.setParentController(_main_screen_controller);
+                    instance.setScreensController(_screens_controller);
+                    instance.setDashboardScreensController(_screens_dashboard_controller);
+                    instance.setFormCloseListener(_close_listener);
+
+                    _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                }
                 break;
             case "btn10": //job order
                 loadScreen(ScreenInfo.NAME.JOB_ORDER);
@@ -1260,7 +1272,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("");
+        btn09.setText("Catalogue");
         btn10.setText("Job Order");
         btn11.setText("History");
         btn12.setText("Close");
@@ -1273,7 +1285,7 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
-        btn09.setVisible(false);
+        btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);

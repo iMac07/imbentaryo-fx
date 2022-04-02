@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -41,14 +42,13 @@ public class ReportsController implements Initializable, ControlledScreen{
     private AnchorPane AnchorCriteria;
     @FXML
     private ComboBox cmbReport;
-    
-    private ReportMaster _trans;
-    private JasperPrint _jprint;
     @FXML
     private Button btn01;
     @FXML
     private Button btn02;
     
+    private ReportMaster _trans;
+    private JasperPrint _jprint;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -64,6 +64,9 @@ public class ReportsController implements Initializable, ControlledScreen{
             System.err.println("Application driver is not set.");
             System.exit(1);
         }
+        
+        btn01.setOnAction(this::cmdButton_Click);
+        btn02.setOnAction(this::cmdButton_Click);
         
         _trans = new ReportMaster(_nautilus);
         
@@ -109,8 +112,26 @@ public class ReportsController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
+    private void cmdButton_Click(ActionEvent event) {
+        String lsButton = ((Button) event.getSource()).getId();
+        System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
+        
+        switch (lsButton){
+            case "btn01": //load
+                break;
+            case "btn02": //cloase
+                if (_screens_controller.getScreenCount() > 1)
+                    _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                else{
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
+                        System.exit(0);
+                }
+                break;
+        }
+    }
+    
     private boolean loadInventory(){
-        String lsReport = "D:/icarus/reports/Stocks.jasper";
+        String lsReport = "c:/icarus/reports/Stocks.jasper";
         String lsSQL = "SELECT" +
                             "  b.sStockIDx sField00" +
                             ", b.sBarCodex sField01" +
@@ -152,7 +173,7 @@ public class ReportsController implements Initializable, ControlledScreen{
     }
     
     private boolean loadFastMovingAccount(){
-        String lsReport = "D:/icarus/reports/FastMoving.jasper";
+        String lsReport = "c:/icarus/reports/FastMoving.jasper";
         
         JSONArray loArray = new JSONArray();
         JSONObject loJSON = new JSONObject(); 
@@ -242,7 +263,7 @@ public class ReportsController implements Initializable, ControlledScreen{
     }
     
     private boolean loadPurchaseVSSales(){
-        String lsReport = "D:/icarus/reports/PurchaseSales.jasper";
+        String lsReport = "c:/icarus/reports/PurchaseSales.jasper";
         
         JSONArray loArray = new JSONArray();
         JSONObject loJSON = new JSONObject(); 
@@ -297,7 +318,7 @@ public class ReportsController implements Initializable, ControlledScreen{
     }
     
     private boolean loadPayables(){
-        String lsReport = "D:/icarus/reports/MaturingPayables.jasper";
+        String lsReport = "c:/icarus/reports/MaturingPayables.jasper";
         
         String lsSQL = "SELECT" + 
                             "  d.sCompnyNm sField01" +

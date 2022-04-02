@@ -39,6 +39,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
     private LRecordMas _listener;
     
     private Inventory _trans;
+    private String _transno;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -264,6 +265,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         chkSerialized.setSelected(false);
         chkPromo.setSelected(false);
         chkActive.setSelected(false);
+        
+        _transno = "";
     }
     
     private void loadRecord(){
@@ -297,6 +300,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
             
             lnValue = Integer.parseInt((String) _trans.getMaster("cRecdStat"));
             chkActive.setSelected(lnValue == 1);
+            
+            _transno = (String) _trans.getMaster("sStockIDx");
         } catch (NumberFormatException ex) {
             ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             ex.printStackTrace();
@@ -353,12 +358,17 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn04": //save                
                 if (_trans.SaveRecord()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Record saved successfully.", "Success", "");
                     
                     _loaded = false;
 
                     initButton();
-                    clearFields();
+                    
+                    if (_trans.OpenRecord(_transno)){
+                        loadRecord();
+
+                        if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
+                    } else clearFields();
 
                    _loaded = true;
                 } else 
@@ -372,9 +382,41 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn08":
                 break;
-            case "btn09":
+            case "btn09": //deactivate
+                if (_trans.DeactivateRecord((String) _trans.getMaster("sStockIDx"))){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Record deactivated successfully.", "Success", "");
+                    
+                    _loaded = false;
+
+                    initButton();
+                    if (_trans.OpenRecord(_transno)){
+                        loadRecord();
+
+                        if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
+                    } else clearFields();
+
+                   _loaded = true;
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
                 break;
-            case "btn10":
+            case "btn10": //activate
+                if (_trans.ActivateRecord((String) _trans.getMaster("sStockIDx"))){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Record activated successfully.", "Success", "");
+                    
+                    _loaded = false;
+
+                    initButton();
+                    if (_trans.OpenRecord(_transno)){
+                        loadRecord();
+
+                        if (_trans.getInvMaster().getEditMode() == EditMode.READY) loadMaster();
+                    } else clearFields();
+
+                   _loaded = true;
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
                 break;
             case "btn11": //update
                 if (_trans.UpdateRecord()) {
@@ -543,15 +585,15 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("New");
-        btn02.setText("Clear");
+        btn02.setText("Cancel");
         btn03.setText("Search");
         btn04.setText("Save");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("");
-        btn10.setText("");
+        btn09.setText("Deactivate");
+        btn10.setText("Activate");
         btn11.setText("Update");
         btn12.setText("Close");              
         
@@ -563,8 +605,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
-        btn09.setVisible(false);
-        btn10.setVisible(false);
+        btn09.setVisible(true);
+        btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
@@ -574,6 +616,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn09.setVisible(!lbShow);
+        btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
         
         txtSeeks01.setDisable(lnEditMode == EditMode.ADDNEW);
@@ -623,11 +667,11 @@ public class SPMasterController implements Initializable, ControlledScreen{
     private void disableInvMasterFields(){
         int lnEditMode = _trans.getInvMaster().getEditMode();
         
-        txtField103.setDisable(true);
+        txtField103.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField104.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField105.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField106.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField107.setDisable(lnEditMode != EditMode.ADDNEW);
+//        txtField105.setDisable(lnEditMode != EditMode.ADDNEW);
+//        txtField106.setDisable(lnEditMode != EditMode.ADDNEW);
+//        txtField107.setDisable(lnEditMode != EditMode.ADDNEW);
         
         chkActive1.setDisable(true);
         
