@@ -16,6 +16,7 @@ public class ScreenInfo {
         POS,
         POS_HISTORY,
         CUSTOMER_ORDER,
+        CUSTOMER_ORDER_HISTORY,
         DASHBOARD,
         CART, 
         QUICK_SEARCH,
@@ -46,6 +47,7 @@ public class ScreenInfo {
         JOB_ESTIMATE_HISTORY,
         JOB_ORDER_HISTORY,
         AP_PAYMENT,
+        AR_PAYMENT,
         REPORTS,
         REPORT_CRITERIA,
         BACKGROUND,
@@ -54,9 +56,15 @@ public class ScreenInfo {
         SP_WHOLESALE_HISTORY,
         MC_SERIAL,
         INV_REQUEST,
+        INV_REQUEST_DETAIL,
         INV_REQUEST_HISTORY,
         INV_TRANSFER,
-        INV_TRANSFER_HISTORY
+        INV_TRANSFER_DETAIL,
+        INV_TRANSFER_HISTORY,
+        INV_ADJUSTMENT,
+        INV_ADJUSTMENT_DETAIL,
+        INV_ADJUSTMENT_HISTORY,
+        USER_MANAGER
     }
     
     public static JSONObject get(NAME foModule){
@@ -84,8 +92,12 @@ public class ScreenInfo {
                 loJSON.put("controller", CONTROLLER_URL + "POSController");
                 return loJSON;
             case CUSTOMER_ORDER:
-                loJSON.put("resource", RESOURCE_URL + "CustomerOrder.fxml");
-                loJSON.put("controller", CONTROLLER_URL + "CustomerOrderController");
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrder.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderController");
+                return loJSON;
+            case CUSTOMER_ORDER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderHistoryController");
                 return loJSON;
             case DASHBOARD:
                 loJSON.put("resource", RESOURCE_URL + "Dashboard.fxml");
@@ -219,6 +231,10 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "APPayment.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "APPaymentController");
                 return loJSON;    
+            case AR_PAYMENT:
+                loJSON.put("resource", RESOURCE_URL + "ARPayment.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ARPaymentController");
+                return loJSON;    
             case REPORTS:
                 loJSON.put("resource", RESOURCE_URL + "Reports.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ReportsController");
@@ -262,6 +278,30 @@ public class ScreenInfo {
             case INV_TRANSFER_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "InvTransferHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "InvTransferHistoryController");
+                return loJSON;
+            case INV_ADJUSTMENT:
+                loJSON.put("resource", RESOURCE_URL + "InvAdjustment.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvAdjustmentController");
+                return loJSON;
+            case INV_ADJUSTMENT_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "InvAdjustmentHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvAdjustmentHistoryController");
+                return loJSON;
+            case INV_ADJUSTMENT_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "InvAdjustmentDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvAdjustmentDetailController");
+                return loJSON;
+            case INV_REQUEST_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "InvRequestDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvRequestDetailController");
+                return loJSON;
+            case INV_TRANSFER_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "InvTransferDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvTransferDetailController");
+                return loJSON;
+            case USER_MANAGER:
+                loJSON.put("resource", RESOURCE_URL + "UserManager.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "UserManagerController");
                 return loJSON;
         }
         

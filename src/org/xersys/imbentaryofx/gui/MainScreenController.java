@@ -176,6 +176,12 @@ public class MainScreenController implements Initializable {
     private Label lblOther20;
     @FXML
     private ImageView imgOther20;
+    @FXML
+    private AnchorPane btnOther21;
+    @FXML
+    private Label lblOther21;
+    @FXML
+    private ImageView imgOther21;
     
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
@@ -305,6 +311,9 @@ public class MainScreenController implements Initializable {
         _no_tab_screen += "Payment";
         _no_tab_screen += "Login";
         _no_tab_screen += "Background";
+        _no_tab_screen += "InvAdjustmentDetail";
+        _no_tab_screen += "InvRequestDetail";
+        _no_tab_screen += "InvTransferDetail";
     }
     
     private void initMenu(){        
@@ -328,6 +337,7 @@ public class MainScreenController implements Initializable {
         btn.put("btnOther18", btnOther18); lbl.put("lblOther18", lblOther18); img.put("imgOther18", imgOther18);
         btn.put("btnOther19", btnOther19); lbl.put("lblOther19", lblOther19); img.put("imgOther19", imgOther19);
         btn.put("btnOther20", btnOther20); lbl.put("lblOther20", lblOther20); img.put("imgOther20", imgOther20);
+        btn.put("btnOther21", btnOther21); lbl.put("lblOther21", lblOther21); img.put("imgOther21", imgOther21);
         
         AnchorPane button;
         Label label;
@@ -336,7 +346,7 @@ public class MainScreenController implements Initializable {
         int lnCtr;
         String lsCtr;
         
-        for (lnCtr = 1; lnCtr <= 20; lnCtr++){
+        for (lnCtr = 1; lnCtr <= 21; lnCtr++){
             lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
             
             button = btn.get("btnOther" + lsCtr);
@@ -354,109 +364,49 @@ public class MainScreenController implements Initializable {
                             ", nObjAcces" +
                             ", nOrderNox" +
                         " FROM xxxSysModule" +
-                        " WHERE sMnModule IS NULL" +
+                        " WHERE sMnModule IS NOT NULL" +
                             " AND cRecdStat = '1'" +
                         " ORDER BY nOrderNox";
         
-            loRS = _nautilus.executeQuery(MiscUtil.addCondition(lsMod, "sModuleID <> '020'"));
+            loRS = _nautilus.executeQuery(lsMod);
             
             String lsSQL;
+            boolean lbShow;
             lnCtr = 0;
             
             while (loRS.next()){
-                //validate user access
-                if (((int) _nautilus.getUserInfo("nObjAcces") & loRS.getInt("nObjAcces")) != 0){
-                    lsSQL = "SELECT" +
-                                "  sModuleID" +
-                                ", sBriefDsc" +
-                                ", sDescript" +
-                                ", nOrderNox" +
-                                ", sImgePath" +
-                            " FROM xxxSysModule" +
-                            " WHERE sMnModule = " + SQLUtil.toSQL(loRS.getString("sModuleID")) +
-                                " AND cRecdStat = '1'" +
-                            " ORDER BY nOrderNox";
-
-                    loRSx = _nautilus.executeQuery(lsSQL); 
-
-                    while (loRSx.next()){
-                        lnCtr++;
-                        lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
-
-                        button = btn.get("btnOther" + lsCtr);
-                        button.setVisible(_logged);
-
-                        label = lbl.get("lblOther" + lsCtr);
-                        label.setText(loRSx.getString("sBriefDsc"));
-                    }
+                lbShow = false;
+                
+                switch (loRS.getString("sModuleID")){
+                    case "026": //Login
+                    case "028": //Exit
+                        lbShow = !_logged;
+                        break;
+                    case "025": //Create User
+                        if (_logged){
+                            lbShow = ((int) _nautilus.getUserInfo("nUserLevl") & UserLevel.SYSADMIN + UserLevel.MASTER) != 0;
+                        }
+                        break;
+                    case "021": //Reports
+                    case "027": //Logout & Exit
+                        lbShow = _logged;
+                        break;
+                    default:
+                        if (_logged){
+                            if ((loRS.getInt("nObjAcces") & (int) _nautilus.getUserInfo("nObjAcces")) != 0){
+                                lbShow = true;
+                            }
+                        }
                 }
-            }
-            
-            loRS = _nautilus.executeQuery(MiscUtil.addCondition(lsMod, "sModuleID = '020'"));
-            
-            while (loRS.next()){
-                lsSQL = "SELECT" +
-                            "  sModuleID" +
-                            ", sBriefDsc" +
-                            ", sDescript" +
-                            ", nOrderNox" +
-                            ", sImgePath" +
-                        " FROM xxxSysModule" +
-                        " WHERE sMnModule = " + SQLUtil.toSQL(loRS.getString("sModuleID")) +
-                            " AND cRecdStat = '1'" +
-                        " ORDER BY nOrderNox";
+                if (lbShow){
+                    lnCtr++;
+                    lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
 
-                loRSx = _nautilus.executeQuery(lsSQL); 
+                    button = btn.get("btnOther" + lsCtr);
+                    button.setVisible(true);
 
-                boolean lbShow;
-                while (loRSx.next()){
-                    lbShow = false;
-                    
-                    switch(loRSx.getString("sModuleID")){
-                        case "021":
-                        case "022":
-                        case "023":
-                        case "024":
-                            lbShow = true;
-                            break;
-                        case "025":
-                            lbShow = (UserLevel.SYSADMIN + UserLevel.MASTER & (int) _nautilus.getUserInfo("nUserLevl")) != 0;
-                            break;
-                        case "026":
-                            if (!_logged){
-                                button = btn.get("btnOther01");
-                                button.setVisible(true);
-
-                                label = lbl.get("lblOther01");
-                                label.setText(loRSx.getString("sBriefDsc"));
-                            }
-                            lbShow = false;
-                            break;
-                        case "028":
-                            if (!_logged){
-                                button = btn.get("btnOther02");
-                                button.setVisible(true);
-
-                                label = lbl.get("lblOther02");
-                                label.setText(loRSx.getString("sBriefDsc"));
-                            }
-                            lbShow = false;
-                            break;
-                        case "027":
-                            lbShow = _logged;
-                            break;
-                    }
-                    
-                    if (lbShow){
-                        lnCtr++;
-                        lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
-
-                        button = btn.get("btnOther" + lsCtr);
-                        button.setVisible(_logged);
-
-                        label = lbl.get("lblOther" + lsCtr);
-                        label.setText(loRSx.getString("sBriefDsc"));
-                    }
+                    label = lbl.get("lblOther" + lsCtr);
+                    label.setText(loRS.getString("sBriefDsc"));
                 }
             }
         } catch (Exception e) {
@@ -500,12 +450,16 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.PURCHASE_ORDER); break;
             case "point-of-sales":
                 loadScreen(ScreenInfo.NAME.SP_SALES); break;
+            case "customer order":
+                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER); break;
             case "whole sale":
                 loadScreen(ScreenInfo.NAME.SP_WHOLESALE); break;
             case "mc repair":
                 loadScreen(ScreenInfo.NAME.JOB_ORDER); break;
             case "stocks":
                 loadScreen(ScreenInfo.NAME.SP_INV_MASTER); break;
+            case "inv. adjustment":
+                loadScreen(ScreenInfo.NAME.INV_ADJUSTMENT); break;
             case "inv. request":
                 loadScreen(ScreenInfo.NAME.INV_REQUEST); break;
             case "inv. transfer":
@@ -517,10 +471,14 @@ public class MainScreenController implements Initializable {
                 return;
             case "clients":
                 loadScreen(ScreenInfo.NAME.CLIENT_MASTER); break;
-            case "payments":
+            case "ap payment":
                 loadScreen(ScreenInfo.NAME.AP_PAYMENT); break;
+            case "ar payment":
+                loadScreen(ScreenInfo.NAME.AR_PAYMENT); break;
             case "mc serial":
                 loadScreen(ScreenInfo.NAME.MC_SERIAL); break;
+            case "manage user":
+                loadScreen(ScreenInfo.NAME.USER_MANAGER); break;
             case "login":
                 loadScreen(ScreenInfo.NAME.LOGIN);
                 return;
@@ -628,3 +586,165 @@ public class MainScreenController implements Initializable {
     Map<String, Label> lbl = new HashMap<String,Label>();
     Map<String, ImageView> img = new HashMap<String,ImageView>();
 }
+
+//private void initMenu(){        
+//    btn.put("btnOther01", btnOther01); lbl.put("lblOther01", lblOther01); img.put("imgOther01", imgOther01);
+//    btn.put("btnOther02", btnOther02); lbl.put("lblOther02", lblOther02); img.put("imgOther02", imgOther02);
+//    btn.put("btnOther03", btnOther03); lbl.put("lblOther03", lblOther03); img.put("imgOther03", imgOther03);
+//    btn.put("btnOther04", btnOther04); lbl.put("lblOther04", lblOther04); img.put("imgOther04", imgOther04);
+//    btn.put("btnOther05", btnOther05); lbl.put("lblOther05", lblOther05); img.put("imgOther05", imgOther05);
+//    btn.put("btnOther06", btnOther06); lbl.put("lblOther06", lblOther06); img.put("imgOther06", imgOther06);
+//    btn.put("btnOther07", btnOther07); lbl.put("lblOther07", lblOther07); img.put("imgOther07", imgOther07);
+//    btn.put("btnOther08", btnOther08); lbl.put("lblOther08", lblOther08); img.put("imgOther08", imgOther08);
+//    btn.put("btnOther09", btnOther09); lbl.put("lblOther09", lblOther09); img.put("imgOther09", imgOther09);
+//    btn.put("btnOther10", btnOther10); lbl.put("lblOther10", lblOther10); img.put("imgOther10", imgOther10);
+//    btn.put("btnOther11", btnOther11); lbl.put("lblOther11", lblOther11); img.put("imgOther11", imgOther11);
+//    btn.put("btnOther12", btnOther12); lbl.put("lblOther12", lblOther12); img.put("imgOther12", imgOther12);
+//    btn.put("btnOther13", btnOther13); lbl.put("lblOther13", lblOther13); img.put("imgOther13", imgOther13);
+//    btn.put("btnOther14", btnOther14); lbl.put("lblOther14", lblOther14); img.put("imgOther14", imgOther14);
+//    btn.put("btnOther15", btnOther15); lbl.put("lblOther15", lblOther15); img.put("imgOther15", imgOther15);
+//    btn.put("btnOther16", btnOther16); lbl.put("lblOther16", lblOther16); img.put("imgOther16", imgOther16);
+//    btn.put("btnOther17", btnOther17); lbl.put("lblOther17", lblOther17); img.put("imgOther17", imgOther17);
+//    btn.put("btnOther18", btnOther18); lbl.put("lblOther18", lblOther18); img.put("imgOther18", imgOther18);
+//    btn.put("btnOther19", btnOther19); lbl.put("lblOther19", lblOther19); img.put("imgOther19", imgOther19);
+//    btn.put("btnOther20", btnOther20); lbl.put("lblOther20", lblOther20); img.put("imgOther20", imgOther20);
+//    btn.put("btnOther21", btnOther21); lbl.put("lblOther21", lblOther21); img.put("imgOther21", imgOther21);
+//
+//    AnchorPane button;
+//    Label label;
+//    ImageView image;
+//
+//    int lnCtr;
+//    String lsCtr;
+//
+//    for (lnCtr = 1; lnCtr <= 21; lnCtr++){
+//        lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
+//
+//        button = btn.get("btnOther" + lsCtr);
+//        button.setVisible(false);
+//    }
+//
+//    ResultSet loRS;
+//    ResultSet loRSx;
+//
+//    try {
+//        String lsMod = "SELECT" +
+//                        "  sModuleID" +
+//                        ", sBriefDsc" +
+//                        ", sDescript" +
+//                        ", nObjAcces" +
+//                        ", nOrderNox" +
+//                    " FROM xxxSysModule" +
+//                    " WHERE sMnModule IS NULL" +
+//                        " AND cRecdStat = '1'" +
+//                    " ORDER BY nOrderNox";
+//
+//        loRS = _nautilus.executeQuery(MiscUtil.addCondition(lsMod, "sModuleID <> '020'"));
+//
+//        String lsSQL;
+//        lnCtr = 0;
+//
+//        while (loRS.next()){
+//            //validate user access
+//            if (((int) _nautilus.getUserInfo("nObjAcces") & loRS.getInt("nObjAcces")) != 0){
+//                lsSQL = "SELECT" +
+//                            "  sModuleID" +
+//                            ", sBriefDsc" +
+//                            ", sDescript" +
+//                            ", nOrderNox" +
+//                            ", sImgePath" +
+//                        " FROM xxxSysModule" +
+//                        " WHERE sMnModule = " + SQLUtil.toSQL(loRS.getString("sModuleID")) +
+//                            " AND cRecdStat = '1'" +
+//                        " ORDER BY nOrderNox";
+//
+//                loRSx = _nautilus.executeQuery(lsSQL); 
+//
+//                while (loRSx.next()){
+//                    lnCtr++;
+//                    lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
+//
+//                    button = btn.get("btnOther" + lsCtr);
+//                    button.setVisible(_logged);
+//
+//                    label = lbl.get("lblOther" + lsCtr);
+//                    label.setText(loRSx.getString("sBriefDsc"));
+//                }
+//            }
+//        }
+//
+//        loRS = _nautilus.executeQuery(MiscUtil.addCondition(lsMod, "sModuleID = '020'"));
+//
+//        while (loRS.next()){
+//            lsSQL = "SELECT" +
+//                        "  sModuleID" +
+//                        ", sBriefDsc" +
+//                        ", sDescript" +
+//                        ", nOrderNox" +
+//                        ", sImgePath" +
+//                    " FROM xxxSysModule" +
+//                    " WHERE sMnModule = " + SQLUtil.toSQL(loRS.getString("sModuleID")) +
+//                        " AND cRecdStat = '1'" +
+//                    " ORDER BY nOrderNox";
+//
+//            loRSx = _nautilus.executeQuery(lsSQL); 
+//
+//            boolean lbShow;
+//            while (loRSx.next()){
+//                lbShow = false;
+//
+//                switch(loRSx.getString("sModuleID")){
+//                    case "021":
+//                    case "022":
+//                    case "023":
+//                    case "024":
+//                        lbShow = true;
+//                        break;
+//                    case "025":
+//                        lbShow = (UserLevel.SYSADMIN + UserLevel.MASTER & (int) _nautilus.getUserInfo("nUserLevl")) != 0;
+//                        break;
+//                    case "026":
+//                        if (!_logged){
+//                            button = btn.get("btnOther01");
+//                            button.setVisible(true);
+//
+//                            label = lbl.get("lblOther01");
+//                            label.setText(loRSx.getString("sBriefDsc"));
+//                        }
+//                        lbShow = false;
+//                        break;
+//                    case "028":
+//                        if (!_logged){
+//                            button = btn.get("btnOther02");
+//                            button.setVisible(true);
+//
+//                            label = lbl.get("lblOther02");
+//                            label.setText(loRSx.getString("sBriefDsc"));
+//                        }
+//                        lbShow = false;
+//                        break;
+//                    case "027":
+//                        lbShow = _logged;
+//                        break;
+//                }
+//
+//                if (lbShow){
+//                    lnCtr++;
+//                    lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
+//
+//                    button = btn.get("btnOther" + lsCtr);
+//                    button.setVisible(_logged);
+//
+//                    label = lbl.get("lblOther" + lsCtr);
+//                    label.setText(loRSx.getString("sBriefDsc"));
+//                }
+//            }
+//        }
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//        System.exit(1);
+//    }
+//
+//    loRS = null;
+//    loRSx = null;
+//}

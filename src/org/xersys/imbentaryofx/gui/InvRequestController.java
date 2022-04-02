@@ -378,24 +378,21 @@ public class InvRequestController implements Initializable, ControlledScreen{
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.INV_REQUEST_DETAIL);
                 
-                POSDetailController instance = new POSDetailController();
+                InvRequestDetailController instance = new InvRequestDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
                 instance.setScreensController(_screens_controller);
                 instance.setCallback(_detail_update_callback);
                 
-                instance.setDetailRow(_detail_row);
-                instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
-                instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
-                instance.setOtherInfo(1);
-                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQtyOnHnd"))));
-                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQuantity"))));
-                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
-                instance.setDiscount(Double.valueOf(String.valueOf((double) _trans.getDetail(_detail_row, "nDiscount"))));
-                instance.setAdditional(Double.valueOf(String.valueOf((double) _trans.getDetail(_detail_row, "nAddDiscx"))));
+                instance.setDetailRow(_detail_row + 1);
+                instance.setPartNumber((String) _trans.getDetail(_detail_row + 1, "xBarCodex"));
+                instance.setDescription((String) _trans.getDetail(_detail_row + 1, "xDescript"));
+                instance.setOtherInfo(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "nRecOrder"))));
+                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "xQtyOnHnd"))));
+                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "nQuantity"))));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
@@ -637,8 +634,6 @@ public class InvRequestController implements Initializable, ControlledScreen{
             public void Result(int fnRow, int fnIndex, Object foValue) {
                 switch(fnIndex){
                     case 5:
-                    case 8:
-                    case 9:
                         _trans.setDetail(fnRow, fnIndex, foValue);
                         break;
                 }
@@ -649,8 +644,6 @@ public class InvRequestController implements Initializable, ControlledScreen{
             public void Result(int fnRow, String fsIndex, Object foValue){
                 switch(fsIndex){
                     case "nQuantity":
-                    case "nDiscount":
-                    case "nAddDiscx":
                         _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
                 }

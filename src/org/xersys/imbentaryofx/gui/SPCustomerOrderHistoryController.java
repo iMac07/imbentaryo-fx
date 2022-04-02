@@ -33,18 +33,20 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.inventory.base.InvRequest;
+import org.xersys.commander.util.StringUtil;
+import org.xersys.sales.base.SP_Sales;
+import org.xersys.sales.search.SalesSearch;
 
-public class InvRequestHistoryController implements Initializable, ControlledScreen{
+public class SPCustomerOrderHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
     
     private XNautilus _nautilus;
-    private InvRequest _trans;
+    private SP_Sales _trans;
     private LMasDetTrans _listener;
     private LApproval _approval;
     
+    private SalesSearch _trans_search;
     private int _transtat;
-    private String _old_trans;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -90,17 +92,33 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     @FXML
     private Button btn12;
     @FXML
+    private TextField txtField10;
+    @FXML
+    private TextField txtField11;
+    @FXML
+    private TextField txtField12;
+    @FXML
+    private TextField txtField06;
+    @FXML
+    private TextField txtField07;
+    @FXML
+    private Label lblTranTotal;
+    @FXML
+    private Label lblTotalDisc;
+    @FXML
+    private Label lblPayable;
+    @FXML
     private TableView _table;
     @FXML
+    private Label lblFreight;
+    @FXML
     private Label lblTranStat;
+    @FXML
+    private Label lblPaymTotl;
     @FXML
     private ComboBox cmbStatus;
     @FXML
     private TextField txtSeeks01;
-    @FXML
-    private TextField txtField06;
-    @FXML
-    private TextField txtField05;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -119,9 +137,12 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         initGrid();
         initListener();
         
-        _trans = new InvRequest(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchSPSales);
+        
+        _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
+        _trans.setApprvListener(_approval);
 
         clearFields();
         initButton();
@@ -168,8 +189,16 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         initGrid();
         
         txtSeeks01.setText("");
-        txtField05.setText("");
         txtField06.setText("");
+        txtField07.setText("");
+        txtField10.setText("0.00");
+        txtField11.setText("0.00");
+        txtField12.setText("0.00");
+        
+        lblTranTotal.setText("0.00");
+        lblTotalDisc.setText("0.00");
+        lblFreight.setText("0.00");
+        lblPayable.setText("0.00");
 
         _table_data.clear();
         
@@ -179,19 +208,52 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         setTranStat("-1");
     }
     
+    private void computeSummary(){
+        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
+        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
+        
+        txtField10.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        txtField12.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
+    }
+    
     private void loadTransaction(){
-        txtField05.setText((String) _trans.getMaster("sReferNox"));
+        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
+        txtField07.setText((String) _trans.getMaster("xSalesman"));
+        
+        txtField10.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nDiscount"), "##0.00"));
+        txtField11.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAddDiscx"), "#,##0.00"));
+        txtField12.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nFreightx"), "#,##0.00"));
+        
+        computeSummary();
         
         loadDetail();
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
         cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
         
-        _old_trans = (String) _trans.getMaster("sTransNox");
+        btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
     }
     
-    private void searchTransaction(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchTransaction(fsKey, foValue, fbExact);
+    private void searchTransaction(){
+        _trans_search.setKey("a.sTransNox");
+        _trans_search.setValue("");
+        _trans_search.setExact(false);
+        _trans_search.addFilter("Status", cmbStatus.getSelectionModel().getSelectedIndex());
+        
+        JSONObject loJSON =  _trans_search.Search();
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -221,7 +283,7 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans.getSearchTransaction());
+                            instance.setSearchObject(_trans_search);
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtSeeks01);
 
@@ -247,30 +309,41 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         
         _table_data.clear();
         
-        for(lnCtr = 1; lnCtr <= lnRow; lnCtr++){               
-            _table_data.add(new TableModel(String.valueOf(lnCtr), 
-                        (String) _trans.getDetail(lnCtr, "xBarCodex"),
-                        (String) _trans.getDetail(lnCtr, "xDescript"), 
-                        "",
-                        String.valueOf(_trans.getDetail(lnCtr, "cClassify")),
+        double lnUnitPrce;
+        double lnDiscount;
+        double lnAddDiscx;
+        double lnTranTotl;
+        int lnQuantity;
+        
+        for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
+            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
+            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
+            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
+            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            
+            _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
+                        (String) _trans.getDetail(lnCtr, "sBarCodex"),
+                        (String) _trans.getDetail(lnCtr, "sDescript"), 
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nAvgMonSl")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nMaxLevel")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nRecOrder")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nQuantity"))));
+                        "-",
+                        String.valueOf(lnQuantity),
+                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
+                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
         }
 
         if (!_table_data.isEmpty()){
             _table.getSelectionModel().select(lnRow - 1);
             _table.getFocusModel().focus(lnRow - 1); 
-            _detail_row = lnRow - 1;           
+            _detail_row = _table.getSelectionModel().getSelectedIndex();           
         }
         
-        txtSeeks01.setText("");
-        txtSeeks01.requestFocus();
+        computeSummary();
     }
     
-    private void initListener(){        
+    private void initListener(){      
         _approval = new LApproval() {
             @Override
             public void Request() {
@@ -326,9 +399,9 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER;");
-        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -342,35 +415,35 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(150);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Class"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("ROQ"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("AMC"); 
+        index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
-        index08.setText("Max"); 
+        index08.setText("Disc."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
         index08.prefWidthProperty().set(60);
         
-        index09.setText("ROQ"); 
+        index09.setText("Adtl."); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
         index09.prefWidthProperty().set(60);
         
-        index10.setText("Order"); 
+        index10.setText("Total"); 
         index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(60);
+        index10.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -394,7 +467,6 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     @FXML
     private void cmbStatus_Click(ActionEvent event) {
         _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
-        _trans.setTranStat(_transtat);
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -403,33 +475,22 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         
         switch (lsButton){
             case "btn01":
-                searchTransaction("sTransNox", "", false);
+                searchTransaction();
                 break;
-            case "btn02": //print
-                if (_trans.CloseTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                    
-                    _trans.setTranStat(1);
-                    searchTransaction("sTransNox", _old_trans, true);
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            case "btn02": //pay
+                payWithInvoice();
                 break;
-            case "btn03": //cancel
+            case "btn03": //release
+                payCharge();
+                break;
+            case "btn04": //cancel
                 if (_trans.CancelTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
                     initGrid();
                     clearFields();
-                    
-                    _trans.setTranStat(3);
-                    searchTransaction("sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
-                break;
-            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -465,14 +526,14 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
             instance.setParentController(_main_screen_controller);
             instance.setScreensController(_screens_controller);
             instance.setDashboardScreensController(_screens_dashboard_controller);
-            instance.setSourceCd("WS");
+            instance.setSourceCd("SO");
             instance.setSourceNo((String) _trans.getMaster("sTransNox"));
 
             //close this screen
             _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
             //load the payment screen
             _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
-        }  else{
+        } else{
             ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
         }
     }
@@ -481,12 +542,11 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
                 JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
                 PaymentController instance = new PaymentController();
-
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
                 instance.setScreensController(_screens_controller);
                 instance.setDashboardScreensController(_screens_dashboard_controller);
-                instance.setSourceCd("WS");
+                instance.setSourceCd("SO");
                 instance.setSourceNo((String) _trans.getMaster("sTransNox"));
 
                 //close this screen
@@ -556,9 +616,9 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Print");
-        btn03.setText("Cancel");
-        btn04.setText("");
+        btn02.setText("Pay");
+        btn03.setText("Release");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -571,7 +631,7 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(false);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
@@ -583,11 +643,16 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     }
     
     private void initFields(){
-        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField10.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField12.setOnKeyPressed(this::txtField_KeyPressed);        
         
-        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
+        txtField10.focusedProperty().addListener(txtField_Focus);
+        txtField11.focusedProperty().addListener(txtField_Focus);
+        txtField12.focusedProperty().addListener(txtField_Focus);
         
         cmbStatus.setItems(_status);
         cmbStatus.getSelectionModel().select(0);
@@ -630,5 +695,6 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
             _index = lnIndex;
             txtField.selectAll();
         }
+        
     };    
 }

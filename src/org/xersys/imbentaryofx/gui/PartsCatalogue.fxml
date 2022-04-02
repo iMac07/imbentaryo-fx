@@ -55,18 +55,18 @@
                                             </rowConstraints>
                                              <children>
                                                 <Label alignment="CENTER_RIGHT" prefHeight="63.0" prefWidth="100.0" text="Category" />
-                                                <TextField fx:id="txtSeeks01" promptText="Search Category" GridPane.columnIndex="1" GridPane.columnSpan="2">
+                                                <TextField fx:id="txtSeeks01" disable="true" promptText="Search Category" GridPane.columnIndex="1" GridPane.columnSpan="2">
                                                    <GridPane.margin>
                                                       <Insets left="10.0" />
                                                    </GridPane.margin>
                                                 </TextField>
                                                 <Label alignment="CENTER_RIGHT" prefHeight="63.0" prefWidth="100.0" text="Brand" GridPane.rowIndex="1" />
-                                                <TextField fx:id="txtSeeks02" promptText="Search Brand" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                                <TextField fx:id="txtSeeks02" disable="true" promptText="Search Brand" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
                                                    <GridPane.margin>
                                                       <Insets left="10.0" />
                                                    </GridPane.margin></TextField>
                                                 <Label alignment="CENTER_RIGHT" prefHeight="38.0" prefWidth="100.0" text="Model" GridPane.columnIndex="4" />
-                                                <TextField fx:id="txtSeeks03" promptText="Search Model" GridPane.columnIndex="5" GridPane.columnSpan="2">
+                                                <TextField fx:id="txtSeeks03" disable="true" promptText="Search Model" GridPane.columnIndex="5" GridPane.columnSpan="2">
                                                    <GridPane.margin>
                                                       <Insets left="10.0" />
                                                    </GridPane.margin></TextField>

@@ -13,6 +13,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -26,7 +28,9 @@ import org.xersys.commander.iface.LRecordMas;
 import org.xersys.imbentaryofx.listener.PartsCatalogueListener;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
+import org.xersys.commander.util.FXUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
+import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.sales.base.PartsCatalogue;
 import org.xersys.sales.base.SP_Sales;
 
@@ -88,9 +92,21 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         initGrid();
         initButton();
         
+        txtSeeks04.setOnKeyPressed(this::txtField_KeyPressed);
+        
         _trans_listener = new LRecordMas() {
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
+                switch(fsFieldNm){
+                    case "sCategrCd":
+                        txtSeeks01.setText((String) foValue); break;
+                    case "sBrandCde":
+                        txtSeeks02.setText((String) foValue); break;
+                    case "sModelCde":
+                        txtSeeks03.setText((String) foValue); break;
+                    case "sSeriesID":
+                        txtSeeks04.setText((String) foValue); break;
+                }
             }
 
             @Override
@@ -98,8 +114,36 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
             }
         };
         
-        _trans = new PartsCatalogue();
-        _trans.setNautilus(_nautilus);
+        _search_callback = new QuickSearchCallback() {
+            @Override
+            public void Result(TextField foField, JSONObject foValue) {
+                try {
+                    if (!"success".equals((String) foValue.get("result"))) return;
+                    
+                    foValue = (JSONObject) foValue.get("payload");
+                    
+                    
+                    switch (foField.getId()){
+                        case "txtSeeks04":
+                            _trans.setMaster("sSeriesID", (String) foValue.get("sSeriesID"));
+                            break;
+                    }
+                } catch (SQLException | ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void FormClosing(TextField foField) {
+                if (foField.getId().equals("txtSeeks04")){
+                    foField.requestFocus();
+                } else{
+                    FXUtil.SetNextFocus(foField);
+                }    
+            }
+        };
+        
+        _trans = new PartsCatalogue(_nautilus);
         _trans.setListener(_trans_listener);
         
         if (_trans.NewTransaction()){
@@ -138,16 +182,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         String lsButton = ((Button) event.getSource()).getId();
         
         switch (lsButton){
-            case "btnSearch":
-//                _trans.setMaster("sCategrCd", "ENGINE");
-//                _trans.setMaster("sBrandCde", "YAMAHA");
-//                _trans.setMaster("sModelCde", "AL115C");
-//                _trans.setMaster("sSeriesID", "X0012102");
-                _trans.setMaster("sCategrCd", "ENGINE");
-                _trans.setMaster("sBrandCde", "HONDA");
-                _trans.setMaster("sModelCde", "CCG125WH");
-                _trans.setMaster("sSeriesID", "X0012101");
-                
+            case "btnSearch":               
                 if (_trans.LoadFigures()){
                     displayImages();
                 } else {
@@ -317,7 +352,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                 controller.setData(_listener);
                 controller.setImagePath((String) _nautilus.getAppConfig("sApplPath") +  _trans.getFigure(lnCtr, "sImageNme"));
                 controller.setBlockNo("");
-                controller.setBlockTitle((String) _trans.getFigure(lnCtr, "sModelCde") + " - " +(String) _trans.getFigure(lnCtr, "sDescript"));
+                controller.setBlockTitle((String) _trans.getFigure(lnCtr, "sDescript"));
                 controller.setAddressNo("");
                 controller.setParts(_trans.getFigureParts(lnCtr));
 
@@ -348,6 +383,73 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         }
     }
     
+    private void searchSeries(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchSeries(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        txtSeeks01.setText((String) loJSON.get("sDescript"));
+                        FXUtil.SetNextFocus(txtSeeks04);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchSeries());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtSeeks04);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
+                txtSeeks04.setText("");
+                FXUtil.SetNextFocus(txtSeeks04);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            txtSeeks04.setText("");
+            FXUtil.SetNextFocus(txtSeeks04);
+        }
+    }
+    
+    private void txtField_KeyPressed(KeyEvent event) {
+        TextField txtField = (TextField) event.getSource();
+        String lsTxt = txtField.getId();
+        String lsValue = txtField.getText();
+                
+        if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks04":
+                    searchSeries("sSeriesID", lsValue, false);
+                    event.consume();
+                    return;
+            }
+        }
+        
+        switch (event.getCode()){
+        case ENTER:
+        case DOWN:
+            FXUtil.SetNextFocus(txtField);
+            break;
+        case UP:
+            FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
     private XNautilus _nautilus;
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -357,6 +459,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
     private LRecordMas _trans_listener;
     private PartsCatalogueListener _listener;
     private FormClosingCallback _close_listener;
+    private QuickSearchCallback _search_callback;
     
     private int _max_grid_column;
 

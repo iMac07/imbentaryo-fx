@@ -193,6 +193,12 @@
                               <ImageView fx:id="imgOther20" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
                            </children>
                         </AnchorPane>
+                        <AnchorPane fx:id="btnOther21" layoutX="10.0" layoutY="447.0" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label fx:id="lblOther21" text="Menu 21" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fx:id="imgOther21" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
+                           </children>
+                        </AnchorPane>
                      </children>
                   </VBox>
                </left>

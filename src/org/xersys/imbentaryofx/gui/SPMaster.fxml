@@ -99,7 +99,7 @@
                                           <TextField fx:id="txtField08" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Color:" GridPane.rowIndex="8" />
                                           <TextField fx:id="txtField09" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Unit Price:" GridPane.rowIndex="9">
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Cost:" GridPane.rowIndex="9">
                                              <GridPane.margin>
                                                 <Insets />
                                              </GridPane.margin>
@@ -109,9 +109,9 @@
                                           <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Status:" GridPane.rowIndex="11" />
                                           <ComboBox id="cmbOrder" fx:id="cmbInvStat" onAction="#cmbInvStat_Click" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="11" />
-                                          <CheckBox fx:id="chkCombo" mnemonicParsing="false" text="Combo  Inventory" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="8" />
-                                          <CheckBox fx:id="chkSerialized" mnemonicParsing="false" text="Serialized" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="9" />
-                                          <CheckBox fx:id="chkPromo" mnemonicParsing="false" text="With Promo" GridPane.columnIndex="4" GridPane.columnSpan="3" GridPane.rowIndex="10" />
+                                          <CheckBox fx:id="chkCombo" mnemonicParsing="false" text="Combo  Inventory" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="8" />
+                                          <CheckBox fx:id="chkSerialized" mnemonicParsing="false" text="Serialized" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="9" />
+                                          <CheckBox fx:id="chkPromo" mnemonicParsing="false" text="With Promo" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="3" GridPane.rowIndex="10" />
                                           <CheckBox fx:id="chkActive" mnemonicParsing="false" text="Active" GridPane.columnIndex="4" GridPane.rowIndex="11" />
                                        </children>
                                     </GridPane>
@@ -141,23 +141,23 @@
                                           <TextField fx:id="txtField103" promptText="Search" GridPane.columnIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Bin Number:" GridPane.columnIndex="3" />
                                           <TextField fx:id="txtField104" GridPane.columnIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="D. Inventory:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField106" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Beg. Inv.:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField106" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Beg. Qty:" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField107" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField107" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="D. Acquired:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField105" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField105" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="On Hand:" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                                           <TextField fx:id="txtField108" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="MIN Level:" GridPane.rowIndex="4" />
                                           <TextField fx:id="txtField109" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="MAX Level:" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                                           <TextField fx:id="txtField110" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Ave. M. Sale:" GridPane.rowIndex="5" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Ave.Mon.Sl:" GridPane.rowIndex="5" />
                                           <TextField fx:id="txtField111" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="AVG Cost:" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                                           <TextField fx:id="txtField112" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Classification:" GridPane.rowIndex="6">
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Class:" GridPane.rowIndex="6">
                                              <GridPane.margin>
                                                 <Insets />
                                              </GridPane.margin>
@@ -169,7 +169,7 @@
                                           <TextField fx:id="txtField115" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Float Qty:" GridPane.columnIndex="3" GridPane.rowIndex="7" />
                                           <TextField fx:id="txtField116" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="7" />
-                                          <CheckBox fx:id="chkActive1" mnemonicParsing="false" text="Active" GridPane.columnIndex="4" GridPane.rowIndex="9" />
+                                          <CheckBox fx:id="chkActive1" mnemonicParsing="false" text="Active" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="9" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -273,12 +273,26 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="8">
                                                    <children>
-                                                      <Button fx:id="btn09" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn09" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="74.0" prefWidth="41.0" text="F3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/btn-deactivate.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="9">
                                                    <children>
-                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/btn-activate.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">

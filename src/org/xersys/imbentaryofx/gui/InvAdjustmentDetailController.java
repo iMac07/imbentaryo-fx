@@ -19,7 +19,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
 
-public class InvTransferDetailController implements Initializable, ControlledScreen  {
+public class InvAdjustmentDetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private DetailUpdateCallback _callback;
@@ -28,9 +28,10 @@ public class InvTransferDetailController implements Initializable, ControlledScr
     private int _row;
     private String _part_number;
     private String _description;
-    private int _on_hand;
-    private int _qty;
-    
+    private double _cost;
+    private int _qoh;
+    private int _debit;
+    private int _credit;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -68,6 +69,12 @@ public class InvTransferDetailController implements Initializable, ControlledScr
     private TextField txtDetail03;
     @FXML
     private TextField txtDetail04;
+    @FXML
+    private TextField txtDetail05;
+    @FXML
+    private TextField txtDetail06;
+    @FXML
+    private TextField txtDetail07;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -109,14 +116,6 @@ public class InvTransferDetailController implements Initializable, ControlledScr
         _row = fnValue;
     }
     
-    public void setOnHand(int fnValue){
-        _on_hand = fnValue;
-    }
-    
-    public void setQuantity(int fnValue){
-        _qty = fnValue;
-    }
-    
     public void setPartNumber(String fsValue){
         _part_number = fsValue;
     }
@@ -124,6 +123,23 @@ public class InvTransferDetailController implements Initializable, ControlledScr
     public void setDescription(String fsValue){
         _description = fsValue;
     }
+    
+    
+    public void setOnHand(int fnValue){
+        _qoh = fnValue;
+    }
+    
+    public void setUnitCost(double fnValue){
+        _cost = fnValue;
+    }
+    
+    public void setDebitQty(int fnValue){
+        _debit = fnValue;
+    }
+    
+    public void setCreditQty(int fnValue){
+        _credit = fnValue;
+    }  
     
     private void initButton(){
         btn01.setOnAction(this::cmdButton_Click);
@@ -185,13 +201,25 @@ public class InvTransferDetailController implements Initializable, ControlledScr
         txtDetail02.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail03.setOnKeyPressed(this::txtField_KeyPressed);
         txtDetail04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtDetail05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtDetail06.setOnKeyPressed(this::txtField_KeyPressed);
+        txtDetail07.setOnKeyPressed(this::txtField_KeyPressed);
         
-        txtDetail04.focusedProperty().addListener(txtField_Focus);
+        txtDetail05.focusedProperty().addListener(txtField_Focus);
+        txtDetail06.focusedProperty().addListener(txtField_Focus);
                 
         txtDetail01.setText(_part_number);
         txtDetail02.setText(_description);
-        txtDetail03.setText(String.valueOf(_on_hand));
-        txtDetail04.setText(String.valueOf(_qty));
+        txtDetail03.setText(String.valueOf(_qoh));
+        txtDetail04.setText(StringUtil.NumberFormat(_cost, "#,##0.00"));
+        txtDetail05.setText(String.valueOf(_debit));
+        txtDetail06.setText(String.valueOf(_credit));
+        txtDetail07.setText(String.valueOf(_qoh - _credit + _debit));
+        
+        computeTotal();
+        
+        txtDetail05.requestFocus();
+        txtDetail05.selectAll();
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -230,9 +258,10 @@ public class InvTransferDetailController implements Initializable, ControlledScr
         }
     }
     
-    private void loadData(){
+    private void loadData(){        
         //load the data
-        _callback.Result(_row, "nQuantity", _qty);
+        _callback.Result(_row, "nDebitQty", _debit);
+        _callback.Result(_row, "nCredtQty", _credit);
         
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         _callback.FormClosing();
@@ -245,15 +274,21 @@ public class InvTransferDetailController implements Initializable, ControlledScr
         _callback.FormClosing();
     }
     
+    private void computeTotal(){        
+        int lnTranTotl = _qoh - _credit + _debit;
+        
+        txtDetail07.setText(String.valueOf(lnTranTotl));
+    }
+    
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
         
         switch (event.getCode()){
         case ENTER:
         case DOWN:
-            if (txtField.getId().equals("txtDetail04")){
-                txtDetail04.selectAll();
-                txtDetail04.requestFocus();
+            if (txtField.getId().equals("txtDetail08")){
+                txtDetail06.selectAll();
+                txtDetail06.requestFocus();
                 event.consume();
                 return;
             }
@@ -276,7 +311,7 @@ public class InvTransferDetailController implements Initializable, ControlledScr
         
         if(!nv){
             switch (lnIndex){
-                case 4:
+                case 5:
                     if (StringUtil.isNumeric(lsValue))                    
                         txtField.setText(lsValue);                    
                     else{
@@ -284,9 +319,23 @@ public class InvTransferDetailController implements Initializable, ControlledScr
                         txtField.setText("0");
                     } 
                         
-                    _qty = Integer.parseInt(txtField.getText());
+                    
+                    _debit = Integer.parseInt(txtField.getText());
+                    break;
+                case 6:
+                    if (StringUtil.isNumeric(lsValue))                    
+                        txtField.setText(lsValue);                    
+                    else{
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
+                        txtField.setText("0");
+                    } 
+                        
+                    
+                    _credit = Integer.parseInt(txtField.getText());
                     break;
             }
+            
+            computeTotal();
         }
     };
 }

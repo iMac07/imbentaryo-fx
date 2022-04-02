@@ -36,11 +36,11 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.inventory.base.InvTransfer;
+import org.xersys.inventory.base.InvAdjustment;
 
-public class InvTransferController implements Initializable, ControlledScreen{
+public class InvAdjustmentController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private InvTransfer _trans;
+    private InvAdjustment _trans;
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
@@ -87,11 +87,11 @@ public class InvTransferController implements Initializable, ControlledScreen{
     @FXML
     private ComboBox cmbOrders;
     @FXML
-    private TextField txtField04;
-    @FXML
     private TableView _table;
     @FXML
     private TextField txtField05;
+    @FXML
+    private TextField txtField06;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -110,7 +110,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
         initFields();
         initListener();        
         
-        _trans = new InvTransfer(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new InvAdjustment(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -168,20 +168,12 @@ public class InvTransferController implements Initializable, ControlledScreen{
                         searchBranchInventory("sBarCodex", lsValue, false);
                         event.consume();
                         return;
-                    case "txtField04":
-                        searchDestination("sCompnyNm", lsValue, false);
-                        event.consume();
-                        return;
                 }
                 break;
             case F3:
                 switch (lsTxt){
                     case "txtSeeks01":
                         searchBranchInventory("sDescript", lsValue, false);
-                        event.consume();
-                        return;
-                    case "txtField04":
-                        searchDestination("sCompnyNm", lsValue, false);
                         event.consume();
                         return;
                 }
@@ -214,8 +206,8 @@ public class InvTransferController implements Initializable, ControlledScreen{
         initGrid();
         
         txtSeeks01.setText("");
-        txtField04.setText("");
         txtField05.setText("");
+        txtField06.setText("");
         
         //load temporary transactions
         ArrayList<Temp_Transactions> laTemp = _trans.TempTransactions();
@@ -234,8 +226,8 @@ public class InvTransferController implements Initializable, ControlledScreen{
     }
     
     private void loadTransaction(){
-        txtField04.setText((String) _trans.getMaster("xDestinat"));
-        txtField05.setText((String) _trans.getMaster("sRemarksx"));
+        txtField05.setText((String) _trans.getMaster("sReferNox"));
+        txtField06.setText((String) _trans.getMaster("sRemarksx"));
         
         loadDetail();
     }
@@ -247,22 +239,26 @@ public class InvTransferController implements Initializable, ControlledScreen{
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnTranTotl;
-        int lnQuantity;
+        int lnQtyOnHnd;
+        int lnDebitQty;
+        int lnCredtQty;
+        int lnNetQtyxx;
         
-        for(lnCtr = 1; lnCtr <= lnRow - 1; lnCtr++){           
-            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
+        for(lnCtr = 1; lnCtr <= lnRow - 1; lnCtr++){       
+            lnQtyOnHnd = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")));
+            lnDebitQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDebitQty")));
+            lnCredtQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nCredtQty")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nInvCostx")).doubleValue();
-            lnTranTotl = lnQuantity * lnUnitPrce;
+            lnNetQtyxx = lnQtyOnHnd - lnCredtQty + lnDebitQty;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr), 
                         (String) _trans.getDetail(lnCtr, "xBarCodex"),
                         (String) _trans.getDetail(lnCtr, "xDescript"), 
+                        String.valueOf(lnQtyOnHnd),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
-                        String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")),
-                        String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
+                        String.valueOf(lnDebitQty),
+                        String.valueOf(lnCredtQty),
+                        String.valueOf(lnNetQtyxx),
                         "",
                         ""));
         }
@@ -284,22 +280,26 @@ public class InvTransferController implements Initializable, ControlledScreen{
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnTranTotl;
-        int lnQuantity;
+        int lnQtyOnHnd;
+        int lnDebitQty;
+        int lnCredtQty;
+        int lnNetQtyxx;
         
-        for(lnCtr = 1; lnCtr <= lnRow - 1; lnCtr++){           
-            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
+        for(lnCtr = 1; lnCtr <= lnRow - 1; lnCtr++){       
+            lnQtyOnHnd = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")));
+            lnDebitQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDebitQty")));
+            lnCredtQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nCredtQty")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nInvCostx")).doubleValue();
-            lnTranTotl = lnQuantity * lnUnitPrce;
+            lnNetQtyxx = lnQtyOnHnd + lnCredtQty + lnDebitQty;
             
             _table_data.add(new TableModel(String.valueOf(lnCtr), 
                         (String) _trans.getDetail(lnCtr, "xBarCodex"),
                         (String) _trans.getDetail(lnCtr, "xDescript"), 
+                        String.valueOf(lnQtyOnHnd),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
-                        String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")),
-                        String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
+                        String.valueOf(lnDebitQty),
+                        String.valueOf(lnCredtQty),
+                        String.valueOf(lnNetQtyxx),
                         "",
                         ""));
         }
@@ -322,14 +322,16 @@ public class InvTransferController implements Initializable, ControlledScreen{
         TableColumn index05 = new TableColumn("");
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
+        TableColumn index08 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER;");
         
         _table.getColumns().clear();        
         
@@ -345,21 +347,25 @@ public class InvTransferController implements Initializable, ControlledScreen{
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(200);
         
-        index04.setText("Cost"); 
+        index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
         index04.prefWidthProperty().set(80);
         
-        index05.setText("QOH"); 
+        index05.setText("U.Cost"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(80);
         
-        index06.setText("Quantity"); 
+        index06.setText("Debit"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(80);
         
-        index07.setText("Amount"); 
+        index07.setText("Credit"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(80);
+        
+        index08.setText("Net"); 
+        index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
+        index08.prefWidthProperty().set(80);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -368,6 +374,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
         _table.getColumns().add(index05);
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
+        _table.getColumns().add(index08);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -380,9 +387,9 @@ public class InvTransferController implements Initializable, ControlledScreen{
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.INV_TRANSFER_DETAIL);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.INV_ADJUSTMENT_DETAIL);
                 
-                InvTransferDetailController  instance = new InvTransferDetailController();
+                InvAdjustmentDetailController instance = new InvAdjustmentDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -393,7 +400,9 @@ public class InvTransferController implements Initializable, ControlledScreen{
                 instance.setPartNumber((String) _trans.getDetail(_detail_row + 1, "xBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row + 1, "xDescript"));
                 instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "xQtyOnHnd"))));
-                instance.setQuantity(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "nQuantity"))));
+                instance.setUnitCost(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row + 1, "nInvCostx"))));
+                instance.setDebitQty(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "nDebitQty"))));
+                instance.setCreditQty(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row + 1, "nCredtQty"))));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }
@@ -401,7 +410,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
     }
     
     private void searchBranchInventory(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchParts(fsKey, foValue, fbExact);
+        JSONObject loJSON = _trans.searchStocks(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -426,7 +435,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans.getSearchParts());
+                            instance.setSearchObject(_trans.getSearchStocks());
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(txtSeeks01);
 
@@ -512,7 +521,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
             case "btn10":
                 break;
             case "btn11": //history
-                loadScreen(ScreenInfo.NAME.INV_TRANSFER_HISTORY);
+                loadScreen(ScreenInfo.NAME.INV_ADJUSTMENT_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -578,12 +587,11 @@ public class InvTransferController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(String fsFieldNm, Object foValue) {
                 switch(fsFieldNm){
-                    case "sDestinat":
-                    case "xDestinat":
-                        txtField04.setText((String) foValue);
+                    case "sReferNox":
+                        txtField05.setText((String) foValue);
                         break;
                     case "sRemarksx":
-                        txtField05.setText((String) foValue);
+                        txtField06.setText((String) foValue);
                         break;
                 }
             }
@@ -591,12 +599,11 @@ public class InvTransferController implements Initializable, ControlledScreen{
             @Override
             public void MasterRetreive(int fnIndex, Object foValue) {
                 switch(fnIndex){
-                    case 4:
-                    case 23:
-                        txtField04.setText((String) foValue);
-                        break;
                     case 5:
                         txtField05.setText((String) foValue);
+                        break;
+                    case 6:
+                        txtField06.setText((String) foValue);
                         break;
                 }
             }
@@ -639,8 +646,10 @@ public class InvTransferController implements Initializable, ControlledScreen{
             @Override
             public void Result(int fnRow, int fnIndex, Object foValue) {
                 switch(fnIndex){
-                    case 4:
-                        _trans.setDetail(fnRow, "nQuantity", foValue);
+                    case 5:
+                    case 8:
+                    case 9:
+                        _trans.setDetail(fnRow, fnIndex, foValue);
                         break;
                 }
                 loadDetail();
@@ -649,7 +658,8 @@ public class InvTransferController implements Initializable, ControlledScreen{
             @Override
             public void Result(int fnRow, String fsIndex, Object foValue){
                 switch(fsIndex){
-                    case "nQuantity":
+                    case "nDebitQty":
+                    case "nCredtQty":
                         _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
                 }
@@ -706,7 +716,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("Receive");
+        btn10.setText("");
         btn11.setText("History");
         btn12.setText("Close");
         
@@ -719,7 +729,7 @@ public class InvTransferController implements Initializable, ControlledScreen{
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(true);
+        btn10.setVisible(false);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
@@ -729,16 +739,17 @@ public class InvTransferController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField04.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField05.focusedProperty().addListener(txtField_Focus);
+        txtField06.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -765,50 +776,6 @@ public class InvTransferController implements Initializable, ControlledScreen{
         }
     }
     
-    private void searchDestination(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchDestination(fsKey, foValue, fbExact);
-        
-        if ("success".equals((String) loJSON.get("result"))){            
-            JSONParser loParser = new JSONParser();
-            
-            try {
-                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
-                
-                switch (loArray.size()){
-                    case 1: //one record found
-                        loJSON = (JSONObject) loArray.get(0);
-                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
-                        FXUtil.SetNextFocus(txtField04);
-                        break;
-                    default: //multiple records found
-                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-
-                        if (loScreen != null){
-                            QuickSearchNeoController instance = new QuickSearchNeoController();
-                            instance.setNautilus(_nautilus);
-                            instance.setParentController(_main_screen_controller);
-                            instance.setScreensController(_screens_controller);
-
-                            instance.setSearchObject(_trans.getSearchDestination());
-                            instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtField04);
-
-                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-                        }
-                }
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
-                txtField04.setText("");
-                FXUtil.SetNextFocus(txtField04);
-            }
-        } else {
-            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
-            txtField04.setText("");
-            FXUtil.SetNextFocus(txtField04);
-        }
-    }
-    
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
         if (!_loaded) return;
         
@@ -819,7 +786,10 @@ public class InvTransferController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
-                case 5: //remarks
+                case 5: //sReferNox
+                    _trans.setMaster("sReferNox", lsValue);
+                    break;
+                case 6: //sRemarksx
                     _trans.setMaster("sRemarksx", lsValue);
                     break;
                 default:

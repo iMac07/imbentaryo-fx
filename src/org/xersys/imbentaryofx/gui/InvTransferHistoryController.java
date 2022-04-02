@@ -33,13 +33,14 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
-import org.xersys.inventory.base.InvRequest;
+import org.xersys.commander.util.StringUtil;
+import org.xersys.inventory.base.InvTransfer;
 
-public class InvRequestHistoryController implements Initializable, ControlledScreen{
+public class InvTransferHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
     
     private XNautilus _nautilus;
-    private InvRequest _trans;
+    private InvTransfer _trans;
     private LMasDetTrans _listener;
     private LApproval _approval;
     
@@ -98,9 +99,9 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     @FXML
     private TextField txtSeeks01;
     @FXML
-    private TextField txtField06;
-    @FXML
     private TextField txtField05;
+    @FXML
+    private TextField txtField04;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -119,7 +120,7 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         initGrid();
         initListener();
         
-        _trans = new InvRequest(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new InvTransfer(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
 
@@ -168,8 +169,8 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         initGrid();
         
         txtSeeks01.setText("");
+        txtField04.setText("");
         txtField05.setText("");
-        txtField06.setText("");
 
         _table_data.clear();
         
@@ -180,8 +181,9 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     }
     
     private void loadTransaction(){
-        txtField05.setText((String) _trans.getMaster("sReferNox"));
-        txtField06.setText((String) _trans.getMaster("sRemarksx"));
+        txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
+        txtField04.setText((String) _trans.getMaster("xDestinat"));
+        txtField05.setText((String) _trans.getMaster("sRemarksx"));
         
         loadDetail();
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
@@ -247,17 +249,25 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         
         _table_data.clear();
         
-        for(lnCtr = 1; lnCtr <= lnRow; lnCtr++){               
+        double lnUnitPrce;
+        double lnTranTotl;
+        int lnQuantity;
+        
+        for(lnCtr = 1; lnCtr <= lnRow; lnCtr++){           
+            lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
+            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nInvCostx")).doubleValue();
+            lnTranTotl = lnQuantity * lnUnitPrce;
+            
             _table_data.add(new TableModel(String.valueOf(lnCtr), 
                         (String) _trans.getDetail(lnCtr, "xBarCodex"),
                         (String) _trans.getDetail(lnCtr, "xDescript"), 
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")),
+                        String.valueOf(lnQuantity),
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
                         "",
-                        String.valueOf(_trans.getDetail(lnCtr, "cClassify")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nAvgMonSl")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nMaxLevel")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nRecOrder")),
-                        String.valueOf(_trans.getDetail(lnCtr, "nQuantity"))));
+                        "",
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -315,9 +325,6 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         TableColumn index05 = new TableColumn("");
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
-        TableColumn index08 = new TableColumn("");
-        TableColumn index09 = new TableColumn("");
-        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
@@ -325,10 +332,7 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
-        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER;");
-        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -342,35 +346,23 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("Cost"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(150);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Class"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(60);
+        index05.prefWidthProperty().set(80);
         
-        index06.setText("QOH"); 
+        index06.setText("Quantity"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(60);
+        index06.prefWidthProperty().set(80);
         
-        index07.setText("AMC"); 
+        index07.setText("Amount"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(60);
-        
-        index08.setText("Max"); 
-        index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(60);
-        
-        index09.setText("ROQ"); 
-        index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(60);
-        
-        index10.setText("Order"); 
-        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(60);
+        index07.prefWidthProperty().set(80);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -379,9 +371,6 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
         _table.getColumns().add(index05);
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
-        _table.getColumns().add(index08);
-        _table.getColumns().add(index09);
-        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -583,11 +572,11 @@ public class InvRequestHistoryController implements Initializable, ControlledScr
     }
     
     private void initFields(){
+        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtField04.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
-        txtField06.focusedProperty().addListener(txtField_Focus);
         
         cmbStatus.setItems(_status);
         cmbStatus.getSelectionModel().select(0);
