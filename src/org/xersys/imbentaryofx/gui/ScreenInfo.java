@@ -16,6 +16,7 @@ public class ScreenInfo {
         POS,
         POS_HISTORY,
         CUSTOMER_ORDER,
+        CUSTOMER_ORDER_DETAIL,
         CUSTOMER_ORDER_HISTORY,
         DASHBOARD,
         CART, 
@@ -64,7 +65,7 @@ public class ScreenInfo {
         INV_ADJUSTMENT,
         INV_ADJUSTMENT_DETAIL,
         INV_ADJUSTMENT_HISTORY,
-        USER_MANAGER
+        USER_MANAGER,
     }
     
     public static JSONObject get(NAME foModule){
@@ -302,6 +303,10 @@ public class ScreenInfo {
             case USER_MANAGER:
                 loJSON.put("resource", RESOURCE_URL + "UserManager.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "UserManagerController");
+                return loJSON;
+            case CUSTOMER_ORDER_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderController");
                 return loJSON;
         }
         
