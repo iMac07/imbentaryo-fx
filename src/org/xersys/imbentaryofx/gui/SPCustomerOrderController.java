@@ -283,7 +283,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
     
     private void loadTransaction(){
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
-        txtField05.setText((String) _trans.getMaster("xSalesman"));
+        txtField05.setText((String) _trans.getMaster("xClientNm"));
         
         computeSummary();
         
@@ -463,9 +463,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.CUSTOMER_ORDER_DETAIL);
                 
-                POSDetailController instance = new POSDetailController();
+                SPCustomerOrderDetailController instance = new SPCustomerOrderDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
