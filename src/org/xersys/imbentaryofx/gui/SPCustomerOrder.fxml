@@ -91,11 +91,11 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Disc. Rate(%):" />
-                                          <TextField fx:id="txtField10" GridPane.columnIndex="1" />
+                                          <TextField fx:id="txtField09" GridPane.columnIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Addtl. Disc.:" GridPane.columnIndex="3" />
-                                          <TextField fx:id="txtField11" GridPane.columnIndex="4" />
+                                          <TextField fx:id="txtField10" GridPane.columnIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Freight:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField11" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Oth Charge:" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                                           <TextField fx:id="txtField13" editable="false" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                        </children>
@@ -111,10 +111,10 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" />
-                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowSpan="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Salesman:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField07" promptText="Search Salesman" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" />
+                                          <TextField fx:id="txtField05" promptText="Search Customer" GridPane.columnIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2" />
                                        </children>
                                     </GridPane>
                                     <GridPane layoutX="546.0" layoutY="320.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="350.0">

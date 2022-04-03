@@ -38,11 +38,11 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.sales.base.SP_Sales;
+import org.xersys.sales.base.SalesOrder;
 
 public class SPCustomerOrderController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private SP_Sales _trans;
+    private SalesOrder _trans;
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
@@ -91,13 +91,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
     @FXML
     private TextField txtField11;
     @FXML
-    private TextField txtField12;
-    @FXML
     private TextField txtField13;
     @FXML
     private TextField txtField06;
-    @FXML
-    private TextField txtField07;
     @FXML
     private Label lblTranTotal;
     @FXML
@@ -110,6 +106,10 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
     private Label lblFreight;
     @FXML
     private TextField txtField10;
+    @FXML
+    private TextField txtField09;
+    @FXML
+    private TextField txtField05;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -128,7 +128,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         initFields();
         initListener();        
         
-        _trans = new SP_Sales(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -189,8 +189,8 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                         searchBranchInventory("sBarCodex", lsValue, false);
                         event.consume();
                         return;
-                    case "txtField07":
-                        searchSalesman("a.sClientNm", lsValue, false);
+                    case "txtField05":
+                        searchClient("a.sClientNm", lsValue, false);
                         event.consume();
                         return;
                 }
@@ -201,8 +201,8 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                         searchBranchInventory("sDescript", lsValue, false);
                         event.consume();
                         return;
-                    case "txtField07":
-                        searchSalesman("a.sClientNm", lsValue, false);
+                    case "txtField05":
+                        searchClient("a.sClientNm", lsValue, false);
                         event.consume();
                         return;
                 }
@@ -237,10 +237,10 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         
         txtSeeks01.setText("");
         txtField06.setText("");
-        txtField07.setText("");
+        txtField05.setText("");
+        txtField09.setText("0.00");
         txtField10.setText("0.00");
         txtField11.setText("0.00");
-        txtField12.setText("0.00");
         txtField13.setText("0.00");
         
         lblTranTotal.setText("0.00");
@@ -273,7 +273,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         
         txtField10.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
         txtField11.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
-        txtField12.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        txtField09.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
@@ -283,7 +283,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
     
     private void loadTransaction(){
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
-        txtField07.setText((String) _trans.getMaster("xSalesman"));
+        txtField05.setText((String) _trans.getMaster("xSalesman"));
         
         computeSummary();
         
@@ -689,7 +689,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                         computeSummary();
                         break;
                     case "sSalesman":
-                        txtField07.setText((String) foValue);
+                        txtField05.setText((String) foValue);
                         break;
                 }
             }
@@ -704,7 +704,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                         computeSummary();
                         break;
                     case 7:
-                        txtField07.setText((String) foValue);
+                        txtField05.setText((String) foValue);
                         break;
                 }
             }
@@ -730,7 +730,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         break;
-                    case "txtField07":
+                    case "txtField05":
                         _trans.setMaster("sSalesman", (String) foValue.get("sClientID"));
                         break;
                 }
@@ -842,26 +842,26 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField10.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField09.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField13.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField07.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         txtField11.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField09.setOnKeyPressed(this::txtField_KeyPressed);
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
-        txtField12.focusedProperty().addListener(txtField_Focus);
+        txtField09.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -888,8 +888,8 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         }
     }
     
-    private void searchSalesman(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchSalesman(fsKey, foValue, fbExact);
+    private void searchClient(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchClient(fsKey, foValue, fbExact);
         
         if ("success".equals((String) loJSON.get("result"))){            
             JSONParser loParser = new JSONParser();
@@ -901,7 +901,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                     case 1: //one record found
                         loJSON = (JSONObject) loArray.get(0);
                         _trans.setMaster("sSalesman", (String) loJSON.get("sClientID"));
-                        FXUtil.SetNextFocus(txtField07);
+                        FXUtil.SetNextFocus(txtField05);
                         break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
@@ -912,9 +912,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                             instance.setParentController(_main_screen_controller);
                             instance.setScreensController(_screens_controller);
 
-                            instance.setSearchObject(_trans.getSearchSalesman());
+                            instance.setSearchObject(_trans.getSearchClient());
                             instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtField07);
+                            instance.setTextField(txtField05);
 
                             _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
                         }
@@ -922,13 +922,13 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
             } catch (ParseException ex) {
                 ex.printStackTrace();
                 ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
-                txtField07.setText("");
-                FXUtil.SetNextFocus(txtField07);
+                txtField05.setText("");
+                FXUtil.SetNextFocus(txtField05);
             }
         } else {
             ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
-            txtField07.setText("");
-            FXUtil.SetNextFocus(txtField07);
+            txtField05.setText("");
+            FXUtil.SetNextFocus(txtField05);
         }
     }
     
