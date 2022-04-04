@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="Reports" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="Reports" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -66,10 +66,10 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="127.0" text="Presentation:" GridPane.columnSpan="2" />
-                                          <RadioButton mnemonicParsing="false" text="Detailed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <RadioButton mnemonicParsing="false" text="Global" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <RadioButton mnemonicParsing="false" text="Summarized" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                          <RadioButton mnemonicParsing="false" text="Chart" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                          <RadioButton fx:id="rad01" mnemonicParsing="false" text="Detailed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <RadioButton fx:id="rad03" mnemonicParsing="false" text="Global" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <RadioButton fx:id="rad02" mnemonicParsing="false" text="Summarized" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                          <RadioButton fx:id="rad04" mnemonicParsing="false" text="Chart" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
                                  </children>

@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane id="ReportCriteriaDate" fx:id="AnchorMain" prefWidth="300.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="ReportCriteriaDate" fx:id="AnchorMain" prefWidth="300.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -33,9 +33,9 @@
                                       </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="127.0" text="Date From:" />
-                                          <DatePicker fx:id="dateFrom" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+                                          <DatePicker fx:id="dateFrom" onAction="#dateFrom_Action" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                           <Label prefHeight="30.0" prefWidth="127.0" text="Date Thru:" GridPane.rowIndex="1" />
-                                          <DatePicker fx:id="dateThru" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                          <DatePicker fx:id="dateThru" onAction="#dateThru_Action" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
                                  </children>
