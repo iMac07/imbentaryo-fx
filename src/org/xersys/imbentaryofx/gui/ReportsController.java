@@ -1,14 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,26 +10,19 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRResultSetDataSource;
-import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JsonDataSource;
 import net.sf.jasperreports.swing.JRViewer;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.SQLUtil;
+import org.xersys.commander.iface.XReport;
 import org.xersys.reports.ReportMaster;
+import org.xersys.reports.ReportsFactory;
 
 public class ReportsController implements Initializable, ControlledScreen{
     @FXML
@@ -61,7 +47,6 @@ public class ReportsController implements Initializable, ControlledScreen{
     private RadioButton rad04;
     
     private ReportMaster _trans;
-    private JasperPrint _jprint;
     
     private ArrayList<String> _list;
     private int _index;
@@ -152,6 +137,7 @@ public class ReportsController implements Initializable, ControlledScreen{
         
         switch (lsButton){
             case "btn01": //load
+                processReport();
                 break;
             case "btn02": //cloase
                 if (_screens_controller.getScreenCount() > 1)
@@ -164,9 +150,32 @@ public class ReportsController implements Initializable, ControlledScreen{
         }
     }
     
-    private void showReport(){
+    private void processReport(){
+        int lnIndex = cmbReport.getSelectionModel().getSelectedIndex();        
+        
+        XReport loReport = ReportsFactory.make(_list.get(lnIndex));
+        
+        if (loReport == null) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Object for this report is not set. Please contact your system administrator.", "Warning", "");
+            return;
+        }
+        
+        System.setProperty("store.report.criteria.presentation", String.valueOf(_index));
+        
+        loReport.setNautilus(_nautilus);
+        JasperPrint loPrint = loReport.processReport();
+        
+        if (loPrint == null){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), loReport.getMessage(), "Warning", "");
+            return;
+        }
+        
+        showReport(loPrint);
+    }
+    
+    private void showReport(JasperPrint foPrint){
         SwingNode swingNode = new SwingNode();
-        JRViewer jrViewer =  new JRViewer(_jprint);
+        JRViewer jrViewer =  new JRViewer(foPrint);
         jrViewer.setOpaque(true);
         jrViewer.setVisible(true);
         jrViewer.setFitPageZoomRatio();
@@ -183,20 +192,4 @@ public class ReportsController implements Initializable, ControlledScreen{
     MainScreenController _main_screen_controller;
     ScreensController _screens_controller;  
     ScreensController _screens_dashboard_controller;
-    
-//    private void loadCriteria(){
-//        try {
-//            FXMLLoader fxmlLoader = new FXMLLoader();
-//            fxmlLoader.setLocation(getClass().getResource("ReportCriteriaDate.fxml"));
-//
-//            ReportCriteriaDateController loCriteria = new ReportCriteriaDateController();
-//            fxmlLoader.setController(loCriteria);
-//
-//            Parent loadScreen = (Parent) fxmlLoader.load();
-//
-//            AnchorCriteria.getChildren().add(loadScreen);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
