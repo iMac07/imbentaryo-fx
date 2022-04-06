@@ -34,6 +34,7 @@ import javax.sql.rowset.CachedRowSet;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.contants.UserLevel;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.CommonUtil;
 
@@ -95,7 +96,6 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
     private Button btn11;
     @FXML
     private Button btn12;
-    private ComboBox cmbOrders;
     @FXML
     private ComboBox cmbClientTp;
     @FXML
@@ -257,7 +257,7 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         txtField101.setText("");
         txtField102.setText("");
         txtField103.setText("");
-        
+                
         chkCustomer.setSelected(false);
         chkSupplier.setSelected(false);
         chkMechanic.setSelected(false);

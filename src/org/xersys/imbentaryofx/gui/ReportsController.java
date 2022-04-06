@@ -163,6 +163,12 @@ public class ReportsController implements Initializable, ControlledScreen{
         System.setProperty("store.report.criteria.presentation", String.valueOf(_index));
         
         loReport.setNautilus(_nautilus);
+        
+        if (!loReport.getParam()) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Report criteria is not set Unable to load report.", "Warning", "");
+            return;
+        }
+        
         JasperPrint loPrint = loReport.processReport();
         
         if (loPrint == null){

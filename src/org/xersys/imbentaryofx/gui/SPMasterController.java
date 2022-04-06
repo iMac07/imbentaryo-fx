@@ -383,6 +383,11 @@ public class SPMasterController implements Initializable, ControlledScreen{
             case "btn08":
                 break;
             case "btn09": //deactivate
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.DeactivateRecord((String) _trans.getMaster("sStockIDx"))){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Record deactivated successfully.", "Success", "");
                     
@@ -401,6 +406,11 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 
                 break;
             case "btn10": //activate
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.ActivateRecord((String) _trans.getMaster("sStockIDx"))){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Record activated successfully.", "Success", "");
                     
@@ -419,6 +429,11 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 
                 break;
             case "btn11": //update
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.UpdateRecord()) {
                     initButton();
                     
