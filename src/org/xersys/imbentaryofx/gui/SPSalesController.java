@@ -574,6 +574,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 if (_trans.SaveTransaction(true)){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Proceed to payment?", "Confirm", "")) loadScreen(ScreenInfo.NAME.CASHIERING);
+                    
                     _loaded = false;
 
                     initGrid();
