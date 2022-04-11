@@ -660,6 +660,24 @@ public class POReceivingController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn03": //search
+                switch (_index){
+                    case 1:
+                        searchBranchInventory("sBarCodex", txtSeeks01.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 5:
+                        searchSupplier("a.sClientNm", txtField05.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 8:
+                        searchTerm("sDescript", txtField08.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 17:
+                        searchSource("a.sTransNox", txtField17.getText().trim(), false);
+                        event.consume();
+                        return;
+                }
                 break;
             case "btn04": //save
                 if (_trans.SaveTransaction(true)){
@@ -976,12 +994,15 @@ public class POReceivingController implements Initializable, ControlledScreen{
         txtField16.setOnKeyPressed(this::txtField_KeyPressed);
         txtField17.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField08.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
         txtField13.focusedProperty().addListener(txtField_Focus);
         txtField15.focusedProperty().addListener(txtField_Focus);
         txtField16.focusedProperty().addListener(txtField_Focus);
+        txtField17.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -1001,6 +1022,10 @@ public class POReceivingController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
+                case 1:
+                case 5:
+                case 8:
+                case 17:
                 case 6: //DR No
                     _trans.setMaster("sReferNox", lsValue);
                     break;

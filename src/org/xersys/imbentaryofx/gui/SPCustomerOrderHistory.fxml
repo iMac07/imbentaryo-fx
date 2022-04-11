@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="SPCustomerOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="SPCustomerOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -41,13 +41,18 @@
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
                                        </columnConstraints>
                                        <rowConstraints>
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="102.0" text="Trans. No.:" />
-                                          <TextField fx:id="txtSeeks01" disable="true" editable="false" focusTraversable="false" GridPane.columnIndex="1" />
+                                          <TextField fx:id="txtSeeks01" GridPane.columnIndex="1" />
+                                          <Label prefHeight="30.0" prefWidth="102.0" text="Client Name:" GridPane.columnIndex="3" />
+                                          <TextField fx:id="txtSeeks02" GridPane.columnIndex="4" />
                                        </children>
                                     </GridPane>
                                     <GridPane layoutX="717.0" layoutY="14.0" prefHeight="30.0" AnchorPane.topAnchor="14.0">
@@ -59,7 +64,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <Label id="lblOrderNo" prefHeight="41.0" prefWidth="100.0" text="STATUS:" />
+                                          <Label id="lblOrderNo" prefHeight="30.0" prefWidth="118.0" text="STATUS:" />
                                           <Label id="lblOrderNo" fx:id="lblTranStat" prefHeight="30.0" prefWidth="116.0" text="OPEN" GridPane.columnIndex="1" />
                                        </children>
                                     </GridPane>
@@ -91,11 +96,11 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Disc. Rate(%):" />
-                                          <TextField fx:id="txtField10" disable="true" GridPane.columnIndex="1" />
+                                          <TextField fx:id="txtField09" disable="true" GridPane.columnIndex="1" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Addtl. Disc.:" GridPane.columnIndex="3" />
-                                          <TextField fx:id="txtField11" disable="true" GridPane.columnIndex="4" />
+                                          <TextField fx:id="txtField10" disable="true" GridPane.columnIndex="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Freight:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField12" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField11" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
                                     <GridPane layoutX="20.0" layoutY="20.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="450.0">
@@ -109,10 +114,10 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" />
-                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" disable="true" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowSpan="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Salesman:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField07" disable="true" promptText="Quick Search" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" disable="true" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" />
+                                          <TextField fx:id="txtField05" disable="true" GridPane.columnIndex="1" />
                                        </children>
                                     </GridPane>
                                     <GridPane layoutX="546.0" layoutY="320.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="350.0">
@@ -188,7 +193,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/invoice.png" />
+                                                                  <Image url="@../icons/print-invoice.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -201,7 +206,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/release.png" />
+                                                                  <Image url="@../icons/invoice.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -251,7 +256,14 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">
                                                    <children>
-                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/purchase-order.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="11">

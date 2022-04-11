@@ -87,7 +87,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         table.setOnMouseClicked(this::mouseClicked);
         
         _trans = new CashierTrans(_nautilus);
-        _trans.setSourceCd("SO;JO;WS");
+        _trans.setSourceCd("SO»JO»WS»CO");
         
         initButton();
         initGrid();
@@ -348,7 +348,7 @@ public class CashieringController implements Initializable, ControlledScreen {
     }
     
     private void payNoInvoice(){
-        if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+        if (!_source_code.isEmpty() && !_source_number.isEmpty()){           
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_NO_INVOICE);
             PaymentNoInvoiceController instance = new PaymentNoInvoiceController();
             instance.setSourceCd(_source_code);
@@ -370,6 +370,12 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private void payCharge(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+            if (_source_code.equals("CO")) {
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Customer orders are not allowede for charge invoice.", "Notice", "");
+                return;
+            }
+            
+            
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
             PaymentChargeController instance = new PaymentChargeController();
             instance.setSourceCd(_source_code);

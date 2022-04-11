@@ -26,6 +26,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
@@ -399,6 +400,24 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                 searchTransaction("a.sTransNox", "", false);
                 break;
             case "btn02": //print
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (((String) _trans.getMaster("cTranStat")).equals("3")){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to print cancelled transaction.", "Warning", "");
+                    return;
+                }
+                
+                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was printed successfully.", "Success", "");
+                break;
+            case "btn03":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CloseTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
                     
@@ -409,20 +428,14 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                     searchTransaction("a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
-                break;
-            case "btn03":
-                if (_trans.PostTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction posted successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                    
-                    _trans.setTranStat(2);
-                    searchTransaction("a.sTransNox", _old_trans, true);
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
                 break;
             case "btn04":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CancelTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
@@ -435,6 +448,21 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (_trans.PostTransaction()){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction posted successfully.", "Success", "");
+                    
+                    initGrid();
+                    clearFields();
+                    
+                    _trans.setTranStat(2);
+                    searchTransaction("a.sTransNox", _old_trans, true);
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn06":
                 break;
@@ -576,9 +604,9 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         
         btn01.setText("Browse");
         btn02.setText("Print");
-        btn03.setText("Confirm");
+        btn03.setText("Approve");
         btn04.setText("Cancel");
-        btn05.setText("");
+        btn05.setText("Post");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");

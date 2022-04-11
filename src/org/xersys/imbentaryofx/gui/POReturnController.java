@@ -185,7 +185,21 @@ public class POReturnController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    System.out.println(this.getClass().getSimpleName() + " " + lsTxt + " was used for searching");                    
+                    searchBranchInventory("sBarCodex", lsValue, true);
+                    event.consume();
+                    return;
+                case "txtField05":
+                    searchSupplier("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField16":
+                    searchSource("a.sTransNox", lsValue, false);
+                    event.consume();
+                    return;
+            }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
                     searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
@@ -478,6 +492,20 @@ public class POReturnController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn03": //search
+                switch (_index){
+                    case 1:
+                        searchBranchInventory("sBarCodex", txtSeeks01.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 5:
+                        searchSupplier("a.sClientNm", txtField05.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 16:
+                        searchSource("a.sTransNox", txtField16.getText().trim(), false);
+                        event.consume();
+                        return;
+                }
                 break;
             case "btn04": //save
                 if (_trans.SaveTransaction(true)){
@@ -777,6 +805,7 @@ public class POReturnController implements Initializable, ControlledScreen{
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
         txtField16.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField09.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
@@ -919,6 +948,7 @@ public class POReturnController implements Initializable, ControlledScreen{
                             break;
                     }
                     break;
+                case 1:
                 case 5:
                 case 16:
                     break;

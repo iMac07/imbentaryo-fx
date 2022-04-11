@@ -47,6 +47,7 @@ public class PaymentController implements Initializable, ControlledScreen {
     
     private String _source_code = "";
     private String _source_number = "";
+    
     private XPayments _trans;
     
     @FXML
@@ -78,8 +79,6 @@ public class PaymentController implements Initializable, ControlledScreen {
     @FXML
     private Label lblTranTotal;
     @FXML
-    private Label lblAdvancePayment;
-    @FXML
     private Label lblNetPayable;
     @FXML
     private Label lblVATableSales;
@@ -102,13 +101,14 @@ public class PaymentController implements Initializable, ControlledScreen {
     @FXML
     private TextField txtTIN;
     @FXML
-    private AnchorPane anchorPaymentType;
-    @FXML
+    private AnchorPane anchorPaymentType;    @FXML
     private TextField txtField04;
     @FXML
     private TextField txtField05;
     @FXML
     private TextField txtField12;
+    @FXML
+    private TextField txtField11;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -142,6 +142,8 @@ public class PaymentController implements Initializable, ControlledScreen {
             case "WS":
                 _trans = new PaymentFactory().make(InvoiceType.SALES_INVOICE, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
                 break;
+            case "JO":
+                break;
             default:
                 _trans = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
         }
@@ -157,7 +159,8 @@ public class PaymentController implements Initializable, ControlledScreen {
             System.exit(1);
         }
         
-        loadCreditCard();
+        //do not allow credit card payments of customer orders
+        if (!_source_code.equals("CO")) loadCreditCard();
         
         _loaded = true;
     }    
@@ -191,10 +194,12 @@ public class PaymentController implements Initializable, ControlledScreen {
     
     private void initListener(){
         txtField04.focusedProperty().addListener(txtField_Focus);
+        txtField11.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
         
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
         
         _listener = new LRecordMas() {
@@ -206,6 +211,10 @@ public class PaymentController implements Initializable, ControlledScreen {
                         break;
                     case "sClientID":
                         txtField05.setText((String) foValue);
+                        break;
+                    case "nAdvPaymx":
+                        txtField11.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
+                        displayTotalPayment();
                         break;
                     case "nCashAmtx":
                         txtField12.setText(StringUtil.NumberFormat((Number) foValue, "#,##0.00"));
@@ -270,7 +279,6 @@ public class PaymentController implements Initializable, ControlledScreen {
     }
     
     private void clearFields(){
-        lblAdvancePayment.setText("0.00");
         lblChequeAmount.setText("0.00");
         lblCreditCardAmount.setText("0.00");
         lblGCAmount.setText("0.00");
@@ -282,7 +290,6 @@ public class PaymentController implements Initializable, ControlledScreen {
         lblZeroRatedSales.setText("0.00");
         
         lblTranTotal.setText("0.00");
-        lblAdvancePayment.setText("0.00");
         lblNetPayable.setText("0.00");
         lblTotalPayment.setText("0.00");
         
@@ -291,11 +298,11 @@ public class PaymentController implements Initializable, ControlledScreen {
         txtTIN.setText("");
         
         txtField04.setText("");
+        txtField11.setText("0.00");
         txtField12.setText("0.00");
     }
     
     private void loadTransaction(){
-        lblAdvancePayment.setText("0.00");
         lblCreditCardAmount.setText(StringUtil.NumberFormat(_trans.getCreditCardInfo().getPaymentTotal(), "#,##0.00"));
         lblChequeAmount.setText("0.00");
         lblGCAmount.setText("0.00");
@@ -306,12 +313,18 @@ public class PaymentController implements Initializable, ControlledScreen {
         lblNonVATSales.setText("0.00");
         lblZeroRatedSales.setText("0.00");
         
-        lblTranTotal.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nTranTotl"), "#,##0.00"));
-        lblAdvancePayment.setText("0.00");
-        lblNetPayable.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nTranTotl"), "#,##0.00"));
+        double lnTranTotl = (double) _trans.getMaster("nTranTotl");        
+        
+        lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
+        lblNetPayable.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalPayment.setText("0.00");
         
+        txtField05.setText((String) _trans.getMaster("sClientNm"));
+        txtAddress.setText("");
+        txtTIN.setText("");
+        
         txtField04.setText("");
+        txtField11.setText("0.00");
         txtField12.setText("0.00");
         
         txtField05.setDisable(!txtField05.getText().isEmpty());
@@ -359,7 +372,7 @@ public class PaymentController implements Initializable, ControlledScreen {
         btn12.setText("Cancel");              
         
         btn01.setVisible(true);
-        btn02.setVisible(true);
+        btn02.setVisible(!_source_code.equals("CO"));
         btn03.setVisible(false);
         btn04.setVisible(false);
         btn05.setVisible(false);
@@ -573,6 +586,15 @@ public class PaymentController implements Initializable, ControlledScreen {
                 case 5: //sClientID
                     _trans.setMaster("nCashAmtx", lsValue);
                     break;
+                case 11: //nAdvPaymx
+                    if (!StringUtil.isNumeric(lsValue)){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount value must be numeric.", "Warning", "");
+                        _trans.setMaster("nAdvPaymx", 0.00);
+                        return;
+                    }
+                    
+                    _trans.setMaster("nAdvPaymx", Double.valueOf(lsValue));
+                    break;
                 case 12: //nCashAmtx
                     if (!StringUtil.isNumeric(lsValue)){
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount value must be numeric.", "Warning", "");
@@ -586,10 +608,16 @@ public class PaymentController implements Initializable, ControlledScreen {
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
             }
             _index = lnIndex;
-        } else{ //Got Focus     
-            if (lnIndex == 12){
-                txtField12.setText(String.valueOf(_trans.getMaster("nCashAmtx")));
+        } else{ //Got Focus 
+            switch (lnIndex){
+                case 11:
+                    txtField11.setText(String.valueOf(_trans.getMaster("nAdvPaymx")));
+                    break;
+                case 12:
+                    txtField12.setText(String.valueOf(_trans.getMaster("nCashAmtx")));
+                    break;
             }
+            
             _index = lnIndex;
             txtField.selectAll();
         }
