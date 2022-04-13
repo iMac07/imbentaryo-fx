@@ -1030,6 +1030,12 @@ public class JobOrderController implements Initializable, ControlledScreen{
             case "btn07":
                 break;
             case "btn08": //catalogue
+                searchEstimate(txtSeeks03, "a.sTransNox", "", false);
+                break;
+            case "btn09": //load job estimate
+                loadScreen(ScreenInfo.NAME.JOB_ESTIMATE);
+                break;
+            case "btn10": //job estimate
                 JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
 
                 if (loJSON != null){
@@ -1042,12 +1048,6 @@ public class JobOrderController implements Initializable, ControlledScreen{
 
                     _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
                 }
-                break;
-            case "btn09": //load job estimate
-                searchEstimate(txtSeeks03, "a.sTransNox", "", false);
-                break;
-            case "btn10": //job estimate
-                loadScreen(ScreenInfo.NAME.JOB_ESTIMATE);
                 break;
             case "btn11": //history
                 loadScreen(ScreenInfo.NAME.JOB_ORDER_HISTORY);
@@ -1108,6 +1108,10 @@ public class JobOrderController implements Initializable, ControlledScreen{
             public void FormClosing() {
                 _loaded = false;
                 
+                //reload temp transactions
+                _trans.loadTempTransactions();
+                
+                cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
                 createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
                 initButton();
                 clearFields();
@@ -1408,9 +1412,9 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn05.setText("End");
         btn06.setText("Save");
         btn07.setText("");
-        btn08.setText("Catalogue");
-        btn09.setText("Load Est");
-        btn10.setText("Estimate");
+        btn08.setText("Load Est");
+        btn09.setText("Estimate");
+        btn10.setText("Catalogue");
         btn11.setText("History");
         btn12.setText("Close");
         
@@ -1433,7 +1437,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         btn05.setVisible(lnEditMode == EditMode.ADDNEW);
         btn06.setVisible(lnEditMode == EditMode.ADDNEW);
-        btn09.setVisible(lnEditMode == EditMode.ADDNEW);
+        btn08.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtSeeks02.setDisable(lnEditMode != EditMode.ADDNEW);

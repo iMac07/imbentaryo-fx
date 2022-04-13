@@ -31,8 +31,11 @@ import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
+import org.xersys.sales.base.JobEstimate;
+import org.xersys.sales.base.JobOrder;
 import org.xersys.sales.base.PartsCatalogue;
 import org.xersys.sales.base.SP_Sales;
+import org.xersys.sales.base.SalesOrder;
 
 public class PartsCatalogueController implements Initializable, ControlledScreen{
     @FXML
@@ -225,11 +228,113 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No item on shopping cart.", "Notice", "");
                 }
                 break;
-            case "btn02":
+            case "btn02": //add to JO
+                if (!System.getProperty("shopping.cart").isEmpty()){                    
+                    JSONArray loArray;
+                    JSONObject loJSON;
+                    JSONParser loParser = new JSONParser();
+                   
+                    try {
+                        loArray = (JSONArray) loParser.parse(System.getProperty("shopping.cart"));
+                        
+                        if (loArray.size() > 0){
+                            JobOrder loSales = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                            loSales.setSaveToDisk(true);
+                            
+                            if (loSales.NewTransaction()){     
+                                int lnRow = 0;
+                                for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
+                                    loJSON = (JSONObject) loArray.get(lnCtr);                                   
+                                    
+                                    loSales.setParts(lnRow, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                                    loSales.setParts(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+                                    lnRow++;
+                                }
+                            }
+                        }
+                        
+                        _close_listener.FormClosing(); //inform the parent the thhis form was closing
+                        _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException on " + lsProcName, "Notice", "");
+                    }                    
+                } else {
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No item on shopping cart.", "Notice", "");
+                }
                 break;
-            case "btn03":
+            case "btn03": //add to Estimate
+                if (!System.getProperty("shopping.cart").isEmpty()){                    
+                    JSONArray loArray;
+                    JSONObject loJSON;
+                    JSONParser loParser = new JSONParser();
+                   
+                    try {
+                        loArray = (JSONArray) loParser.parse(System.getProperty("shopping.cart"));
+                        
+                        if (loArray.size() > 0){
+                            JobEstimate loSales = new JobEstimate(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                            loSales.setSaveToDisk(true);
+                            
+                            if (loSales.NewTransaction()){     
+                                int lnRow = 0;
+                                for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
+                                    loJSON = (JSONObject) loArray.get(lnCtr);                                   
+                                    
+                                    loSales.setParts(lnRow, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                                    loSales.setParts(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+                                    lnRow++;
+                                }
+                            }
+                        }
+                        
+                        _close_listener.FormClosing(); //inform the parent the thhis form was closing
+                        _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException on " + lsProcName, "Notice", "");
+                    }                    
+                } else {
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No item on shopping cart.", "Notice", "");
+                }
                 break;
-            case "btn04": 
+            case "btn04": //add to CO
+                if (!System.getProperty("shopping.cart").isEmpty()){                    
+                    JSONArray loArray;
+                    JSONObject loJSON;
+                    JSONParser loParser = new JSONParser();
+                   
+                    try {
+                        loArray = (JSONArray) loParser.parse(System.getProperty("shopping.cart"));
+                        
+                        if (loArray.size() > 0){
+                            SalesOrder loSales = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                            loSales.setSaveToDisk(true);
+                            
+                            if (loSales.NewTransaction()){     
+                                int lnRow = 0;
+                                for (int lnCtr = 0; lnCtr <= loArray.size()-1; lnCtr++){
+                                    loJSON = (JSONObject) loArray.get(lnCtr);                                   
+                                    
+                                    loSales.setDetail(lnRow, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                                    loSales.setDetail(lnRow, "nQuantity", (int) (long) loJSON.get("nQuantity")); 
+                                    lnRow++;
+                                }
+                            }
+                        }
+                        
+                        _close_listener.FormClosing(); //inform the parent the thhis form was closing
+                        _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException on " + lsProcName, "Notice", "");
+                    }                    
+                } else {
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No item on shopping cart.", "Notice", "");
+                }
                 break;
             case "btn05":
                 break;
@@ -300,8 +405,8 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         
         btn01.setText("To POS");
         btn02.setText("To JO");
-        btn03.setText("To CO");
-        btn04.setText("");
+        btn03.setText("To JEst");
+        btn04.setText("To CO");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -314,7 +419,7 @@ public class PartsCatalogueController implements Initializable, ControlledScreen
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(false);
+        btn04.setVisible(true);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

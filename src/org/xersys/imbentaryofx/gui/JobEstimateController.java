@@ -1015,12 +1015,15 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             public void FormClosing() {
                 _loaded = false;
                 
+                //reload temp transactions
+                _trans.loadTempTransactions();
+                
+                cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                
                 createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
                 initButton();
                 clearFields();
                 loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
                
                _loaded = true;
 
