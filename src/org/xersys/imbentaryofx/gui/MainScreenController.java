@@ -452,6 +452,8 @@ public class MainScreenController implements Initializable {
                 loadScreen(ScreenInfo.NAME.SP_SALES); break;
             case "customer order":
                 loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER); break;
+            case "co releasing":
+                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_ISSUANCE); break;
             case "whole sale":
                 loadScreen(ScreenInfo.NAME.SP_WHOLESALE); break;
             case "mc repair":

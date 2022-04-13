@@ -185,7 +185,7 @@ public class POReturnController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchBranchInventory("sBarCodex", lsValue, true);
+                    searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
                 case "txtField05":
@@ -685,6 +685,12 @@ public class POReturnController implements Initializable, ControlledScreen{
 
             @Override
             public void FormClosing(TextField foField) {
+                switch (foField.getId()){
+                case "txtField05":    
+                    foField.setText((String) _trans.getMaster("sClientNm")); break;
+                case "txtField16":
+                    foField.setText((String) _trans.getMaster("sPOTransx")); break;
+                }
                 foField.requestFocus();
             }
         };

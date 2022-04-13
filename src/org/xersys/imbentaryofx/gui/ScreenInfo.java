@@ -18,6 +18,8 @@ public class ScreenInfo {
         CUSTOMER_ORDER,
         CUSTOMER_ORDER_DETAIL,
         CUSTOMER_ORDER_HISTORY,
+        CUSTOMER_ORDER_ISSUANCE,
+        CUSTOMER_ORDER_ISSUANCE_DETAIL,
         DASHBOARD,
         CART, 
         QUICK_SEARCH,
@@ -99,6 +101,14 @@ public class ScreenInfo {
             case CUSTOMER_ORDER_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderHistoryController");
+                return loJSON;
+            case CUSTOMER_ORDER_ISSUANCE:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderIssuance.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderIssuanceController");
+                return loJSON;
+            case CUSTOMER_ORDER_ISSUANCE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderIssuanceDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderIssuanceDetailController");
                 return loJSON;
             case DASHBOARD:
                 loJSON.put("resource", RESOURCE_URL + "Dashboard.fxml");

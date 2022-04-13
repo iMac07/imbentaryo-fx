@@ -179,7 +179,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchBranchInventory("sBarCodex", lsValue, true);
+                    searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
                 case "txtField06":
@@ -761,6 +761,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
 
             @Override
             public void FormClosing(TextField foField) {
+                switch (foField.getId()){
+                case "txtField06":    
+                    foField.setText((String) _trans.getMaster("sClientNm")); break;
+                case "txtField08":
+                    foField.setText((String) _trans.getMaster("sTermName")); break;
+                }
                 foField.requestFocus();
             }
         };
