@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="SPCustomerOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="SPCustomerOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -251,7 +251,14 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="9">
                                                    <children>
-                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/point-of-sale.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">

@@ -278,9 +278,6 @@ public class CashieringController implements Initializable, ControlledScreen {
             case "btn01": //pay
                 if (!_source_code.isEmpty() && !_source_number.isEmpty()) {
                     payWithInvoice();
-                    
-                    //option for non invoice payment
-                    //payNoInvoice();
                 }
                 break;
             case "btn02": //release
@@ -328,22 +325,43 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private void payWithInvoice(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
-            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
-            PaymentController instance = new PaymentController();
-            instance.setSourceCd(_source_code);
-            instance.setSourceNo(_source_number);
+            JSONObject loJSON;
+                    
+            if (_source_code.equals("JO")){
+                loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_JO);
+                PaymentJOController instance = new PaymentJOController();
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
 
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            instance.setDashboardScreensController(_screens_dashboard_controller);
-            instance.setSourceCd(_source_code);
-            instance.setSourceNo(_source_number);
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
+                
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+            } else{
+                loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
+                PaymentController instance = new PaymentController();
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
 
-            //close this screen
-            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-            //load the payment screen
-            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
+                
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+            }
         }
     }
     

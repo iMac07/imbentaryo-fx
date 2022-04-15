@@ -38,6 +38,7 @@ public class ScreenInfo {
         PAYMENT,
         PAYMENT_NO_INVOICE,
         PAYMENT_CHARGE,
+        PAYMENT_JO,
         SP_SALES,
         SP_SALES_HISTORY,
         SP_INV_MASTER,
@@ -189,6 +190,10 @@ public class ScreenInfo {
             case PAYMENT_CHARGE:
                 loJSON.put("resource", RESOURCE_URL + "PaymentCharge.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PaymentChargeController");
+                return loJSON;
+            case PAYMENT_JO:
+                loJSON.put("resource", RESOURCE_URL + "PaymentJO.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PaymentJOController");
                 return loJSON;
             case SP_SALES:
                 loJSON.put("resource", RESOURCE_URL + "SPSales.fxml");

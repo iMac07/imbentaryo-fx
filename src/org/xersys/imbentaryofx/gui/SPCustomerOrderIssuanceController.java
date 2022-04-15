@@ -10,7 +10,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -37,9 +36,7 @@ import org.xersys.commander.util.StringUtil;
 import org.xersys.sales.base.SalesOrder;
 import org.xersys.sales.search.SalesSearch;
 
-public class SPCustomerOrderIssuanceController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
-    
+public class SPCustomerOrderIssuanceController implements Initializable, ControlledScreen{    
     private XNautilus _nautilus;
     private SalesOrder _trans;
     private LMasDetTrans _listener;
@@ -213,6 +210,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         initGrid();
         
         txtSeeks01.setText("");
+        txtSeeks02.setText("");
         txtField05.setText("");
         txtField06.setText("");
         txtField09.setText("0.00");
@@ -223,6 +221,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
         lblPayable.setText("0.00");
+        lblPaymTotl.setText("0.00");
 
         _table_data.clear();
         
@@ -364,7 +363,6 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         computeSummary();
         
-        txtSeeks01.setText("");
         txtSeeks01.requestFocus();
     }
     
@@ -410,7 +408,6 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         computeSummary();
         
-        txtSeeks01.setText("");
         txtSeeks01.requestFocus();
     }
     
@@ -448,6 +445,36 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
             @Override
             public void FormClosing(TextField foField) {
                 foField.requestFocus();
+            }
+        };
+        
+        _detail_update_callback = new DetailUpdateCallback() {
+            @Override
+            public void Result(int fnRow, int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 8:
+                        _trans.setDetail(fnRow, "nReleased", foValue);
+                        break;
+                }
+                loadDetail();
+            }
+            
+            @Override
+            public void Result(int fnRow, String fsIndex, Object foValue){
+                switch(fsIndex){
+                    case "nReleased":
+                        _trans.setDetail(fnRow, fsIndex, foValue);
+                        break;
+                }
+                loadDetail();
+            }
+
+            @Override
+            public void RemovedItem(int fnRow) {
+            }
+
+            @Override
+            public void FormClosing() {
             }
         };
     }
@@ -495,27 +522,27 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(75);
         
         index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(80);
+        index06.prefWidthProperty().set(75);
         
         index07.setText("Cancelled"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(80);
+        index07.prefWidthProperty().set(75);
         
         index08.setText("Approved"); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(80);
+        index08.prefWidthProperty().set(75);
         
         index09.setText("Released"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(80);
+        index09.prefWidthProperty().set(75);
         
         index10.setText("Issued"); 
         index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(80);
+        index10.prefWidthProperty().set(75);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -533,7 +560,36 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
     }
     
     private void tableClicked(MouseEvent event) { 
+        if (_trans.getEditMode() != EditMode.UPDATE) return;
+        
         _detail_row = _table.getSelectionModel().getSelectedIndex();
+        
+        if (event.getClickCount() >= 2){
+            if (_detail_row >= 0){
+                //multiple result, load the quick search to display records
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.CUSTOMER_ORDER_ISSUANCE_DETAIL);
+                
+                SPCustomerOrderIssuanceDetailController instance = new SPCustomerOrderIssuanceDetailController();
+                
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setCallback(_detail_update_callback);
+                
+                instance.setDetailRow(_detail_row);
+                instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
+                instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
+                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
+                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQuantity"))));
+                instance.setApproved(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nApproved"))));
+                instance.setCancelled(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nCancelld"))));
+                instance.setIssued(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nIssuedxx"))));
+                instance.setReleased(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nReleased"))));
+                
+                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            }
+        }
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -567,7 +623,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
             case "btn03": //save
                 
                 if (_trans.SaveTransaction(true)){
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction updated successfully.", "Warning", "");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction updated successfully.", "Warning", "");
                     
                     _loaded = false;
                     clearFields();
@@ -578,6 +634,13 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 
                 break;
             case "btn04": //cancel update
+                _trans = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                _trans.setSaveToDisk(false);
+                _trans.setListener(_listener);
+                _trans.setApprvListener(_approval);
+
+                clearFields();
+                initButton();
                 break;
             case "btn05":
                 break;

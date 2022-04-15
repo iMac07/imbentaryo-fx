@@ -217,6 +217,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         initGrid();
         
         txtSeeks01.setText("");
+        txtSeeks02.setText("");
         txtField05.setText("");
         txtField06.setText("");
         txtField09.setText("0.00");
@@ -275,6 +276,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
         btn11.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
     }
     
@@ -345,6 +347,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
+        int lnReleased;
+        int lnIssuedxx;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
@@ -352,16 +356,23 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
             lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
+            lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        String.valueOf(lnReleased),
+                        String.valueOf(lnIssuedxx),
+                        "",
+                        "",
+                        "",
                         ""));
         }
 
@@ -373,7 +384,6 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         
         computeSummary();
         
-        txtSeeks01.setText("");
         txtSeeks01.requestFocus();
     }
     
@@ -388,6 +398,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
+        int lnReleased;
+        int lnIssuedxx;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
@@ -395,16 +407,23 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
             lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
+            lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
+                        StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        String.valueOf(lnReleased),
+                        String.valueOf(lnIssuedxx),
+                        "",
+                        "",
+                        "",
                         ""));
         }
 
@@ -416,7 +435,6 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         
         computeSummary();
         
-        txtSeeks01.setText("");
         txtSeeks01.requestFocus();
     }
     
@@ -468,16 +486,20 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
         TableColumn index09 = new TableColumn("");
+        TableColumn index10 = new TableColumn("");
+        TableColumn index11 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");        
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");        
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER;");        
+        index11.setSortable(false); index11.setResizable(false); index11.setStyle( "-fx-alignment: CENTER;");        
         
         _table.getColumns().clear();        
         
@@ -493,13 +515,13 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(200);
         
-        index04.setText("Unit Price"); 
+        index04.setText("QOH"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(80);
+        index04.prefWidthProperty().set(60);
         
-        index05.setText("QOH"); 
+        index05.setText("SRP"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(60);
+        index05.prefWidthProperty().set(85);
         
         index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
@@ -517,6 +539,14 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
         index09.prefWidthProperty().set(85);
         
+        index10.setText("Released"); 
+        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
+        index10.prefWidthProperty().set(60);
+        
+        index11.setText("Issued"); 
+        index11.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index11"));
+        index11.prefWidthProperty().set(60);
+        
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
         _table.getColumns().add(index03);
@@ -526,6 +556,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
         _table.getColumns().add(index09);
+        _table.getColumns().add(index10);
+        _table.getColumns().add(index11);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -689,8 +721,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
-        btn11.setText("Send to PO");
+        btn10.setText("TO POS");
+        btn11.setText("To PO");
         btn12.setText("Close");
         
         btn01.setVisible(true);
