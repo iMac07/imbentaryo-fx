@@ -393,6 +393,11 @@ public class CashieringController implements Initializable, ControlledScreen {
                 return;
             }
             
+            if (_source_code.equals("JO")) {
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Job orders are not allowede for charge invoice.", "Notice", "");
+                return;
+            }
+            
             
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
             PaymentChargeController instance = new PaymentChargeController();

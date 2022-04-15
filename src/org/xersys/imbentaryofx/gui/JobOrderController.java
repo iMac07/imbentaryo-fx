@@ -258,6 +258,41 @@ public class JobOrderController implements Initializable, ControlledScreen{
                     event.consume();
                     return;
             }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
+                    searchLabor("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtSeeks02":
+                    searchBranchInventory("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField03":
+                    searchClient("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField37":
+                    searchSerial(txtField37, "a.sSerial01", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField38":
+                    searchSerial(txtField38, "a.sSerial02", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField07":
+                    searchMCDealer("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField08":
+                    searchMechanic("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField09":
+                    searchAdvisor("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+            }
         }
         
         switch (event.getCode()){
@@ -985,6 +1020,40 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 clearTransaction();
                 break;
             case "btn03": //search
+                switch (_index){
+                    case 1:
+                        searchLabor("sDescript", txtSeeks01.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 2:
+                        searchBranchInventory("sDescript", txtSeeks02.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 3:
+                        searchClient("a.sClientNm", txtField03.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 37:
+                        searchSerial(txtField37, "a.sSerial01", txtField37.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 38:
+                        searchSerial(txtField38, "a.sSerial02", txtField38.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 7:
+                        searchMCDealer("sDescript", txtField07.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 8:
+                        searchMechanic("a.sClientNm", txtField08.getText().trim(), false);
+                        event.consume();
+                        return;
+                    case 9:
+                        searchAdvisor("a.sClientNm", txtField09.getText().trim(), false);
+                        event.consume();
+                        return;
+                }
                 break;
             case "btn04": //start
                 if (_trans.getItemCount() == 1 && 
@@ -1477,8 +1546,16 @@ public class JobOrderController implements Initializable, ControlledScreen{
         txtField25.setOnKeyPressed(this::txtField_KeyPressed);
         txtField26.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtSeeks02.focusedProperty().addListener(txtField_Focus);
+        txtField03.focusedProperty().addListener(txtField_Focus);
+        txtField37.focusedProperty().addListener(txtField_Focus);
+        txtField38.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
+        txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField08.focusedProperty().addListener(txtField_Focus);
+        txtField09.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
         txtField24.focusedProperty().addListener(txtField_Focus);
@@ -1604,6 +1681,15 @@ public class JobOrderController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
+                case 1:
+                case 2:
+                case 3:
+                case 7:
+                case 8:
+                case 9:
+                case 37:
+                case 38:
+                    break;
                 case 5: //sJobDescr
                     _trans.setMaster(lnIndex, lsValue);
                     break;

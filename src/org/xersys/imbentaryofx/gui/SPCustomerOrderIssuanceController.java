@@ -225,7 +225,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
 
         _table_data.clear();
         
-        _transtat = 1;
+        _transtat = 10;
     }
     
     private void computeSummary(){
@@ -779,7 +779,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
     
-        _transtat = 1;
+        _transtat = 10;
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{

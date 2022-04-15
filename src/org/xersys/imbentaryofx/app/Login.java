@@ -3,6 +3,7 @@ package org.xersys.imbentaryofx.app;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 import javafx.application.Application;
 import org.xersys.imbentaryofx.gui.Imbentaryo;
@@ -10,6 +11,10 @@ import org.xersys.commander.base.Nautilus;
 import org.xersys.commander.base.Property;
 import org.xersys.commander.base.SQLConnection;
 import org.xersys.commander.crypt.CryptFactory;
+import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
+import org.xersys.commander.util.MiscUtil;
+import org.xersys.commander.util.SQLUtil;
 
 public class Login {
     public static void main (String [] args){
@@ -54,11 +59,20 @@ public class Login {
         System.setProperty("sys.default.path.config", path);
         
         loadProperties();
+        delPrevDayTrans(loNautilus);
         
         Imbentaryo _instance = new Imbentaryo();
         _instance.setNautilus(loNautilus);
         
         Application.launch(_instance.getClass());
+    }
+    
+    private static void delPrevDayTrans(XNautilus foNautilus){
+        String lsDate = SQLUtil.dateFormat(foNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE);                
+                
+        String lsSQL = "DELETE FROM xxxTempTransactions WHERE dCreatedx < " + SQLUtil.toSQL(lsDate + " 00:00:00");
+        
+        foNautilus.executeUpdate(lsSQL);
     }
     
     private static boolean loadProperties(){

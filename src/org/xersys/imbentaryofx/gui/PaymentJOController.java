@@ -28,7 +28,6 @@ import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.PaymentFactory;
-import org.xersys.imbentaryofx.listener.PaymentListener;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 
 public class PaymentJOController implements Initializable, ControlledScreen {
@@ -184,11 +183,38 @@ public class PaymentJOController implements Initializable, ControlledScreen {
         txtField02.focusedProperty().addListener(txtField_Focus);
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
+        txtField05.focusedProperty().addListener(txtField_Focus);
         
         txtField01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField02.setOnKeyPressed(this::txtField_KeyPressed);
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        
+        _listener_si = new LRecordMas() {
+            @Override
+            public void MasterRetreive(String fsIndex, Object foValue) {
+                switch (fsIndex){
+                    case "sInvNumbr":
+                        txtField02.setText((String) foValue);
+                        break;
+                    case "nCashAmtx":
+                        txtField05.setText(String.valueOf((double) foValue));
+                        
+                        lblTotalPayment.setText(StringUtil.NumberFormat(
+                                                (double) _trans_or.getMaster("nCashAmtx") +
+                                                (double) _trans_si.getMaster("nCashAmtx"), "#,##0.00"));
+                        break;
+                    case "sClientID":
+                        txtField03.setText((String) foValue);
+                        break;
+                }
+            }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
+        };
         
         _listener_or = new LRecordMas() {
             @Override
@@ -196,6 +222,13 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 switch (fsFieldNm){
                     case "sInvNumbr":
                         txtField01.setText((String) foValue);
+                        break;
+                    case "nCashAmtx":
+                        txtField04.setText(String.valueOf((double) foValue));
+                        
+                        lblTotalPayment.setText(StringUtil.NumberFormat(
+                                                (double) _trans_or.getMaster("nCashAmtx") +
+                                                (double) _trans_si.getMaster("nCashAmtx"), "#,##0.00"));
                         break;
                     case "sClientID":
                         txtField03.setText((String) foValue);
@@ -252,10 +285,19 @@ public class PaymentJOController implements Initializable, ControlledScreen {
     
     private void loadTransaction(){        
         lblLabor.setText("0.00");
-        lblParts.setText("0.00");
+        lblParts.setText("0.00");   
         lblNetPayable.setText("0.00");
         lblTotalPayment.setText("0.00");
         
+        lblLabor.setText(StringUtil.NumberFormat((double) _trans_or.getMaster("nTranTotl"), "#,##0.00"));
+        lblParts.setText(StringUtil.NumberFormat((double) _trans_si.getMaster("nTranTotl"), "#,##0.00"));
+        
+        txtField01.setDisable((double) _trans_or.getMaster("nTranTotl") <= 0.00);
+        txtField04.setDisable((double) _trans_or.getMaster("nTranTotl") <= 0.00);
+        
+        txtField02.setDisable((double) _trans_si.getMaster("nTranTotl") <= 0.00);
+        txtField05.setDisable((double) _trans_si.getMaster("nTranTotl") <= 0.00);
+                
         double lnTranTotl = (double) _trans_or.getMaster("nTranTotl") +
                             (double) _trans_si.getMaster("nTranTotl");        
         
@@ -265,7 +307,10 @@ public class PaymentJOController implements Initializable, ControlledScreen {
         txtAddress.setText("");
         txtTIN.setText("");
         
-        txtField04.setText("");        
+        txtField01.setText("");        
+        txtField02.setText("");        
+        txtField04.setText("0.00");        
+        txtField05.setText("0.00");
         
         txtField03.setDisable(!txtField03.getText().isEmpty());
         txtField01.requestFocus();
@@ -326,22 +371,48 @@ public class PaymentJOController implements Initializable, ControlledScreen {
     }
     
     private void cmdButton_Click(ActionEvent event) {
-        String lsButton = ((Button) event.getSource()).getId();
-        System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
+        String lsButton = ((Button) event.getSource()).getId();       
         
         switch (lsButton){
-            case "btn01":
-                if (_trans_or.SaveTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
-                    
-                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the invoice?", "Confirm", "")){
+            case "btn01":        
+                if ((double) _trans_or.getMaster("nTranTotl") > (double) _trans_or.getMaster("nCashAmtx")){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount is less than the total labor.", "Warning", "");
+                    return;
+                }
+                
+                if ((double) _trans_si.getMaster("nTranTotl") > (double) _trans_si.getMaster("nCashAmtx")){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount is less than the total parts.", "Warning", "");
+                    return;
+                }
+                
+                if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){
+                    if (!_trans_or.SaveTransaction()){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
+                        return;
+                    }
+                }
+                
+                if ((double) _trans_si.getMaster("nCashAmtx") > 0.00){
+                    if (!_trans_si.SaveTransaction()){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_si.getMessage(), "Warning", "");
+                        return;
+                    }
+                }
+                
+                if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the Official Receipt?", "Confirm", "")){
                         if (!_trans_or.PrintTransaction()) 
                             ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
                     }
-                } else {
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
                 }
-                
+
+                if ((double) _trans_si.getMaster("nCashAmtx") > 0.00){
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the Sales Invoice?", "Confirm", "")){
+                        if (!_trans_si.PrintTransaction()) 
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_si.getMessage(), "Warning", "");
+                    }
+                }
+
                 //close this screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 break;
@@ -414,7 +485,7 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
-                case "txtField05":
+                case "txtField03":
                     searchClient("a.sClientNm", lsValue, false);
                     event.consume();
                     return;
@@ -522,11 +593,11 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 case 5: //nCashAmtx - SI
                     if (!StringUtil.isNumeric(lsValue)){
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cash amount value must be numeric.", "Warning", "");
-                        _trans_or.setMaster("nCashAmtx", 0.00);
+                        _trans_si.setMaster("nCashAmtx", 0.00);
                         return;
                     }
                     
-                    _trans_or.setMaster("nCashAmtx", Double.valueOf(lsValue));
+                    _trans_si.setMaster("nCashAmtx", Double.valueOf(lsValue));
                     break;
                 default:
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
@@ -534,11 +605,11 @@ public class PaymentJOController implements Initializable, ControlledScreen {
             _index = lnIndex;
         } else{ //Got Focus 
             switch (lnIndex){
-                case 1:
-                    txtField01.setText(String.valueOf(_trans_or.getMaster("nCashAmtx")));
+                case 4:
+                    txtField04.setText(String.valueOf(_trans_or.getMaster("nCashAmtx")));
                     break;
-                case 2:
-                    txtField02.setText(String.valueOf(_trans_si.getMaster("nCashAmtx")));
+                case 5:
+                    txtField05.setText(String.valueOf(_trans_si.getMaster("nCashAmtx")));
                     break;
             }
             

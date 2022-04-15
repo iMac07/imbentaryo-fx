@@ -252,6 +252,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField11.setText("0.00");
         txtField12.setText("0.00");
         txtField13.setText("0.00");
+        txtField18.setText("");
         
         lblTranTotal.setText("0.00");
         lblTotalDisc.setText("0.00");
@@ -582,7 +583,12 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         searchSalesman("a.sClientNm", txtField07.getText().trim(), false);
                         event.consume();
                         return;
+                    case 18:
+                        searchSource("a.sTransNox", txtField18, false);
+                        event.consume();
+                        return;
                 }
+                
                 break;
             case "btn04": //pay
                 if (_trans.SaveTransaction(true)){
@@ -873,6 +879,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField13.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField18.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){

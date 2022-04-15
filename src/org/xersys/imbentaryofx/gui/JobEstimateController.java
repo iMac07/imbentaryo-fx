@@ -223,6 +223,37 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                     event.consume();
                     return;
             }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
+                    searchLabor("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtSeeks02":
+                    searchBranchInventory("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField03":
+                    searchClient("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField06":
+                    searchMCDealer("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField07":
+                    searchAdvisor("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField17":
+                    searchSerial(txtField17, "a.sSerial01", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField18":
+                    searchSerial(txtField18, "a.sSerial02", lsValue, false);
+                    event.consume();
+                    return;
+            }
         }
         
         switch (event.getCode()){
@@ -903,10 +934,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             case "btn03": //search
                 switch (_index){
                     case 1:
-                        searchLabor("sLaborCde", txtSeeks01.getText(), false);
+                        searchLabor("sDescript", txtSeeks01.getText(), false);
                         return;
                     case 2:
-                        searchBranchInventory("sBarCodex", txtSeeks02.getText(), false);
+                        searchBranchInventory("sDescript", txtSeeks02.getText(), false);
                         return;
                     case 3:
                         searchClient("a.sClientNm", txtField03.getText(), false);
