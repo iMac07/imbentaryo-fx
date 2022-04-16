@@ -459,9 +459,11 @@ public class JobOrderController implements Initializable, ControlledScreen{
         double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
+        int lnIssuedxx;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nQuantity")));
+            lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nIssuedxx")));
             lnUnitPrce = ((Number)_trans.getParts(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getParts(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getParts(lnCtr, "nAddDiscx")).doubleValue();
@@ -472,8 +474,8 @@ public class JobOrderController implements Initializable, ControlledScreen{
                         (String) _trans.getParts(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getParts(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
+                        String.valueOf(lnIssuedxx),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
@@ -529,9 +531,9 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 if (((String) _trans.getParts(_parts_row, "sBarCodex")).isEmpty()) return;
                 
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.JO_DETAIL_UPDATE);
                 
-                POSDetailController instance = new POSDetailController();
+                JODetailController instance = new JODetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -539,11 +541,13 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 instance.setCallback(_parts_update_callback);
                 
                 instance.setDetailRow(_parts_row);
+                instance.setNautilus(_nautilus);
                 instance.setPartNumber((String) _trans.getParts(_parts_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getParts(_parts_row, "sDescript"));
                 instance.setOtherInfo(0);
                 instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getParts(_parts_row, "nQtyOnHnd"))));
                 instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getParts(_parts_row, "nQuantity"))));
+                instance.setIssuedQty(Integer.valueOf(String.valueOf( _trans.getParts(_parts_row, "nIssuedxx"))));
                 instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getParts(_parts_row, "nUnitPrce"))));
                 instance.setDiscount(Double.valueOf(String.valueOf((double) _trans.getParts(_parts_row, "nDiscount"))));
                 instance.setAdditional(Double.valueOf(String.valueOf((double) _trans.getParts(_parts_row, "nAddDiscx"))));
@@ -598,11 +602,11 @@ public class JobOrderController implements Initializable, ControlledScreen{
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("ROQ"); 
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Issued"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
@@ -1375,6 +1379,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
                     case 5:
                     case 8:
                     case 9:
+                    case 17:
                         //_trans.setDetail(fnRow, fnIndex, foValue);
                         break;
                 }
@@ -1426,6 +1431,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
                     case "nQuantity":
                     case "nDiscount":
                     case "nAddDiscx":
+                    case "nIssuedxx":
                         _trans.setParts(fnRow, fsIndex, foValue);
                         break;
                 }

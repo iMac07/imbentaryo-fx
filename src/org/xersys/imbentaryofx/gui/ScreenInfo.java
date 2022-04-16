@@ -10,6 +10,7 @@ public class ScreenInfo {
         AP_CLIENT,
         AR_CLIENT,
         JOB_ORDER,
+        JO_DETAIL_UPDATE,
         JOB_ESTIMATE,
         PARTS_INQUIRY,
         PARTS_CATALOGUE,
@@ -130,6 +131,10 @@ public class ScreenInfo {
             case POS_DETAIL_UPDATE:
                 loJSON.put("resource", RESOURCE_URL + "POSDetail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POSDetailController");
+                return loJSON;
+            case JO_DETAIL_UPDATE:
+                loJSON.put("resource", RESOURCE_URL + "JODetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "JODetailController");
                 return loJSON;
             case PURCHASE_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "PurchaseOrder.fxml");

@@ -122,6 +122,7 @@ public class InvAdjustmentHistoryController implements Initializable, Controlled
         
         _trans = new InvAdjustment(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
+        _trans.setApprvListener(_approval);
         _trans.setListener(_listener);
 
         clearFields();

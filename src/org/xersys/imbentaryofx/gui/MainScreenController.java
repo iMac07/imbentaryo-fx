@@ -4,8 +4,10 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.animation.Animation;
@@ -188,13 +190,33 @@ public class MainScreenController implements Initializable {
     }
     
     public void addNoTabScreen(String fsValue){
-        if (!_no_tab_screen.contains(fsValue)) 
-            _no_tab_screen += fsValue;
+        Iterator itr = _no_tab.iterator();
+        boolean lbExist = false;
+        
+        while (itr.hasNext()) {
+            String x = (String)itr.next();
+            if (x.equals(fsValue)) {
+                lbExist = true;
+                break;
+            }
+        }
+        
+        if (!lbExist) _no_tab.add(fsValue);
+        
+//        if (!_no_tab_screen.contains(fsValue)) 
+//            _no_tab_screen += fsValue;
     }
     
     public void delNoTabScreen(String fsValue){
-        if (_no_tab_screen.contains(fsValue)) 
-            _no_tab_screen = _no_tab_screen.replace(fsValue, "");
+        Iterator itr = _no_tab.iterator();
+        
+        while (itr.hasNext()) {
+            String x = (String)itr.next();
+            if (x.equals(fsValue))
+                itr.remove();
+        }
+//        if (_no_tab_screen.contains(fsValue)) 
+//            _no_tab_screen = _no_tab_screen.replace(fsValue, "");
     }
 
     @Override
@@ -296,27 +318,48 @@ public class MainScreenController implements Initializable {
             loadScreen(ScreenInfo.NAME.BACKGROUND);
         }
         
-        //set screens that will not trigger on window tabs
-        _no_tab_screen = "";
-        _no_tab_screen += "POSDetail";
-        _no_tab_screen += "SPCustomerOrderDetail";
-        _no_tab_screen += "SPCustomerOrderIssuanceDetail";
-        _no_tab_screen += "QuickSearch";
-        _no_tab_screen += "QuickSearchFilter";
-        _no_tab_screen += "PartsInquiry";
-        _no_tab_screen += "PartsCatalogue";
-        _no_tab_screen += "PartsCatalogueDetail";
-        _no_tab_screen += "ClientAddress";
-        _no_tab_screen += "ClientMobile";
-        _no_tab_screen += "ClientEMail";
-        _no_tab_screen += "Cashiering";
-        _no_tab_screen += "Payment";
-        _no_tab_screen += "PaymentJO";
-        _no_tab_screen += "Login";
-        _no_tab_screen += "Background";
-        _no_tab_screen += "InvAdjustmentDetail";
-        _no_tab_screen += "InvRequestDetail";
-        _no_tab_screen += "InvTransferDetail";
+        _no_tab = new ArrayList<>();
+        _no_tab.add("POSDetail");
+        _no_tab.add("SPCustomerOrderDetail");
+        _no_tab.add("SPCustomerOrderIssuanceDetail");
+        _no_tab.add("QuickSearch");
+        _no_tab.add("QuickSearchFilter");
+        _no_tab.add("PartsInquiry");
+        _no_tab.add("PartsCatalogue");
+        _no_tab.add("PartsCatalogueDetail");
+        _no_tab.add("ClientAddress");
+        _no_tab.add("ClientMobile");
+        _no_tab.add("ClientEMail");
+        _no_tab.add("Cashiering");
+        _no_tab.add("Payment");
+        _no_tab.add("PaymentJO");
+        _no_tab.add("Login");
+        _no_tab.add("Background");
+        _no_tab.add("InvAdjustmentDetail");
+        _no_tab.add("InvRequestDetail");
+        _no_tab.add("InvTransferDetail");
+        
+//        //set screens that will not trigger on window tabs
+//        _no_tab_screen = "";
+//        _no_tab_screen += "POSDetail";
+//        _no_tab_screen += "SPCustomerOrderDetail";
+//        _no_tab_screen += "SPCustomerOrderIssuanceDetail";
+//        _no_tab_screen += "QuickSearch";
+//        _no_tab_screen += "QuickSearchFilter";
+//        _no_tab_screen += "PartsInquiry";
+//        _no_tab_screen += "PartsCatalogue";
+//        _no_tab_screen += "PartsCatalogueDetail";
+//        _no_tab_screen += "ClientAddress";
+//        _no_tab_screen += "ClientMobile";
+//        _no_tab_screen += "ClientEMail";
+//        _no_tab_screen += "Cashiering";
+//        _no_tab_screen += "Payment";
+//        _no_tab_screen += "PaymentJO";
+//        _no_tab_screen += "Login";
+//        _no_tab_screen += "Background";
+//        _no_tab_screen += "InvAdjustmentDetail";
+//        _no_tab_screen += "InvRequestDetail";
+//        _no_tab_screen += "InvTransferDetail";
     }
     
     private void initMenu(){        
@@ -446,8 +489,20 @@ public class MainScreenController implements Initializable {
     
     private boolean canSwitch(){
         Node loNode = _screens_controller.getScreen(_screens_controller.getCurrentScreenIndex());
-                
-        if (_no_tab_screen.contains(loNode.getId())){
+
+        Iterator itr = _no_tab.iterator();
+        boolean lbExist = false;
+
+        while (itr.hasNext()) {
+            String x = (String)itr.next();
+            if (x.equals(loNode.getId())) {
+                lbExist = true;
+                break;
+            }
+        }
+        
+        //_no_tab_screen.contains(loNode.getId())
+        if (lbExist){
             ShowMessageFX.Warning(getStage(), "You are on a child form. Please finish the transaction first.", "Warning", "");
             return false;
         }
@@ -541,7 +596,19 @@ public class MainScreenController implements Initializable {
                 Node loNode = _screens_controller.getScreen(_screens_controller.getCurrentScreenIndex());
                 
                 //prevent some window to user prev/fwrd screen
-                if (_no_tab_screen.contains(loNode.getId())){
+                Iterator itr = _no_tab.iterator();
+                boolean lbExist = false;
+
+                while (itr.hasNext()) {
+                    String x = (String)itr.next();
+                    if (x.equals(loNode.getId())) {
+                        lbExist = true;
+                        break;
+                    }
+                }
+                
+                //_no_tab_screen.contains(loNode.getId())
+                if (lbExist){
                     System.err.println("Request rejected.");
                 } else {
                     if (_control_pressed){
@@ -591,7 +658,8 @@ public class MainScreenController implements Initializable {
     private static ScreensController _screens_controller;
     private static ScreensController _screens_dashboard_controller;
     
-    public String _no_tab_screen;
+    //public String _no_tab_screen;
+    public ArrayList<String> _no_tab;
     
     private boolean _control_pressed;
     private boolean _shift_pressed;

@@ -27,6 +27,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -47,6 +49,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     private LMasDetTrans _listener;
     private LOthTrans _oth_listener;
     private FormClosingCallback _close_listener;
+    private LApproval _approval;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -167,6 +170,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setOtherListener(_oth_listener);
+        _trans.setApprvListener(_approval);
         
         clearFields();
         initButton();
@@ -424,9 +428,11 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
+        int lnIssuedxx;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nQuantity")));
+            lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nIssuedxx")));
             lnUnitPrce = ((Number)_trans.getParts(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getParts(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getParts(lnCtr, "nAddDiscx")).doubleValue();
@@ -437,8 +443,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                         (String) _trans.getParts(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getParts(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
+                        String.valueOf(lnIssuedxx),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
@@ -471,8 +477,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false);
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
@@ -491,21 +497,21 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(137);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Unit Price"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Issued"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
@@ -615,6 +621,19 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                     searchTransaction(txtSeeks02, "a.sTransNox", "", false);
                 break;
             case "btn02": //print
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction printed successfully.", "Warning", "");
+                break;
+            case "btn03": //close transaction
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CloseTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
                     
@@ -624,9 +643,14 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn03": //cancel
+            case "btn04": //cancel
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CancelTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "", "", "");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was cancelled successfully.", "Success", "");
                     
                     initGrid();
                     initButton();
@@ -634,7 +658,12 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn04": //confirm
+            case "btn05": //confirm
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.PostTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
                     
@@ -643,8 +672,6 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                     clearFields();
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
-                break;
-            case "btn05":
                 break;
             case "btn06":
                 break;
@@ -700,6 +727,13 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     }
     
     private void initListener(){
+        _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
@@ -769,8 +803,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         btn01.setText("Browse");
         btn02.setText("Print");
-        btn03.setText("Cancel");
-        btn04.setText("");
+        btn03.setText("Post");
+        btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
