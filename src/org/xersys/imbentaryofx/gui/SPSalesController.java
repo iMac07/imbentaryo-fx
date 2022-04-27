@@ -111,7 +111,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtField10;
     @FXML
-    private TextField txtField18;
+    private Label lblAdvPaym;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -195,10 +195,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         searchSalesman("a.sClientNm", lsValue, false);
                         event.consume();
                         return;
-                    case "txtField18":
-                        searchSource("a.sTransNox", lsValue, false);
-                        event.consume();
-                        return;
                 }
                 break;
             case F3:
@@ -209,10 +205,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         return;
                     case "txtField07":
                         searchSalesman("a.sClientNm", lsValue, false);
-                        event.consume();
-                        return;
-                    case "txtField18":
-                        searchSource("a.sTransNox", lsValue, false);
                         event.consume();
                         return;
                 }
@@ -252,11 +244,11 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField11.setText("0.00");
         txtField12.setText("0.00");
         txtField13.setText("0.00");
-        txtField18.setText("");
         
         lblTranTotal.setText("0.00");
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
+        lblAdvPaym.setText("0.00");
         lblPayable.setText("0.00");
         
         //load temporary transactions
@@ -280,6 +272,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
         double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        double lnDeductnx = ((Number) _trans.getMaster("nDeductnx")).doubleValue();
         double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
         txtField10.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
@@ -289,13 +282,13 @@ public class SPSalesController implements Initializable, ControlledScreen{
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblAdvPaym.setText(StringUtil.NumberFormat(lnDeductnx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx - lnDeductnx, "#,##0.00"));
     }
     
     private void loadTransaction(){
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
         txtField07.setText((String) _trans.getMaster("xSalesman"));
-        txtField18.setText((String) _trans.getMaster("sSourceNo"));
         
         computeSummary();
         
@@ -583,10 +576,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         searchSalesman("a.sClientNm", txtField07.getText().trim(), false);
                         event.consume();
                         return;
-                    case 18:
-                        searchSource("a.sTransNox", txtField18, false);
-                        event.consume();
-                        return;
                 }
                 
                 break;
@@ -614,9 +603,11 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 break;
             case "btn07":
                 break;
-            case "btn08"://parts inquiry
+            case "btn08":
                 break;
-            case "btn09"://parts catalogue
+            case "btn09"://parts inquiry
+                break;
+            case "btn10"://parts catalogue
                 JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
 
                 if (loJSON != null){
@@ -629,9 +620,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
 
                     _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
                 }
-                break;
-            case "btn10"://load CO 
-                
                 break;
             case "btn11": //history
                 loadScreen(ScreenInfo.NAME.SP_SALES_HISTORY);
@@ -730,9 +718,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         break;
                     case 7:
                         txtField07.setText((String) foValue);
-                        break;
-                    case 18:
-                        txtField18.setText((String) foValue);
                         break;
                 }
             }
@@ -848,9 +833,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("Inquiry");
-        btn09.setText("Catalogue");
-        btn10.setText("Load CO");
+        btn08.setText("");
+        btn09.setText("Inquiry");
+        btn10.setText("Catalogue");
         btn11.setText("History");
         btn12.setText("Close");
         
@@ -861,7 +846,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(true);
+        btn08.setVisible(false);
         btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
@@ -879,7 +864,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField13.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField18.setDisable(lnEditMode != EditMode.ADDNEW);
     }
     
     private void initFields(){
@@ -890,7 +874,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField18.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtSeeks01.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
@@ -898,7 +881,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
-        txtField18.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -966,54 +948,6 @@ public class SPSalesController implements Initializable, ControlledScreen{
             ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
             txtField07.setText("");
             FXUtil.SetNextFocus(txtField07);
-        }
-    }
-    
-    private void searchSource(String fsKey, Object foValue, boolean fbExact){
-        JSONObject loJSON = _trans.searchCO(fsKey, foValue, fbExact);
-        
-        if ("success".equals((String) loJSON.get("result"))){            
-            JSONParser loParser = new JSONParser();
-            
-            try {
-                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
-                
-                switch (loArray.size()){
-                    case 0: //no record found
-                        FXUtil.SetNextFocus(txtField18);
-                        break;
-                    case 1: //one record found
-                        loJSON = (JSONObject) loArray.get(0);
-                        
-                        _trans.setMaster("sSourceNo", (String) loJSON.get("sTransNox"));
-                        FXUtil.SetNextFocus(txtField18);
-                        break;
-                    default: //multiple records found
-                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
-
-                        if (loScreen != null){
-                            QuickSearchNeoController instance = new QuickSearchNeoController();
-                            instance.setNautilus(_nautilus);
-                            instance.setParentController(_main_screen_controller);
-                            instance.setScreensController(_screens_controller);
-
-                            instance.setSearchObject(_trans.getSearchCO());
-                            instance.setSearchCallback(_search_callback);
-                            instance.setTextField(txtField18);
-
-                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
-                        }
-                }
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
-                txtSeeks01.setText("");
-                FXUtil.SetNextFocus(txtField18);
-            }
-        } else {
-            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
-            txtSeeks01.setText("");
-            FXUtil.SetNextFocus(txtField18);
         }
     }
     

@@ -57,17 +57,14 @@
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
                                       </columnConstraints>
                                       <rowConstraints>
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Order No.:" />
-                                          <TextField fx:id="txtField18" promptText="Search Customer Order" GridPane.columnIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Add Item:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtSeeks01" promptText="Search: ENTER by barcode / F3 by description" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Add Item:" />
+                                          <TextField fx:id="txtSeeks01" promptText="Search: ENTER by barcode / F3 by description" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                        </children>
                                     </GridPane>
-                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="79.0" prefHeight="285.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="79.0">
+                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="79.0" prefHeight="285.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
                                       <columns>
                                         <TableColumn prefWidth="30.0" text="No." />
                                         <TableColumn prefWidth="130.0" text="Part Number" />
@@ -81,7 +78,7 @@
                                           <TableColumn prefWidth="77.0" text="Total" />
                                       </columns>
                                     </TableView>
-                                    <GridPane layoutX="10.0" layoutY="374.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="374.0">
+                                    <GridPane layoutX="10.0" layoutY="374.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="365.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="90.0" prefWidth="80.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
@@ -104,7 +101,7 @@
                                           <TextField fx:id="txtField13" editable="false" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
-                                    <GridPane layoutX="10.0" layoutY="443.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="443.0">
+                                    <GridPane layoutX="10.0" layoutY="443.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="435.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="90.0" prefWidth="90.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
@@ -121,7 +118,7 @@
                                           <TextField fx:id="txtField07" promptText="Search Salesman" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
-                                    <GridPane layoutX="546.0" layoutY="373.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="373.0">
+                                    <GridPane layoutX="546.0" layoutY="373.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="365.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
@@ -132,17 +129,20 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="124.0" text="Tran. Total:" GridPane.rowIndex="1" />
-                                          <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" GridPane.rowIndex="2" />
-                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Payable:" GridPane.rowIndex="4" />
+                                          <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" textFill="RED" GridPane.rowIndex="2" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Payable:" GridPane.rowIndex="5" />
                                           <Label fx:id="lblTranTotal" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label fx:id="lblTotalDisc" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                          <Label id="lblTransSummary" alignment="CENTER" prefHeight="30.0" prefWidth="300.0" text="Transaction Summary" GridPane.columnSpan="2" />
+                                          <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                          <Label id="lblTransSummary" alignment="CENTER" prefHeight="30.0" prefWidth="240.0" text="Transaction Summary" GridPane.columnSpan="2" />
                                           <Label prefHeight="30.0" prefWidth="113.0" text="Freight Charge:" GridPane.rowIndex="3" />
                                           <Label fx:id="lblFreight" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Label prefHeight="30.0" prefWidth="113.0" text="Adv. Pay/Sl. Ret:" textFill="RED" GridPane.rowIndex="4" />
+                                          <Label fx:id="lblAdvPaym" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -241,14 +241,7 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="7">
                                                    <children>
-                                                      <Button fx:id="btn08" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                               <image>
-                                                                  <Image url="@../icons/inquiry.png" />
-                                                               </image>
-                                                            </ImageView>
-                                                         </graphic></Button>
+                                                      <Button fx:id="btn08" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="65.0" prefWidth="41.0" text="F2" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="8">
@@ -257,7 +250,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/catalogue.png" />
+                                                                  <Image url="@../icons/inquiry.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -270,7 +263,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/customer-order.png" />
+                                                                  <Image url="@../icons/catalogue.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>

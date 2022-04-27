@@ -114,6 +114,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
     private TextField txtField05;
     @FXML
     private TextField txtSeeks02;
+    @FXML
+    private Label lblForCredit;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -235,6 +237,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
         double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
+        double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
         
         txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
         txtField10.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
@@ -242,9 +245,11 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
-        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));        
         lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        
         lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
+        lblForCredit.setText(StringUtil.NumberFormat(lnForCredt, "#,##0.00"));
     }
     
     private void loadTransaction(){
@@ -621,7 +626,6 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 
                 break;
             case "btn03": //save
-                
                 if (_trans.SaveTransaction(true)){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction updated successfully.", "Warning", "");
                     
@@ -654,9 +658,44 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 break;
             case "btn10":
                 break;
-            case "btn11":
-                if (_trans.SendToPO()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was sent to PO. Please finished the transaction on Purchase Order module.", "Success", "");
+            case "btn11": //release
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (!_trans.isReleasable()){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "This transaction is NON RELEASABLE YET.", "Warning", "");
+                    return;
+                }
+                
+                double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
+                
+                if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to use the whole available for credit amount.", "Warning", "")){
+                    String lsValue = ShowMessageFX.InputText(_main_screen_controller.getStage(), "Please input the amount to credit.", "Credit Amount", "");
+                    
+                    if (!StringUtil.isNumeric(lsValue)){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Input is not numeric.", "Warning", "");
+                        return;
+                    }
+                    
+                    double lnValue = 0.00;
+                    
+                    try {
+                        lnValue = Double.valueOf(lsValue);
+                    } catch (NumberFormatException e) {
+                    }
+                    
+                    if (lnValue > lnForCredt) {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Amount to credit is greater than the available amount.", "Warning", "");
+                        return;
+                    }
+                    
+                    lnForCredt = lnValue;
+                }
+                
+                if (_trans.ReleaseOrder(lnForCredt)){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Releasble items are sent to POS transaction list.", "Success", "");
                     
                     initGrid();
                     clearFields();
@@ -741,7 +780,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("Send to PO");
+        btn11.setText("Release");
         btn12.setText("Close");
         
         btn01.setVisible(true);
@@ -754,7 +793,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         btn08.setVisible(false);
         btn09.setVisible(false);
         btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn11.setVisible(true);
         btn12.setVisible(true);
         
         btn02.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);

@@ -121,6 +121,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
     private TextField txtField05;
     @FXML
     private TextField txtSeeks02;
+    @FXML
+    private Label lblForCredit;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -244,6 +246,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
         double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         double lnPaymTotl = ((Number) _trans.getMaster("nAmtPaidx")).doubleValue();
+        double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
         
         txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
         txtField10.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
@@ -251,9 +254,11 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
-        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));        
         lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        
         lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
+        lblForCredit.setText(StringUtil.NumberFormat(lnForCredt, "#,##0.00"));
     }
     
     private void loadTransaction(){

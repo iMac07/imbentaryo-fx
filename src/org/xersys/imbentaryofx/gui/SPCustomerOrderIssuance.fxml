@@ -117,20 +117,24 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="124.0" text="Tran. Total:" GridPane.rowIndex="1" />
                                           <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" GridPane.rowIndex="2" />
-                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Payable:" GridPane.rowIndex="4" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Net Amount:" GridPane.rowIndex="4" />
                                           <Label fx:id="lblTranTotal" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label fx:id="lblTotalDisc" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label id="lblTransSummary" alignment="CENTER" prefHeight="51.0" prefWidth="220.0" text="Transaction Summary" GridPane.columnSpan="2" />
                                           <Label prefHeight="30.0" prefWidth="113.0" text="Freight Charge:" GridPane.rowIndex="3" />
                                           <Label fx:id="lblFreight" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Total Paid:" GridPane.rowIndex="5" />
-                                          <Label id="lblTransSummary" fx:id="lblPaymTotl" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Adv. Payment:" GridPane.rowIndex="6" />
+                                          <Label id="lblTransSummary" fx:id="lblPaymTotl" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="For Crediting:" GridPane.rowIndex="7" />
+                                          <Label id="lblTransSummary" fx:id="lblForCredit" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -242,7 +246,14 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">
                                                    <children>
-                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn11" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="42.0" text="F5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/release.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="11">
