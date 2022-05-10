@@ -674,10 +674,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to use the whole available for credit amount.", "Warning", "")){
                     String lsValue = ShowMessageFX.InputText(_main_screen_controller.getStage(), "Please input the amount to credit.", "Credit Amount", "");
                     
-                    if (!StringUtil.isNumeric(lsValue)){
-                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Input is not numeric.", "Warning", "");
-                        return;
-                    }
+                    if (!StringUtil.isNumeric(lsValue)) return;
                     
                     double lnValue = 0.00;
                     

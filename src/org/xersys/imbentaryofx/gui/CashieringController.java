@@ -34,6 +34,7 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private String _source_code = "";
     private String _source_number = "";
+    private double _adv_payment = 0.00;
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
     private TableModel _model;
@@ -146,6 +147,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         _source_code = (String) _trans.getDetail(pnSelectd + 1, "sSourceCd");
         _source_number = (String) _trans.getDetail(pnSelectd + 1, "sTransNox");
+        _adv_payment = Double.valueOf(String.valueOf(_trans.getDetail(pnSelectd + 1, "nDeductnx")));
     }
     
     private void mouseClicked(MouseEvent event) {
@@ -356,6 +358,7 @@ public class CashieringController implements Initializable, ControlledScreen {
                 instance.setDashboardScreensController(_screens_dashboard_controller);
                 instance.setSourceCd(_source_code);
                 instance.setSourceNo(_source_number);
+                instance.setAdvancePayment(_adv_payment);
                 
                 //close this screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());

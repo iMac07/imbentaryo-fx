@@ -281,7 +281,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
-        btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
+        //btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
         btn11.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
     }
     

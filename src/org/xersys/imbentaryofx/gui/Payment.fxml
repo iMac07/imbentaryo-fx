@@ -227,12 +227,11 @@
                                           <Label prefHeight="30.0" prefWidth="115.0" text="Cash Amount:" GridPane.rowIndex="3" />
                                           <TextField fx:id="txtField12" alignment="CENTER_RIGHT" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                           <Label prefHeight="30.0" prefWidth="122.0" text="Tran. Amount:" />
-                                          <Label prefHeight="30.0" prefWidth="126.0" text="Advance Payment:" GridPane.rowIndex="7" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="Net Payable:" GridPane.rowIndex="1" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="Credit Card Paym:" GridPane.rowIndex="4" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="Cheque Payment:" GridPane.rowIndex="5" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="GC Payment:" GridPane.rowIndex="6" />
-                                          <Label prefHeight="30.0" prefWidth="115.0" text="Total Payment:" GridPane.rowIndex="8" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="115.0" text="Total Payment:" GridPane.rowIndex="8" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="VATable Sales:" GridPane.rowIndex="10" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="Non-VAT Sales:" GridPane.rowIndex="12" />
                                           <Label prefHeight="30.0" prefWidth="115.0" text="VAT Amount:" GridPane.rowIndex="11" />
@@ -246,8 +245,9 @@
                                           <Label fx:id="lblCreditCardAmount" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label fx:id="lblChequeAmount" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                           <Label fx:id="lblGCAmount" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                                          <Label fx:id="lblTotalPayment" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                                          <TextField fx:id="txtField11" alignment="CENTER_RIGHT" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                          <Label id="lblTransSummary" fx:id="lblTotalPayment" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                          <Label prefHeight="30.0" prefWidth="115.0" text="Adv. Payment:" GridPane.rowIndex="7" />
+                                          <Label fx:id="lblAdvPaymt" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="122.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                        </children>
                                     </GridPane>
                                  </children>

@@ -700,8 +700,8 @@ public class POReturnController implements Initializable, ControlledScreen{
             public void Result(int fnRow, int fnIndex, Object foValue) {
                 switch(fnIndex){
                     case 5:
-                    case 8:
-                    case 9:
+                    case 6:
+                    case 7:
                         _trans.setDetail(fnRow, fnIndex, foValue);
                         break;
                 }
@@ -712,8 +712,8 @@ public class POReturnController implements Initializable, ControlledScreen{
             public void Result(int fnRow, String fsIndex, Object foValue){
                 switch(fsIndex){
                     case "nQuantity":
-                    case "nDiscount":
-                    case "nAddDiscx":
+                    case "nUnitPrce":
+                    case "nFreightx":
                         _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
                 }

@@ -140,9 +140,9 @@ public class CaptureSPYamahaNoSRP {
                         
                         loRS = loNautilus.executeQuery(lsValue);
                         
-                        if (!loRS.next()){
-                            InvMaster loInv = new InvMaster(loNautilus, (String) loNautilus.getBranchConfig("sBranchCd"), true);
-                            
+                        InvMaster loInv = new InvMaster(loNautilus, (String) loNautilus.getBranchConfig("sBranchCd"), true);
+                        
+                        if (!loRS.next()){    
                             if (loInv.NewRecord()){
                                 loInv.setMaster("sStockIDx", lsStockIDx);
                                 loInv.setMaster("sBranchCd", (String) loNautilus.getBranchConfig("sBranchCd"));
@@ -157,11 +157,26 @@ public class CaptureSPYamahaNoSRP {
                                     System.exit(1);
                                 }
                             }
+                        } else {
+                            if (loInv.OpenRecord(lsStockIDx)) {
+                                if (loInv.UpdateRecord()){
+                                    loInv.setMaster("dAcquired", loNautilus.getServerDate());
+                                    loInv.setMaster("dBegInvxx", loNautilus.getServerDate());
+                                    loInv.setMaster("nBegQtyxx", lnQuantity);
+                                    loInv.setMaster("nQtyOnHnd", lnQuantity);
+                                    
+                                    if (!loInv.SaveRecord()){
+                                        System.err.println(loInv.getMessage());
+                                        loNautilus.rollbackTrans();
+                                        System.exit(1);
+                                    }
+                                }
+                            }
                         }
                     } else {
-                        lsValue = CommonUtil.getNextCode("Inventory", "sStockIDx", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));                    
+                        lsStockIDx = CommonUtil.getNextCode("Inventory", "sStockIDx", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));                    
                         lsValue = "INSERT INTO Inventory SET" +
-                                    "  sStockIDx = " + SQLUtil.toSQL(lsValue) +
+                                    "  sStockIDx = " + SQLUtil.toSQL(lsStockIDx) +
                                     ", sBarCodex = " + SQLUtil.toSQL(lsBarCodex) +
                                     ", sDescript = " + SQLUtil.toSQL(lsDescript) +
                                     ", sBriefDsc = ''" +
@@ -186,6 +201,23 @@ public class CaptureSPYamahaNoSRP {
                             System.err.println(loNautilus.getMessage());
                             loNautilus.rollbackTrans();
                             System.exit(1);
+                        }
+                        
+                        InvMaster loInv = new InvMaster(loNautilus, (String) loNautilus.getBranchConfig("sBranchCd"), true);
+                        
+                        if (loInv.NewRecord()){
+                            loInv.setMaster("sStockIDx", lsStockIDx);
+                            loInv.setMaster("sBranchCd", (String) loNautilus.getBranchConfig("sBranchCd"));
+                            loInv.setMaster("dAcquired", loNautilus.getServerDate());
+                            loInv.setMaster("dBegInvxx", loNautilus.getServerDate());
+                            loInv.setMaster("nBegQtyxx", lnQuantity);
+                            loInv.setMaster("nQtyOnHnd", lnQuantity);
+
+                            if (!loInv.SaveRecord()){
+                                System.err.println(loInv.getMessage());
+                                loNautilus.rollbackTrans();
+                                System.exit(1);
+                            }
                         }
                     }
                     
