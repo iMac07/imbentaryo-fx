@@ -96,8 +96,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         try {
             if (_trans.LoadTransactions())
                 loadDetail();
-            else
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Notice", "");
+//            else
+//                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Notice", "");
         } catch (SQLException ex) {
             ex.printStackTrace();
             ShowMessageFX.Warning(_main_screen_controller.getStage(), "Error loading cashier transactions.", "Warning", "");
@@ -254,8 +254,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
-        btn11.setText("");
+        btn10.setText("OR");
+        btn11.setText("SI");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -267,8 +267,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn10.setVisible(true);
+        btn11.setVisible(true);
         btn12.setVisible(true);
     }
     
@@ -303,6 +303,7 @@ public class CashieringController implements Initializable, ControlledScreen {
             case "btn10":
                 break;
             case "btn11":
+                loadScreen(ScreenInfo.NAME.SI_HISTORY);
                 break;
             case "btn12": //close screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());

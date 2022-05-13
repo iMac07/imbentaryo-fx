@@ -201,6 +201,7 @@ public class PaymentController implements Initializable, ControlledScreen {
     
     private void initListener(){
         txtField04.focusedProperty().addListener(txtField_Focus);
+        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField12.focusedProperty().addListener(txtField_Focus);
         
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
@@ -500,14 +501,14 @@ public class PaymentController implements Initializable, ControlledScreen {
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
                 
-        if (event.getCode() == KeyCode.ENTER){
-            switch (lsTxt){
-                case "txtField05":
-                    searchClient("a.sClientNm", lsValue, false);
-                    event.consume();
-                    return;
-            }
-        }
+//        if (event.getCode() == KeyCode.ENTER){
+//            switch (lsTxt){
+//                case "txtField05":
+//                    searchClient("a.sClientNm", lsValue, false);
+//                    event.consume();
+//                    return;
+//            }
+//        }
         
         switch (event.getCode()){
         case ENTER:
@@ -585,7 +586,7 @@ public class PaymentController implements Initializable, ControlledScreen {
                     _trans.setMaster("sInvNumbr", lsValue);
                     break;
                 case 5: //sClientID
-                    _trans.setMaster("nCashAmtx", lsValue);
+                    _trans.setMaster("sClientNm", lsValue);
                     break;
                 case 12: //nCashAmtx
                     if (!StringUtil.isNumeric(lsValue)){
