@@ -70,7 +70,8 @@ public class ScreenInfo {
         INV_ADJUSTMENT_DETAIL,
         INV_ADJUSTMENT_HISTORY,
         USER_MANAGER,
-        SI_HISTORY
+        SI_HISTORY,
+        OR_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
@@ -80,6 +81,10 @@ public class ScreenInfo {
             case SI_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "SIHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SIHistoryController");
+                return loJSON;
+            case OR_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "ORHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ORHistoryController");
                 return loJSON;
             case JOB_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "JobOrder.fxml");

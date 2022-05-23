@@ -301,6 +301,7 @@ public class CashieringController implements Initializable, ControlledScreen {
             case "btn09":
                 break;
             case "btn10":
+                loadScreen(ScreenInfo.NAME.OR_HISTORY);
                 break;
             case "btn11":
                 loadScreen(ScreenInfo.NAME.SI_HISTORY);

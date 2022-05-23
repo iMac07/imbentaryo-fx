@@ -397,6 +397,8 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_si.getMessage(), "Warning", "");
                         return;
                     }
+                    
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                 }
                 
                 if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){

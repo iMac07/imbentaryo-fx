@@ -35,7 +35,7 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.payment.search.PaymentSearch;
 import org.xersys.sales.search.SalesSearch;
 
-public class SIHistoryController implements Initializable, ControlledScreen {
+public class ORHistoryController implements Initializable, ControlledScreen {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private QuickSearchCallback _search_callback;
@@ -134,9 +134,9 @@ public class SIHistoryController implements Initializable, ControlledScreen {
         txtSeeks01.focusedProperty().addListener(txtField_Focus);
         txtSeeks02.focusedProperty().addListener(txtField_Focus);
 
-        _trans_search = new PaymentSearch(_nautilus, PaymentSearch.SearchType.searchSIPayment);
+        _trans_search = new PaymentSearch(_nautilus, PaymentSearch.SearchType.searchORPayment);
         
-        _trans = new PaymentFactory().make(InvoiceType.SALES_INVOICE, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
+        _trans = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
 
         _search_callback = new QuickSearchCallback() {
             @Override
@@ -230,7 +230,7 @@ public class SIHistoryController implements Initializable, ControlledScreen {
         lblChequeAmount.setText(StringUtil.NumberFormat(lnCheckPaym, "#,##0.00"));
         lblGCAmount.setText(StringUtil.NumberFormat(lnGCPayment, "#,##0.00"));
         
-        double lnTranTotl = (double) _trans.getMaster("nTranTotl");        
+        //double lnTranTotl = (double) _trans.getMaster("nTranTotl");        
         
         lblTotalPayment.setText(StringUtil.NumberFormat(lnTotalPaym, "#,##0.00"));
         

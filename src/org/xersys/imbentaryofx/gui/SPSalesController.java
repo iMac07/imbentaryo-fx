@@ -112,6 +112,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
     private TextField txtField10;
     @FXML
     private Label lblAdvPaym;
+    @FXML
+    private TextField txtField05;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -189,6 +191,10 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 switch (lsTxt){
                     case "txtSeeks01":
                         searchBranchInventory("sBarCodex", lsValue, false);
+                        event.consume();
+                        return;
+                    case "txtField05":
+                        searchClient("a.sClientNm", lsValue, false);
                         event.consume();
                         return;
                     case "txtField07":
@@ -287,6 +293,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     }
     
     private void loadTransaction(){
+        txtField05.setText((String) _trans.getMaster("xClientNm"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
         txtField07.setText((String) _trans.getMaster("xSalesman"));
         
@@ -697,6 +704,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
                     case "nFreightx":
                         computeSummary();
                         break;
+                    case "sClientID":
+                        txtField05.setText((String) foValue);
+                        break;
                     case "sSalesman":
                         txtField07.setText((String) foValue);
                         break;
@@ -715,6 +725,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
                     case 11: //nAddDiscx
                     case 12: //nFreightx
                         computeSummary();
+                        break;
+                    case 5:
+                        txtField05.setText((String) foValue);
                         break;
                     case 7:
                         txtField07.setText((String) foValue);
@@ -743,6 +756,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 switch (foField.getId()){
                     case "txtSeeks01":
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
+                        break;
+                    case "txtField05":
+                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
                         break;
                     case "txtField07":
                         _trans.setMaster("sSalesman", (String) foValue.get("sClientID"));
@@ -858,6 +874,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField10.setDisable(lnEditMode != EditMode.ADDNEW);
@@ -868,6 +885,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         txtField07.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
@@ -876,6 +894,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
@@ -951,6 +970,50 @@ public class SPSalesController implements Initializable, ControlledScreen{
         }
     }
     
+    private void searchClient(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchClient(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
+                        FXUtil.SetNextFocus(txtField05);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchClient());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(txtField05);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
+                txtField05.setText("");
+                FXUtil.SetNextFocus(txtField05);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            txtField05.setText("");
+            FXUtil.SetNextFocus(txtField05);
+        }
+    }
+    
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
         if (!_loaded) return;
         
@@ -962,6 +1025,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         if(!nv){ //Lost Focus           
             switch (lnIndex){
                 case 1:
+                case 5:
                 case 7:
                 case 18:
                     break;
