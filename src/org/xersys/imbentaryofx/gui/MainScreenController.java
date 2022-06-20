@@ -523,6 +523,8 @@ public class MainScreenController implements Initializable {
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER); break;
             case "co releasing":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_ISSUANCE); break;
+            case "ws order":
+                if (canSwitch()) loadScreen(ScreenInfo.NAME.SP_WHOLESALE_ORDER); break;
             case "whole sale":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.SP_WHOLESALE); break;
             case "mc repair":
@@ -535,7 +537,7 @@ public class MainScreenController implements Initializable {
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.INV_REQUEST); break;
             case "inv. transfer":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.INV_TRANSFER); break;
-            case "pay/release sale":
+            case "pay/release":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.CASHIERING); break;
             case "reports":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.REPORTS); 

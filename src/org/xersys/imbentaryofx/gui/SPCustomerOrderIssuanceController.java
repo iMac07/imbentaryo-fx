@@ -58,6 +58,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
     private int _index;
     private int _detail_row;
     
+    private String _old_trans;
+    
     @FXML
     private AnchorPane AnchorMain;
     @FXML
@@ -228,6 +230,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         _table_data.clear();
         
         _transtat = 10;
+        
+        _old_trans = "";
     }
     
     private void computeSummary(){
@@ -268,6 +272,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         computeSummary();
         
         loadDetail();
+        
+        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void searchTransaction(TextField foTextField, String fsField, String fsValue, boolean fbByCode){
@@ -354,8 +360,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        String.valueOf(lnCancelld),
                         String.valueOf(lnApproved),
+                        String.valueOf(lnCancelld),
                         String.valueOf(lnReleased),
                         String.valueOf(lnIssuedxx)));
         }
@@ -467,6 +473,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
             @Override
             public void Result(int fnRow, String fsIndex, Object foValue){
                 switch(fsIndex){
+                    case "nApproved":
+                    case "nCancelld":
                     case "nReleased":
                         _trans.setDetail(fnRow, fsIndex, foValue);
                         break;
@@ -519,7 +527,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(200);
+        index03.prefWidthProperty().set(325);
         
         index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
@@ -527,27 +535,27 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         
         index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(75);
+        index05.prefWidthProperty().set(50);
         
-        index06.setText("Order"); 
+        index06.setText("Qty"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(75);
+        index06.prefWidthProperty().set(50);
         
-        index07.setText("Cancelled"); 
+        index07.setText("Apr"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(75);
+        index07.prefWidthProperty().set(50);
         
-        index08.setText("Approved"); 
+        index08.setText("Can"); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(75);
+        index08.prefWidthProperty().set(50);
         
-        index09.setText("Released"); 
+        index09.setText("Rel"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(75);
+        index09.prefWidthProperty().set(50);
         
-        index10.setText("Issued"); 
+        index10.setText("Iss"); 
         index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(75);
+        index10.prefWidthProperty().set(50);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -629,10 +637,18 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 if (_trans.SaveTransaction(true)){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction updated successfully.", "Warning", "");
                     
-                    _loaded = false;
-                    clearFields();
-                    initButton();
-                    _loaded = true;
+                    if (_trans.OpenTransaction(_old_trans)){
+                        loadTransaction();
+                        loadDetail();
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                        clearFields();
+                    }
+                    
+//                    _loaded = false;
+//                    clearFields();
+//                    initButton();
+//                    _loaded = true;
                 } else
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 
@@ -657,6 +673,12 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
             case "btn09":
                 break;
             case "btn10":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
                 break;
             case "btn11": //release
                 if (_trans.getEditMode() != EditMode.READY){
@@ -671,26 +693,28 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
                 
                 double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
                 
-                if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to use the whole available for credit amount.", "Warning", "")){
-                    String lsValue = ShowMessageFX.InputText(_main_screen_controller.getStage(), "Please input the amount to credit.", "Credit Amount", "");
-                    
-                    if (!StringUtil.isNumeric(lsValue)) return;
-                    
-                    double lnValue = 0.00;
-                    
-                    try {
-                        lnValue = Double.valueOf(lsValue);
-                    } catch (NumberFormatException e) {
+                if (lnForCredt > 0.00){
+                    if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to use the whole available for credit amount.", "Warning", "")){
+                        String lsValue = ShowMessageFX.InputText(_main_screen_controller.getStage(), "Please input the amount to credit.", "Credit Amount", "");
+
+                        if (!StringUtil.isNumeric(lsValue)) return;
+
+                        double lnValue = 0.00;
+
+                        try {
+                            lnValue = Double.valueOf(lsValue);
+                        } catch (NumberFormatException e) {
+                        }
+
+                        if (lnValue > lnForCredt) {
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Amount to credit is greater than the available amount.", "Warning", "");
+                            return;
+                        }
+
+                        lnForCredt = lnValue;
                     }
-                    
-                    if (lnValue > lnForCredt) {
-                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Amount to credit is greater than the available amount.", "Warning", "");
-                        return;
-                    }
-                    
-                    lnForCredt = lnValue;
                 }
-                
+                                
                 if (_trans.ReleaseOrder(lnForCredt)){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Releasble items are sent to POS transaction list.", "Success", "");
                     
@@ -776,7 +800,7 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
+        btn10.setText("Print");
         btn11.setText("Release");
         btn12.setText("Close");
         
@@ -789,11 +813,13 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(false);
+        btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
         btn02.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
+        btn10.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
+        btn11.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
         btn03.setVisible((int) _trans.getEditMode() == EditMode.UPDATE);
         btn04.setVisible((int) _trans.getEditMode() == EditMode.UPDATE);
     }

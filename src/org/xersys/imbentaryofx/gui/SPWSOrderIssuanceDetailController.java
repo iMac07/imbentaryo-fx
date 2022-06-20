@@ -18,7 +18,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
 
-public class SPCustomerOrderIssuanceDetailController implements Initializable, ControlledScreen  {
+public class SPWSOrderIssuanceDetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private DetailUpdateCallback _callback;

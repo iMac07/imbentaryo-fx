@@ -23,7 +23,7 @@
                <top>
                   <AnchorPane id="TransHeader" prefHeight="25.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="SP Customer Order Issuance Detail Info" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="SP Whole Sale Order Issuance Detail Info" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </top>

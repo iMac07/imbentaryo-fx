@@ -38,11 +38,11 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
-import org.xersys.sales.base.SalesOrder;
+import org.xersys.sales.base.WSOrder;
 
-public class SPCustomerOrderController implements Initializable, ControlledScreen{
+public class SPWSOrderController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
-    private SalesOrder _trans;
+    private WSOrder _trans;
     private LMasDetTrans _listener;
     private FormClosingCallback _close_listener;
     
@@ -128,7 +128,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         initFields();
         initListener();        
         
-        _trans = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new WSOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(true);
         _trans.setListener(_listener);
         
@@ -456,9 +456,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.CUSTOMER_ORDER_DETAIL);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.SP_WHOLESALE_ORDER_DETAIL);
                 
-                SPCustomerOrderDetailController instance = new SPCustomerOrderDetailController();
+                SPWSOrderDetailController instance = new SPWSOrderDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -612,10 +612,10 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                 }
                 break;
             case "btn10": //releasing
-                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_ISSUANCE);
+                loadScreen(ScreenInfo.NAME.SP_WHOLESALE_ORDER_ISSUANCE);
                 break;
             case "btn11": //history
-                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_HISTORY);
+                loadScreen(ScreenInfo.NAME.SP_WHOLESALE_ORDER_HISTORY);
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)

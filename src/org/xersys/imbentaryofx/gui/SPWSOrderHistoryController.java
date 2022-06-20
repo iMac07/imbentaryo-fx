@@ -34,14 +34,14 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.sales.base.SalesOrder;
+import org.xersys.sales.base.WSOrder;
 import org.xersys.sales.search.SalesSearch;
 
-public class SPCustomerOrderHistoryController implements Initializable, ControlledScreen{
+public class SPWSOrderHistoryController implements Initializable, ControlledScreen{
     private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
     
     private XNautilus _nautilus;
-    private SalesOrder _trans;
+    private WSOrder _trans;
     private LMasDetTrans _listener;
     private LApproval _approval;
     
@@ -141,9 +141,9 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         initGrid();
         initListener();
         
-        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchCustomerOrder);
+        _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchWSOrder);
         
-        _trans = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new WSOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setApprvListener(_approval);

@@ -10,7 +10,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -34,14 +33,12 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.sales.base.SalesOrder;
+import org.xersys.sales.base.WSOrder;
 import org.xersys.sales.search.SalesSearch;
 
-public class SPCustomerOrderHistoryController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
-    
+public class SPWSOrderIssuanceController implements Initializable, ControlledScreen{    
     private XNautilus _nautilus;
-    private SalesOrder _trans;
+    private WSOrder _trans;
     private LMasDetTrans _listener;
     private LApproval _approval;
     
@@ -60,6 +57,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
     private boolean _loaded = false;
     private int _index;
     private int _detail_row;
+    
+    private String _old_trans;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -108,11 +107,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
     @FXML
     private Label lblFreight;
     @FXML
-    private Label lblTranStat;
-    @FXML
     private Label lblPaymTotl;
-    @FXML
-    private ComboBox cmbStatus;
     @FXML
     private TextField txtSeeks01;
     @FXML
@@ -143,7 +138,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         
         _trans_search = new SalesSearch(_nautilus, SalesSearch.SearchType.searchCustomerOrder);
         
-        _trans = new SalesOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans = new WSOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setApprvListener(_approval);
@@ -230,13 +225,13 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
         lblPayable.setText("0.00");
+        lblPaymTotl.setText("0.00");
 
         _table_data.clear();
         
-        cmbStatus.getSelectionModel().select(0);
-        _transtat = 0;
+        _transtat = 10;
         
-        setTranStat("-1");
+        _old_trans = "";
     }
     
     private void computeSummary(){
@@ -262,6 +257,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
     }
     
     private void loadTransaction(){
+        initButton();
+        
         txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
         txtSeeks02.setText((String) _trans.getMaster("xClientNm"));
         
@@ -275,21 +272,15 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         computeSummary();
         
         loadDetail();
-        setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
-        cmbStatus.getSelectionModel().select(Integer.parseInt((String) _trans.getMaster("cTranStat")));
-                
-        btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
-        btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
-        btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
-        //btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
-        btn11.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
+        
+        _old_trans = (String) _trans.getMaster("sTransNox");
     }
     
     private void searchTransaction(TextField foTextField, String fsField, String fsValue, boolean fbByCode){
         _trans_search.setKey(fsField);
         _trans_search.setValue(fsValue);
         _trans_search.setExact(fbByCode);
-        _trans_search.addFilter("Status", cmbStatus.getSelectionModel().getSelectedIndex());
+        _trans_search.addFilter("Status", _transtat);
         
         JSONObject loJSON =  _trans_search.Search();
         
@@ -348,37 +339,31 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnDiscount;
-        double lnAddDiscx;
-        double lnTranTotl;
         int lnQuantity;
+        int lnApproved;
         int lnReleased;
         int lnIssuedxx;
+        int lnCancelld;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
-            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
-            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnApproved = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nApproved")));
             lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
             lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
+            lnCancelld = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nCancelld")));
+            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
+            
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
-                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        String.valueOf(lnApproved),
+                        String.valueOf(lnCancelld),
                         String.valueOf(lnReleased),
-                        String.valueOf(lnIssuedxx),
-                        "",
-                        "",
-                        "",
-                        ""));
+                        String.valueOf(lnIssuedxx)));
         }
 
         if (!_table_data.isEmpty()){
@@ -399,37 +384,31 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         _table_data.clear();
         
         double lnUnitPrce;
-        double lnDiscount;
-        double lnAddDiscx;
-        double lnTranTotl;
         int lnQuantity;
+        int lnApproved;
         int lnReleased;
         int lnIssuedxx;
+        int lnCancelld;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nQuantity")));
-            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
-            lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
-            lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnApproved = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nApproved")));
             lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
             lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
+            lnCancelld = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nCancelld")));
+            lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
+            
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
-                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         String.valueOf(lnQuantity),
-                        StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
-                        StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        String.valueOf(lnCancelld),
+                        String.valueOf(lnApproved),
                         String.valueOf(lnReleased),
-                        String.valueOf(lnIssuedxx),
-                        "",
-                        "",
-                        "",
-                        ""));
+                        String.valueOf(lnIssuedxx)));
         }
 
         if (!_table_data.isEmpty()){
@@ -479,6 +458,38 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
                 foField.requestFocus();
             }
         };
+        
+        _detail_update_callback = new DetailUpdateCallback() {
+            @Override
+            public void Result(int fnRow, int fnIndex, Object foValue) {
+                switch(fnIndex){
+                    case 8:
+                        _trans.setDetail(fnRow, "nReleased", foValue);
+                        break;
+                }
+                loadDetail();
+            }
+            
+            @Override
+            public void Result(int fnRow, String fsIndex, Object foValue){
+                switch(fsIndex){
+                    case "nApproved":
+                    case "nCancelld":
+                    case "nReleased":
+                        _trans.setDetail(fnRow, fsIndex, foValue);
+                        break;
+                }
+                loadDetail();
+            }
+
+            @Override
+            public void RemovedItem(int fnRow) {
+            }
+
+            @Override
+            public void FormClosing() {
+            }
+        };
     }
     
     private void initGrid(){
@@ -492,19 +503,17 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         TableColumn index08 = new TableColumn("");
         TableColumn index09 = new TableColumn("");
         TableColumn index10 = new TableColumn("");
-        TableColumn index11 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");        
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");        
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER;");        
-        index11.setSortable(false); index11.setResizable(false); index11.setStyle( "-fx-alignment: CENTER;");        
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER");
+        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER");
+        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER");
         
         _table.getColumns().clear();        
         
@@ -518,39 +527,35 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(200);
+        index03.prefWidthProperty().set(325);
         
-        index04.setText("QOH"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(60);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("SRP"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(85);
+        index05.prefWidthProperty().set(50);
         
-        index06.setText("Order"); 
+        index06.setText("Qty"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
-        index06.prefWidthProperty().set(60);
+        index06.prefWidthProperty().set(50);
         
-        index07.setText("Disc."); 
+        index07.setText("Apr"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(60);
+        index07.prefWidthProperty().set(50);
         
-        index08.setText("Adtl."); 
+        index08.setText("Can"); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
-        index08.prefWidthProperty().set(60);
+        index08.prefWidthProperty().set(50);
         
-        index09.setText("Total"); 
+        index09.setText("Rel"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(85);
+        index09.prefWidthProperty().set(50);
         
-        index10.setText("Rel"); 
+        index10.setText("Iss"); 
         index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(60);
-        
-        index11.setText("Iss"); 
-        index11.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index11"));
-        index11.prefWidthProperty().set(60);
+        index10.prefWidthProperty().set(50);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -562,19 +567,42 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         _table.getColumns().add(index08);
         _table.getColumns().add(index09);
         _table.getColumns().add(index10);
-        _table.getColumns().add(index11);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
     }
     
     private void tableClicked(MouseEvent event) { 
+        if (_trans.getEditMode() != EditMode.UPDATE) return;
+        
         _detail_row = _table.getSelectionModel().getSelectedIndex();
-    }
-    
-    @FXML
-    private void cmbStatus_Click(ActionEvent event) {
-        _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
+        
+        if (event.getClickCount() >= 2){
+            if (_detail_row >= 0){
+                //multiple result, load the quick search to display records
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.SP_WHOLESALE_ORDER_ISSUANCE_DETAIL);
+                
+                SPWSOrderIssuanceDetailController instance = new SPWSOrderIssuanceDetailController();
+                
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setCallback(_detail_update_callback);
+                
+                instance.setDetailRow(_detail_row);
+                instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
+                instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
+                instance.setOnHand(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQtyOnHnd"))));
+                instance.setSellingPrice(Double.valueOf(String.valueOf(_trans.getDetail(_detail_row, "nUnitPrce"))));
+                instance.setQtyOrder(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nQuantity"))));
+                instance.setApproved(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nApproved"))));
+                instance.setCancelled(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nCancelld"))));
+                instance.setIssued(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nIssuedxx"))));
+                instance.setReleased(Integer.valueOf(String.valueOf( _trans.getDetail(_detail_row, "nReleased"))));
+                
+                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            }
+        }
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -593,20 +621,46 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
                 }
                 
                 break;
-            case "btn02": //pay
-                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
-                break;
-            case "btn03": //release
-                payWithInvoice();
-                break;
-            case "btn04": //cancel
-                if (_trans.CancelTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                } else 
+            case "btn02": //update
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (_trans.UpdateTransaction()) 
+                    initButton();
+                else
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
+                break;
+            case "btn03": //save
+                if (_trans.SaveTransaction(true)){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction updated successfully.", "Warning", "");
+                    
+                    if (_trans.OpenTransaction(_old_trans)){
+                        loadTransaction();
+                        loadDetail();
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                        clearFields();
+                    }
+                    
+//                    _loaded = false;
+//                    clearFields();
+//                    initButton();
+//                    _loaded = true;
+                } else
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
+                break;
+            case "btn04": //cancel update
+                _trans = new WSOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                _trans.setSaveToDisk(false);
+                _trans.setListener(_listener);
+                _trans.setApprvListener(_approval);
+
+                clearFields();
+                initButton();
                 break;
             case "btn05":
                 break;
@@ -619,10 +673,50 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             case "btn09":
                 break;
             case "btn10":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
                 break;
-            case "btn11":
-                if (_trans.SendToPO()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was sent to PO. Please finished the transaction on Purchase Order module.", "Success", "");
+            case "btn11": //release
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (!_trans.isReleasable()){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "This transaction is NON RELEASABLE YET.", "Warning", "");
+                    return;
+                }
+                
+                double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
+                
+                if (lnForCredt > 0.00){
+                    if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to use the whole available for credit amount.", "Warning", "")){
+                        String lsValue = ShowMessageFX.InputText(_main_screen_controller.getStage(), "Please input the amount to credit.", "Credit Amount", "");
+
+                        if (!StringUtil.isNumeric(lsValue)) return;
+
+                        double lnValue = 0.00;
+
+                        try {
+                            lnValue = Double.valueOf(lsValue);
+                        } catch (NumberFormatException e) {
+                        }
+
+                        if (lnValue > lnForCredt) {
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Amount to credit is greater than the available amount.", "Warning", "");
+                            return;
+                        }
+
+                        lnForCredt = lnValue;
+                    }
+                }
+                                
+                if (_trans.ReleaseOrder(lnForCredt)){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Releasble items are sent to POS transaction list.", "Success", "");
                     
                     initGrid();
                     clearFields();
@@ -637,26 +731,6 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
                         System.exit(0);
                 }
                 break;
-        }
-    }
-    
-    private void payWithInvoice(){
-        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
-                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
-                PaymentController instance = new PaymentController();
-                instance.setNautilus(_nautilus);
-                instance.setParentController(_main_screen_controller);
-                instance.setScreensController(_screens_controller);
-                instance.setDashboardScreensController(_screens_dashboard_controller);
-                instance.setSourceCd("CO");
-                instance.setSourceNo((String) _trans.getMaster("sTransNox"));
-
-                //close this screen
-                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                //load the payment screen
-                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
-        } else{
-            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
         }
     }
     
@@ -718,30 +792,36 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Print");
-        btn03.setText("Pay");
+        btn02.setText("Update");
+        btn03.setText("Save");
         btn04.setText("Cancel");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("TO POS");
-        btn11.setText("To PO");
+        btn10.setText("Print");
+        btn11.setText("Release");
         btn12.setText("Close");
         
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn10.setVisible(true);
+        btn11.setVisible(true);
         btn12.setVisible(true);
+        
+        btn02.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
+        btn10.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
+        btn11.setVisible((int) _trans.getEditMode() == EditMode.READY || (int) _trans.getEditMode() == EditMode.UNKNOWN);
+        btn03.setVisible((int) _trans.getEditMode() == EditMode.UPDATE);
+        btn04.setVisible((int) _trans.getEditMode() == EditMode.UPDATE);
     }
     
     private void initFields(){
@@ -760,32 +840,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         txtField09.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
-        
-        cmbStatus.setItems(_status);
-        cmbStatus.getSelectionModel().select(0);
-        _transtat = 0;
-    }
     
-    private void setTranStat(String fsValue){
-        switch(fsValue){
-            case "0":
-                lblTranStat.setText("OPEN");
-                break;
-            case "1":
-                lblTranStat.setText("CLOSED");
-                break;
-            case "2":
-                lblTranStat.setText("POSTED");
-                break;
-            case "3":
-                lblTranStat.setText("CANCELLED");
-                break;
-            case "4":
-                lblTranStat.setText("VOIDED");
-                break;
-            default:
-                lblTranStat.setText("UNKNOWN");
-        }
+        _transtat = 10;
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{

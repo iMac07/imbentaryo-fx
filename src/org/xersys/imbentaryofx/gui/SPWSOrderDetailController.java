@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
@@ -18,7 +19,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
 
-public class SPCustomerOrderIssuanceDetailController implements Initializable, ControlledScreen  {
+public class SPWSOrderDetailController implements Initializable, ControlledScreen  {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private DetailUpdateCallback _callback;
@@ -26,14 +27,13 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
     
     private int _row;
     private String _part_number;
-    private String _description;    
+    private String _description;
+    private int _roq;
+    private int _order;
     private int _on_hand;
     private double _srp;
-    private int _order;
-    private int _approved;
-    private int _cancelled;
-    private int _issued;
-    private int _released;
+    private double _discount;
+    private double _additional;
     
     @FXML
     private AnchorPane AnchorMain;
@@ -80,7 +80,7 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
     @FXML
     private TextField txtDetail08;
     @FXML
-    private TextField txtDetail09;
+    private Label lblTotal;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -122,6 +122,14 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         _row = fnValue;
     }
     
+    public void setQtyOrder(int fnValue){
+        _order = fnValue;
+    }
+    
+    public void setOnHand(int fnValue){
+        _on_hand = fnValue;
+    }
+    
     public void setPartNumber(String fsValue){
         _part_number = fsValue;
     }
@@ -130,32 +138,20 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         _description = fsValue;
     }
     
-    public void setOnHand(int fnValue){
-        _on_hand = fnValue;
+    public void setOtherInfo(int fnValue){
+        _roq = fnValue;
     }
     
     public void setSellingPrice(double fnValue){
         _srp = fnValue;
     }
     
-    public void setQtyOrder(int fnValue){
-        _order = fnValue;
+    public void setDiscount(double fnValue){
+        _discount = fnValue;
     }
     
-    public void setApproved(int fnValue){
-        _approved = fnValue;
-    }
-    
-    public void setCancelled(int fnValue){
-        _cancelled = fnValue;
-    }
-    
-    public void setIssued(int fnValue){
-        _issued = fnValue;
-    }
-    
-    public void setReleased(int fnValue){
-        _released = fnValue;
+    public void setAdditional(double fnValue){
+        _additional = fnValue;
     }
     
     private void initButton(){
@@ -186,7 +182,7 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Okay");
-        btn02.setText("");
+        btn02.setText("Remove");
         btn03.setText("");
         btn04.setText("");
         btn05.setText("");
@@ -200,7 +196,7 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         
         
         btn01.setVisible(true);
-        btn02.setVisible(false);
+        btn02.setVisible(true);
         btn03.setVisible(false);
         btn04.setVisible(false);
         btn05.setVisible(false);
@@ -229,16 +225,17 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
                 
         txtDetail01.setText(_part_number);
         txtDetail02.setText(_description);
-        txtDetail03.setText(String.valueOf(_on_hand));
+        txtDetail03.setText(String.valueOf(_roq));
         txtDetail04.setText(StringUtil.NumberFormat(_srp, "#,##0.00"));
-        txtDetail05.setText(String.valueOf(_order));
-        txtDetail06.setText(String.valueOf(_approved));
-        txtDetail07.setText(String.valueOf(_cancelled));
-        txtDetail08.setText(String.valueOf(_released));
-        txtDetail09.setText(String.valueOf(_issued));
+        txtDetail05.setText(String.valueOf(_on_hand));
+        txtDetail06.setText(String.valueOf(_order));
+        txtDetail07.setText(StringUtil.NumberFormat(_discount, "##0.00"));
+        txtDetail08.setText(StringUtil.NumberFormat(_additional, "##0.00"));
         
-        txtDetail08.requestFocus();
-        txtDetail08.selectAll();
+        computeTotal();
+        
+        txtDetail06.requestFocus();
+        txtDetail06.selectAll();
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -249,7 +246,8 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
             case "btn01": //okay    
                 loadData();
                 break;
-            case "btn02":
+            case "btn02": //remove item
+                removeData();
                 break;
             case "btn03":
                 break;
@@ -276,14 +274,32 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         }
     }
     
-    private void loadData(){      
+    private void loadData(){
+        if (_order <= 0){
+            removeData();
+            return;
+        }
+        
         //load the data
-        _callback.Result(_row, "nApproved", _approved);
-        _callback.Result(_row, "nCancelld", _cancelled);
-        _callback.Result(_row, "nReleased", _released);
+        _callback.Result(_row, "nQuantity", _order);
+        _callback.Result(_row, "nDiscount", _discount);
+        _callback.Result(_row, "nAddDiscx", _additional);
         
         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
         _callback.FormClosing();
+    }
+    
+    private void removeData(){
+        //load the data
+        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+        _callback.RemovedItem(_row);
+        _callback.FormClosing();
+    }
+    
+    private void computeTotal(){        
+        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - _additional;
+        
+        lblTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
     }
     
     private void txtField_KeyPressed(KeyEvent event) {
@@ -291,7 +307,14 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         
         switch (event.getCode()){
         case ENTER:
-        case DOWN:            
+        case DOWN:
+            if (txtField.getId().equals("txtDetail08")){
+                txtDetail06.selectAll();
+                txtDetail06.requestFocus();
+                event.consume();
+                return;
+            }
+            
             FXUtil.SetNextFocus(txtField);
             break;
         case UP:
@@ -310,47 +333,47 @@ public class SPCustomerOrderIssuanceDetailController implements Initializable, C
         
         if(!nv){
             switch (lnIndex){
-                case 7: //cancelled
-                    if (StringUtil.isNumeric(lsValue)){
-                        int lnValue = Integer.parseInt(lsValue);
-                        
-                        if (lnValue > _order - _issued){
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Cancelled quantity is greater than the order less issued.", "Warning", "");
-                            txtField.setText("0");
-                            txtDetail06.setText(String.valueOf(_order - _issued));
-                        } else
-                            txtField.setText(lsValue);                    
-                            _approved = _order - _issued - lnValue;
-                            txtDetail06.setText(String.valueOf(_approved));
-                    } else{
+                case 6:
+                    if (StringUtil.isNumeric(lsValue))                    
+                        txtField.setText(lsValue);                    
+                    else{
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
                         txtField.setText("0");
                     } 
+                        
                     
-                    _cancelled = Integer.parseInt(txtField.getText());
+                    _order = Integer.parseInt(txtField.getText());
                     break;
-                case 8: //released
+                case 7:
                     if (StringUtil.isNumeric(lsValue)){
-                        int lnValue = Integer.parseInt(lsValue);
+                        double lnValue = Double.valueOf(lsValue);
                         
-                        if (lnValue > _approved - _issued){
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Release quantity is greater than the supposed max value.", "Warning", "");
-                            txtField.setText(String.valueOf(_approved - _issued));
-                        } else if (lnValue < _issued){
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Release quantity is less than the issued value.", "Warning", "");
-                            txtField.setText(String.valueOf(_issued));
-                        } else
-                            txtField.setText(lsValue);                    
-                    } else{
+                        if (lnValue > 100)
+                            txtField.setText("100.00");
+                        else
+                            txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));
+                    } else {
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
-                        txtField.setText("0");
-                    } 
-                    
-                    _released = Integer.parseInt(txtField.getText());
+                        txtField.setText("0.00");
+                    }
+                        
+                    _discount = Double.valueOf(txtField.getText());
+                    break;
+                case 8:
+                    if (StringUtil.isNumeric(lsValue)){
+                        double lnValue = Double.valueOf(lsValue);
+                        
+                        txtField.setText(StringUtil.NumberFormat(lnValue, "##0.00"));                            
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a numeric value with correct format.", "Warning", "");
+                        txtField.setText("0.00");
+                    }
+                        
+                    _additional = Double.valueOf(txtField.getText());
                     break;
             }
-        } else{
-            txtField.selectAll();
-        }    
+            
+            computeTotal();
+        }
     };
 }

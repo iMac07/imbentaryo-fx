@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -18,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="SPCustomerOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="SPWSOrderIssuance" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -26,7 +25,7 @@
                <top>
                   <AnchorPane id="TransHeader" prefHeight="25.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="SP Customer Order History" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="SP Whole Sale Order Issuance" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </top>
@@ -53,19 +52,6 @@
                                           <TextField fx:id="txtSeeks01" GridPane.columnIndex="1" />
                                           <Label prefHeight="30.0" prefWidth="102.0" text="Client Name:" GridPane.columnIndex="3" />
                                           <TextField fx:id="txtSeeks02" GridPane.columnIndex="4" />
-                                       </children>
-                                    </GridPane>
-                                    <GridPane layoutX="717.0" layoutY="14.0" prefHeight="30.0" AnchorPane.topAnchor="14.0">
-                                      <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                      </rowConstraints>
-                                       <children>
-                                          <Label id="lblOrderNo" prefHeight="30.0" prefWidth="118.0" text="STATUS:" />
-                                          <Label id="lblOrderNo" fx:id="lblTranStat" prefHeight="30.0" prefWidth="116.0" text="OPEN" GridPane.columnIndex="1" />
                                        </children>
                                     </GridPane>
                                     <TableView fx:id="_table" focusTraversable="false" prefHeight="285.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
@@ -137,18 +123,18 @@
                                        </rowConstraints>
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="124.0" text="Tran. Total:" GridPane.rowIndex="1" />
-                                          <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" textFill="RED" GridPane.rowIndex="2" />
+                                          <Label prefHeight="30.0" prefWidth="139.0" text="Total Discount:" GridPane.rowIndex="2" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Net Amount:" GridPane.rowIndex="4" />
                                           <Label fx:id="lblTranTotal" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label fx:id="lblTotalDisc" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Label id="lblTransSummary" alignment="CENTER" prefHeight="51.0" prefWidth="220.0" text="Transaction Summary" GridPane.columnSpan="2" />
                                           <Label prefHeight="30.0" prefWidth="113.0" text="Freight Charge:" GridPane.rowIndex="3" />
                                           <Label fx:id="lblFreight" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                           <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Adv. Payment:" GridPane.rowIndex="6" />
                                           <Label id="lblTransSummary" fx:id="lblPaymTotl" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Avl. For Credit:" GridPane.rowIndex="7" />
+                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="For Crediting:" GridPane.rowIndex="7" />
                                           <Label id="lblTransSummary" fx:id="lblForCredit" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                          <Label id="lblTransSummary" prefHeight="30.0" prefWidth="127.0" text="Net Amount:" GridPane.rowIndex="4" />
-                                          <Label id="lblTransSummary" fx:id="lblPayable" alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="124.0" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -197,7 +183,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/print-invoice.png" />
+                                                                  <Image url="@../icons/job-order.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -210,7 +196,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/invoice.png" />
+                                                                  <Image url="@../icons/save.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -259,7 +245,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/point-of-sale.png" />
+                                                                  <Image url="@../icons/btn-print.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -271,7 +257,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/purchase-order.png" />
+                                                                  <Image url="@../icons/release.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -310,12 +296,7 @@
                               <HBox id="TransButtons" prefHeight="26.0">
                                  <children>
                                     <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                                    <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                                       <children>
-                                          <ComboBox id="cmbOrder" fx:id="cmbStatus" layoutX="-27.0" onAction="#cmbStatus_Click" prefHeight="25.0" prefWidth="104.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
-                                          <Label id="lblOrderNo" text="Status Filter:" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="124.0" AnchorPane.topAnchor="0.0" />
-                                       </children>
-                                    </AnchorPane>
+                                    <AnchorPane prefHeight="200.0" prefWidth="200.0" />
                                  </children>
                               </HBox>
                            </top>

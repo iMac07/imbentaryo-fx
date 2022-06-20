@@ -71,13 +71,38 @@ public class ScreenInfo {
         INV_ADJUSTMENT_HISTORY,
         USER_MANAGER,
         SI_HISTORY,
-        OR_HISTORY
+        OR_HISTORY,
+        SP_WHOLESALE_ORDER,
+        SP_WHOLESALE_ORDER_DETAIL,
+        SP_WHOLESALE_ORDER_HISTORY,
+        SP_WHOLESALE_ORDER_ISSUANCE,
+        SP_WHOLESALE_ORDER_ISSUANCE_DETAIL
     }
     
     public static JSONObject get(NAME foModule){
         JSONObject loJSON = new JSONObject();
         
         switch (foModule){
+            case SP_WHOLESALE_ORDER_ISSUANCE:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderIssuance.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderIssuanceController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_ISSUANCE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderIssuanceDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderIssuanceDetailController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrder.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderDetailController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderHistoryController");
+                return loJSON;
             case SI_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "SIHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SIHistoryController");
