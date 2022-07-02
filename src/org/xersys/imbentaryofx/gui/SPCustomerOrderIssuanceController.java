@@ -244,8 +244,8 @@ public class SPCustomerOrderIssuanceController implements Initializable, Control
         double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
         
         txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField10.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        txtField11.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField10.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));

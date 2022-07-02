@@ -297,7 +297,7 @@ public class POSDetailController implements Initializable, ControlledScreen  {
     }
     
     private void computeTotal(){        
-        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - _additional;
+        double lnTranTotl = (_order * (_srp - (_srp * _discount / 100))) - (_order * _additional);
         
         lblTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
     }

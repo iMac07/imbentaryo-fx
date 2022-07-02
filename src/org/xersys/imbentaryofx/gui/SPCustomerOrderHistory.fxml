@@ -259,7 +259,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/point-of-sale.png" />
+                                                                  <Image url="@../icons/print-invoice.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>

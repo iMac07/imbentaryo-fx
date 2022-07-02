@@ -1,6 +1,12 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -22,6 +28,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,6 +44,7 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.sales.base.SalesOrder;
 import org.xersys.sales.search.SalesSearch;
@@ -183,7 +195,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             case ENTER:
                 switch (lsTxt){
                     case "txtSeeks01":
-                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), true);
+                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), false);
                         event.consume();
                         break;
                     case "txtSeeks02":
@@ -203,7 +215,6 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
                         break;
                 }
         }
-        
         
         switch (event.getCode()){
         case ENTER:
@@ -249,8 +260,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         double lnForCredt = ((Number) _trans.getMaster("nForCredt")).doubleValue();
         
         txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField10.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        txtField11.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField10.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
@@ -281,7 +292,8 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
-        //btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
+        
+        btn10.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
         btn11.setVisible(Integer.parseInt(String.valueOf(_trans.getMaster("cTranStat"))) == 1);
     }
     
@@ -360,7 +372,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - (lnQuantity * lnAddDiscx);
             lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
             lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
             
@@ -411,7 +423,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - (lnQuantity * lnAddDiscx);
             lnReleased = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nReleased")));
             lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nIssuedxx")));
             
@@ -618,11 +630,12 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
                 break;
             case "btn09":
                 break;
-            case "btn10":
+            case "btn10": //print invoice
+                printInvoice();
                 break;
             case "btn11":
                 if (_trans.SendToPO()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was sent to PO. Please finished the transaction on Purchase Order module.", "Success", "");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was sent to PO. Please finish the transaction on Purchase Order module.", "Success", "");
                     
                     initGrid();
                     clearFields();
@@ -658,6 +671,68 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         } else{
             ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
         }
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("1".equals((String) _trans.getMaster("cTranStat"))){
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj = new JSONObject();
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
+                json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                json_arr.add(json_obj); 
+            }
+
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sClientNm", (String) _trans.getMaster("xClientNm"));
+            params.put("xAddressx", (String) _trans.getMaster("xAddressx"));
+            params.put("sReferNox", (String) _trans.getMaster("xInvNumbr"));
+            params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("xAmtPaidx")))));
+            params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sSalesman", "N-O-N-E");
+            
+            double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nTranTotl")));
+            params.put("nTranTotl", lnTranTotl);
+            params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+            
+            double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+            
+            lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+            params.put("nDiscount", lnDiscount);
+
+            try {
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/SP_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     public void keyReleased(KeyEvent event) {
@@ -726,7 +801,7 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("TO POS");
+        btn10.setText("Invoice");
         btn11.setText("To PO");
         btn12.setText("Close");
         

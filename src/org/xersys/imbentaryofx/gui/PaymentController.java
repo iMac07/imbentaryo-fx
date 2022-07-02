@@ -375,8 +375,8 @@ public class PaymentController implements Initializable, ControlledScreen {
         
         btn01.setVisible(true);
         btn02.setVisible(!_source_code.equals("CO"));
-        btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn03.setVisible(!_source_code.equals("CO"));
+        btn04.setVisible(!_source_code.equals("CO"));
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
