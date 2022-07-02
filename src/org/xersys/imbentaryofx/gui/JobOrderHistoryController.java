@@ -366,6 +366,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
         
+        btn11.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) == 1);
+        
         _index = 1;
         
         computeSummary();
@@ -811,7 +813,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("");
+        btn11.setText("Invoice");
         btn12.setText("Close");
         
         btn01.setVisible(true);
@@ -823,8 +825,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(true);
-        btn11.setVisible(true);
+        btn10.setVisible(false);
+        btn11.setVisible(false);
         btn12.setVisible(true);
     }
     

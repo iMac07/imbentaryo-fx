@@ -765,7 +765,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             //Create the parameter
             Map<String, Object> params = new HashMap<>();
             params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
-            params.put("sClientNm", (String) _trans.getMaster("xClientNm"));
+            params.put("sClientNm", (String) _trans.getMaster("vClientNm"));
             params.put("xAddressx", (String) _trans.getMaster("xAddressx"));
             params.put("sReferNox", (String) _trans.getMaster("xInvNumbr"));
             params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("xAmtPaidx")))));
