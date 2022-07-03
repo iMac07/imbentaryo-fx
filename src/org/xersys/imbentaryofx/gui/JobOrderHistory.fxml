@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="JobOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="JobOrderHistory" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -147,15 +147,15 @@
                                           <TextField fx:id="txtField05" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" />
                                           <Label prefHeight="30.0" prefWidth="83.0" text="Client Name:" GridPane.rowIndex="1" />
                                           <TextField fx:id="txtField03" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Srvc. Advisor:" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="S. Advisor:" GridPane.rowIndex="2" />
                                           <TextField fx:id="txtField09" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Mechanic:" GridPane.rowIndex="3" />
                                           <TextField fx:id="txtField08" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="3" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Wty. Cpn. No:" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField11" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Coupon. No:" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField12" disable="true" GridPane.columnIndex="5" GridPane.rowIndex="4" />
-                                          <CheckBox fx:id="chkWarranty" disable="true" mnemonicParsing="false" onAction="#chkWarranty_Click" prefHeight="17.0" prefWidth="114.0" text="For WTY" GridPane.columnIndex="6" GridPane.rowIndex="4">
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Wty. Cpn. No:" visible="false" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField11" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Coupon. No:" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField12" disable="true" visible="false" GridPane.columnIndex="5" GridPane.rowIndex="4" />
+                                          <CheckBox fx:id="chkWarranty" disable="true" mnemonicParsing="false" onAction="#chkWarranty_Click" prefHeight="17.0" prefWidth="114.0" text="For WTY" visible="false" GridPane.columnIndex="6" GridPane.rowIndex="4">
                                              <GridPane.margin>
                                                 <Insets left="10.0" />
                                              </GridPane.margin>
@@ -166,14 +166,14 @@
                                           <TextField fx:id="txtField37" disable="true" GridPane.columnIndex="9" GridPane.columnSpan="4" GridPane.rowIndex="1" />
                                           <Label prefHeight="30.0" prefWidth="83.0" text="Frame No.:" GridPane.columnIndex="8" GridPane.rowIndex="2" />
                                           <TextField fx:id="txtField38" disable="true" GridPane.columnIndex="9" GridPane.columnSpan="4" GridPane.rowIndex="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Km. Reading:" GridPane.columnIndex="8" GridPane.rowIndex="3" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Mileage:" GridPane.columnIndex="8" GridPane.rowIndex="3" />
                                           <TextField fx:id="txtField06" disable="true" GridPane.columnIndex="9" GridPane.rowIndex="3" />
                                           <Label prefHeight="30.0" prefWidth="126.0" text="Freight:" GridPane.columnIndex="11" GridPane.rowIndex="3" />
                                           <TextField fx:id="txtField26" disable="true" GridPane.columnIndex="12" GridPane.rowIndex="3" />
-                                          <Label prefHeight="30.0" prefWidth="88.0" text="Disc. Rate:" GridPane.columnIndex="8" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField24" disable="true" GridPane.columnIndex="9" GridPane.rowIndex="4" />
-                                          <Label prefHeight="30.0" prefWidth="126.0" text="Addtl. Disc.:" GridPane.columnIndex="11" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField25" disable="true" GridPane.columnIndex="12" GridPane.rowIndex="4" />
+                                          <Label prefHeight="30.0" prefWidth="88.0" text="Disc. Rate:" visible="false" GridPane.columnIndex="8" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField24" disable="true" visible="false" GridPane.columnIndex="9" GridPane.rowIndex="4" />
+                                          <Label prefHeight="30.0" prefWidth="126.0" text="Addtl. Disc.:" visible="false" GridPane.columnIndex="11" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField25" disable="true" visible="false" GridPane.columnIndex="12" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                     <GridPane AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
@@ -214,11 +214,8 @@
                               <VBox id="TransButtons" prefHeight="60.0" prefWidth="100.0" spacing="1.0">
                                  <children>
                                     <HBox prefHeight="70.0" prefWidth="200.0">
-                                       <padding>
-                                          <Insets bottom="1.0" />
-                                       </padding>
                                        <children>
-                                          <GridPane>
+                                          <GridPane HBox.hgrow="ALWAYS">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -269,7 +266,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/btn-approve.png" />
+                                                                  <Image url="@../icons/btn-cancel.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic>
@@ -278,14 +275,7 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="3">
                                                    <children>
-                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                               <image>
-                                                                  <Image url="@../icons/btn-cancel.png" />
-                                                               </image>
-                                                            </ImageView>
-                                                         </graphic></Button>
+                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="4">
@@ -327,7 +317,8 @@
                                                                   <Image url="@../icons/print-invoice.png" />
                                                                </image>
                                                             </ImageView>
-                                                         </graphic></Button>
+                                                         </graphic>
+                                                      </Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="11">
@@ -344,8 +335,14 @@
                                                    </children>
                                                 </AnchorPane>
                                              </children>
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
                                           </GridPane>
                                        </children>
+                                       <padding>
+                                          <Insets bottom="1.0" />
+                                       </padding>
                                     </HBox>
                                  </children>
                               </VBox>

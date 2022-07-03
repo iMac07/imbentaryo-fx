@@ -305,10 +305,11 @@ public class PaymentController implements Initializable, ControlledScreen {
     }
     
     private void loadTransaction(){
+        lblAdvPaymt.setText(StringUtil.NumberFormat((double) _trans.getMaster("nAdvPaymx"), "#,##0.00"));
         lblCreditCardAmount.setText(StringUtil.NumberFormat(_trans.getCreditCardInfo().getPaymentTotal(), "#,##0.00"));
-        lblCreditCardAmount.setText(StringUtil.NumberFormat((double) _trans.getMaster("nAdvPaymx"), "#,##0.00"));
         lblChequeAmount.setText("0.00");
         lblGCAmount.setText("0.00");
+        
         
         lblNetPayable.setText("0.00");
         lblVATableSales.setText("0.00");
@@ -396,10 +397,10 @@ public class PaymentController implements Initializable, ControlledScreen {
                 if (_trans.SaveTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
-                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the invoice?", "Confirm", "")){
-                        if (!_trans.PrintTransaction()) 
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
-                    }
+//                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the invoice?", "Confirm", "")){
+//                        if (!_trans.PrintTransaction()) 
+//                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+//                    }
                     
                     //close this screen
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());

@@ -76,13 +76,18 @@ public class ScreenInfo {
         SP_WHOLESALE_ORDER_DETAIL,
         SP_WHOLESALE_ORDER_HISTORY,
         SP_WHOLESALE_ORDER_ISSUANCE,
-        SP_WHOLESALE_ORDER_ISSUANCE_DETAIL
+        SP_WHOLESALE_ORDER_ISSUANCE_DETAIL,
+        LABOR
     }
     
     public static JSONObject get(NAME foModule){
         JSONObject loJSON = new JSONObject();
         
         switch (foModule){
+            case LABOR:
+                loJSON.put("resource", RESOURCE_URL + "Labor.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "LaborController");
+                return loJSON;
             case SP_WHOLESALE_ORDER_ISSUANCE:
                 loJSON.put("resource", RESOURCE_URL + "SPWSOrderIssuance.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPWSOrderIssuanceController");

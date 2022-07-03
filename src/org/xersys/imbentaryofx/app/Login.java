@@ -57,6 +57,10 @@ public class Login {
         }
         
         System.setProperty("sys.default.path.config", path);
+        System.setProperty("store.branch.code", (String) loNautilus.getBranchConfig("sBranchCd"));
+        System.setProperty("store.branch.address", (String) loNautilus.getBranchConfig("sAddressx") + " " + (String) loNautilus.getBranchConfig("xTownName"));
+                
+                
         
         loadProperties();
         delPrevDayTrans(loNautilus);

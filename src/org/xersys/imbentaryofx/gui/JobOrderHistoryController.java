@@ -1,7 +1,14 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -23,6 +30,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -351,13 +363,13 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         Date lsDate = null;
         
         if (_trans.getMaster("dStartedx") != null){
-            lsDate = SQLUtil.toDate((String) _trans.getMaster("dStartedx"), SQLUtil.FORMAT_TIMESTAMP);
+            lsDate = SQLUtil.toDate(String.valueOf(_trans.getMaster("dStartedx")), SQLUtil.FORMAT_TIMESTAMP);
             lblStartTime.setText(SQLUtil.dateFormat(lsDate, SQLUtil.FORMAT_TIME));
         } else
             lblStartTime.setText("00:00:00");
         
         if (_trans.getMaster("dFinished") != null){
-            lsDate = SQLUtil.toDate((String) _trans.getMaster("dFinished"), SQLUtil.FORMAT_TIMESTAMP);
+            lsDate = SQLUtil.toDate(String.valueOf(_trans.getMaster("dFinished")), SQLUtil.FORMAT_TIMESTAMP);
             lblEndTime.setText(SQLUtil.dateFormat(lsDate, SQLUtil.FORMAT_TIME));
         } else
             lblEndTime.setText("00:00:00");
@@ -366,7 +378,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
         
-        btn11.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) == 1);
+        btn11.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) == 2);
         
         _index = 1;
         
@@ -629,23 +641,17 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 }
                 
                 ShowMessageFX.Warning(_main_screen_controller.getStage(), "Transaction printed successfully.", "Warning", "");
-                break;
-            case "btn03": //close transaction
-                if (_trans.getEditMode() != EditMode.READY){
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
-                    return;
+                
+                if ("0".equals((String) _trans.getMaster("cTranStat"))){
+                    if (!_trans.CloseTransaction())
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");                        
                 }
                 
-                if (_trans.CloseTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
-                    
-                    initGrid();
-                    initButton();
-                    clearFields();
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                initButton();
+                clearFields();
+                
                 break;
-            case "btn04": //cancel
+            case "btn03": //cancel
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
                     return;
@@ -660,20 +666,9 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn05": //confirm
-                if (_trans.getEditMode() != EditMode.READY){
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
-                    return;
-                }
-                
-                if (_trans.PostTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
-                    
-                    initGrid();
-                    initButton();
-                    clearFields();
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            case "btn04":
+                break;
+            case "btn05":
                 break;
             case "btn06":
                 break;
@@ -685,7 +680,9 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 break;
             case "btn10":
                 break;
-            case "btn11":
+            case "btn11": //print invoices
+                printReceipt();
+                printInvoice();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -696,6 +693,143 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 }
                 break;
         }
+    }
+    
+    private boolean printReceipt(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Official Receipt?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getReceipt_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj = new JSONObject();
+
+                for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                    json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nLabrPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                
+                //params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+                
+                //double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+
+                //lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                //params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/JO-OR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Sales Invoice?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getInvoice_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj = new JSONObject();
+
+                for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                    json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sBarCodex"));
+                    json_obj.put("sField02", (String) _trans.getParts(lnCtr, "sDescript"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nPartPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nPartTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                
+                params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+                
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+
+                lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/SP_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     public void keyReleased(KeyEvent event) {
@@ -805,8 +939,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         btn01.setText("Browse");
         btn02.setText("Print");
-        btn03.setText("Post");
-        btn04.setText("Cancel");
+        btn03.setText("Cancel");
+        btn04.setText("");
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
@@ -819,7 +953,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

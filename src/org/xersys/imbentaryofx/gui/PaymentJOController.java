@@ -1,7 +1,14 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -16,19 +23,27 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.clients.search.ClientSearch;
+import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.contants.InvoiceType;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XPayments;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.PaymentFactory;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
+import org.xersys.sales.base.JobOrder;
 
 public class PaymentJOController implements Initializable, ControlledScreen {
     private MainScreenController _main_screen_controller;
@@ -45,6 +60,7 @@ public class PaymentJOController implements Initializable, ControlledScreen {
     private String _source_code = "";
     private String _source_number = "";
     
+    private JobOrder _trans;
     private XPayments _trans_si;
     private XPayments _trans_or;
     
@@ -126,6 +142,8 @@ public class PaymentJOController implements Initializable, ControlledScreen {
             System.exit(1);
         }
         
+        _trans = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true, 12);
+                
         _trans_or = new PaymentFactory().make(InvoiceType.OFFICIAL_RECEIPT, _nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);   
         _trans_or.setListener(_listener_or);
         _trans_or.setSourceCd(_source_code);
@@ -385,13 +403,6 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                     return;
                 }
                 
-                if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){
-                    if (!_trans_or.SaveTransaction()){
-                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
-                        return;
-                    }
-                }
-                
                 if ((double) _trans_si.getMaster("nCashAmtx") > 0.00){
                     if (!_trans_si.SaveTransaction()){
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_si.getMessage(), "Warning", "");
@@ -402,19 +413,18 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 }
                 
                 if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){
-                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the Official Receipt?", "Confirm", "")){
-                        if (!_trans_or.PrintTransaction()) 
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
+                    if (!_trans_or.SaveTransaction()){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
+                        return;
                     }
-                }
+                }           
+                
+                if (_trans.OpenTransaction(_source_number)){
+                    if ((double) _trans_or.getMaster("nCashAmtx") > 0.00) printReceipt(); 
 
-                if ((double) _trans_si.getMaster("nCashAmtx") > 0.00){
-                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print the Sales Invoice?", "Confirm", "")){
-                        if (!_trans_si.PrintTransaction()) 
-                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_si.getMessage(), "Warning", "");
-                    }
+                    if ((double) _trans_si.getMaster("nCashAmtx") > 0.00) printInvoice();
                 }
-
+                
                 //close this screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 break;
@@ -546,6 +556,143 @@ public class PaymentJOController implements Initializable, ControlledScreen {
             txtField03.setText("");
             FXUtil.SetNextFocus(txtField03);
         }
+    }
+    
+    private boolean printReceipt(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Official Receipt?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getReceipt_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj = new JSONObject();
+
+                for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                    json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nLabrPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                
+                //params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+                
+                //double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+
+                //lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                //params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/JO-OR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Sales Invoice?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getInvoice_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj = new JSONObject();
+
+                for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                    json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sBarCodex"));
+                    json_obj.put("sField02", (String) _trans.getParts(lnCtr, "sDescript"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nPartPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nPartTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                
+                params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+                
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+
+                lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/SP_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
