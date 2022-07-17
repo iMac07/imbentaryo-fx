@@ -330,22 +330,28 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     
     private void computeSummary(){
         double lnLabrTotl = ((Number) _trans.getMaster("nLabrTotl")).doubleValue();
-        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
-        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
-        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
-        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
-        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
-        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnLabrDisc = ((Number) _trans.getMaster("nLabrDisc")).doubleValue();
         
-        txtField24.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField25.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
+        double lnPartDisc = ((Number) _trans.getMaster("nPartDisc")).doubleValue();
+        
+        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        
+        double lnTotlDisc = 0.00;
+        lnTotlDisc += lnLabrTotl * lnLabrDisc / 100;
+        lnTotlDisc += lnPartTotl * lnPartDisc / 100;
+        
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        
+        txtField24.setText(StringUtil.NumberFormat(lnLabrDisc, "##0.00"));
+        txtField25.setText(StringUtil.NumberFormat(lnPartDisc, "##0.00"));
         txtField26.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblLabrTotl.setText(StringUtil.NumberFormat(lnLabrTotl, "#,##0.00"));
         lblPartTotl.setText(StringUtil.NumberFormat(lnPartTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl + lnFreightx, "#,##0.00"));
     }
     
     private void loadTransaction(){        
@@ -712,9 +718,11 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 JSONArray json_arr = new JSONArray();
                 json_arr.clear();
 
-                JSONObject json_obj = new JSONObject();
+                JSONObject json_obj;
 
                 for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
                     json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
                     json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
                     json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
@@ -735,13 +743,9 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
 
                 double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl")));
                 params.put("nTranTotl", lnTranTotl);
-                
-                //params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
-                
-                //double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
-
-                //lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
-                //params.put("nDiscount", lnDiscount);
+                                
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nLabrDisc"))) / 100;
+                params.put("nDiscount", lnDiscount);
 
                 InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
                 JsonDataSource jrjson = new JsonDataSource(stream); 
@@ -780,9 +784,11 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 JSONArray json_arr = new JSONArray();
                 json_arr.clear();
 
-                JSONObject json_obj = new JSONObject();
+                JSONObject json_obj;
 
                 for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
                     json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
                     json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sBarCodex"));
                     json_obj.put("sField02", (String) _trans.getParts(lnCtr, "sDescript"));
@@ -807,9 +813,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 
                 params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
                 
-                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
-
-                lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nPartDisc"))) / 100;
                 params.put("nDiscount", lnDiscount);
 
                 InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));

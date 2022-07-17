@@ -575,9 +575,11 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 JSONArray json_arr = new JSONArray();
                 json_arr.clear();
 
-                JSONObject json_obj = new JSONObject();
+                JSONObject json_obj;
 
                 for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
                     json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
                     json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
                     json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
@@ -599,12 +601,8 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl")));
                 params.put("nTranTotl", lnTranTotl);
                 
-                //params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
-                
-                //double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
-
-                //lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
-                //params.put("nDiscount", lnDiscount);
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nLabrDisc"))) / 100;
+                params.put("nDiscount", lnDiscount);
 
                 InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
                 JsonDataSource jrjson = new JsonDataSource(stream); 
@@ -643,9 +641,11 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 JSONArray json_arr = new JSONArray();
                 json_arr.clear();
 
-                JSONObject json_obj = new JSONObject();
+                JSONObject json_obj;
 
                 for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
                     json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
                     json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sBarCodex"));
                     json_obj.put("sField02", (String) _trans.getParts(lnCtr, "sDescript"));
@@ -670,9 +670,7 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                 
                 params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
                 
-                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
-
-                lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nPartDisc"))) / 100;
                 params.put("nDiscount", lnDiscount);
 
                 InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));

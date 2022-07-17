@@ -94,10 +94,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         initGrid();
         
         try {
-            if (_trans.LoadTransactions())
-                loadDetail();
-//            else
-//                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Notice", "");
+            if (_trans.LoadTransactions()) loadDetail();
         } catch (SQLException ex) {
             ex.printStackTrace();
             ShowMessageFX.Warning(_main_screen_controller.getStage(), "Error loading cashier transactions.", "Warning", "");

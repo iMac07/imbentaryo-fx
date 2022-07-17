@@ -683,9 +683,11 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             JSONArray json_arr = new JSONArray();
             json_arr.clear();
 
-            JSONObject json_obj = new JSONObject();
+            JSONObject json_obj;
 
             for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+
                 json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
                 json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
                 json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));

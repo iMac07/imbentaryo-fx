@@ -26,8 +26,11 @@ import javafx.scene.control.CheckBox;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.AccessLevel;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.contants.UserLevel;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.inventory.base.Inventory;
@@ -38,6 +41,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
     private XNautilus _nautilus;
     private LRecordMas _listener;
     private LRecordMas _listener_mas;
+    private LApproval _approval;
     
     private Inventory _trans;
     private String _transno;
@@ -505,6 +509,13 @@ public class SPMasterController implements Initializable, ControlledScreen{
     }
     
     private void initListener(){
+        _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _listener_mas = new LRecordMas() {
             @Override
             public void MasterRetreive(String fsIndex, Object foValue) {
@@ -679,7 +690,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField09.setDisable(true);
         txtField10.setDisable(!lbShow);
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField12.setDisable(lnEditMode != EditMode.ADDNEW && lnEditMode != EditMode.UPDATE);
         
         disableInvMasterFields();
         
@@ -944,6 +955,16 @@ public class SPMasterController implements Initializable, ControlledScreen{
                     
                     break;
                 case 12:
+                    //check if user is allowed
+                    if (!_nautilus.isUserAuthorized(_approval, 
+                            UserLevel.MANAGER + UserLevel.SYSADMIN + UserLevel.OWNER, 
+                            AccessLevel.SALES)){
+                        txtField.setText(StringUtil.NumberFormat(Double.valueOf(String.valueOf(_trans.getMaster("nSelPrce1"))), "#,##0.00"));
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), System.getProperty("sMessagex"), "Warning", "");
+                        System.setProperty("sMessagex", "");
+                        return;
+                    }
+                    
                     double lnSelPrce1 = 0.00;
                     
                     if (!StringUtil.isNumeric(lsValue))
@@ -993,10 +1014,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
         } else{ //Got Focus
             switch (lnIndex){
                 case 11:
-                    txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nUnitPrce"), "#,##0.00"));
+                    txtField.setText(StringUtil.NumberFormat(Double.valueOf(String.valueOf(_trans.getMaster("nUnitPrce"))), "#,##0.00"));
                     break;
                 case 12:
-                    txtField.setText(StringUtil.NumberFormat((double) _trans.getMaster("nSelPrce1"), "#,##0.00"));
+                    txtField.setText(StringUtil.NumberFormat(Double.valueOf(String.valueOf(_trans.getMaster("nSelPrce1"))), "#,##0.00"));
                     break;
                 case 105:
                     txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dAcquired"), SQLUtil.FORMAT_SHORT_DATE));

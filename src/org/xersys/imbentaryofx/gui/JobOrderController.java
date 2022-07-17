@@ -355,22 +355,28 @@ public class JobOrderController implements Initializable, ControlledScreen{
     
     private void computeSummary(){
         double lnLabrTotl = ((Number) _trans.getMaster("nLabrTotl")).doubleValue();
-        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
-        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
-        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
-        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
-        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
-        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnLabrDisc = ((Number) _trans.getMaster("nLabrDisc")).doubleValue();
         
-        txtField24.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField25.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
+        double lnPartDisc = ((Number) _trans.getMaster("nPartDisc")).doubleValue();
+        
+        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        
+        double lnTotlDisc = 0.00;
+        lnTotlDisc += lnLabrTotl * lnLabrDisc / 100;
+        lnTotlDisc += lnPartTotl * lnPartDisc / 100;
+        
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        
+        txtField24.setText(StringUtil.NumberFormat(lnLabrDisc, "##0.00"));
+        txtField25.setText(StringUtil.NumberFormat(lnPartDisc, "##0.00"));
         txtField26.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblLabrTotl.setText(StringUtil.NumberFormat(lnLabrTotl, "#,##0.00"));
         lblPartTotl.setText(StringUtil.NumberFormat(lnPartTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl + lnFreightx, "#,##0.00"));
     }
     
     private void loadTransaction(){        
