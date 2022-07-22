@@ -16,12 +16,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.apache.poi.ss.usermodel.Font;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.CashierTrans;
+import org.xersys.sales.base.JobOrder;
 
 public class CashieringController implements Initializable, ControlledScreen {
     private XNautilus _nautilus;
@@ -264,8 +266,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(true);
-        btn11.setVisible(true);
+        btn10.setVisible(false);
+        btn11.setVisible(false);
         btn12.setVisible(true);
     }
     
@@ -391,12 +393,24 @@ public class CashieringController implements Initializable, ControlledScreen {
     private void payCharge(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
             if (_source_code.equals("CO")) {
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Customer orders are not allowede for charge invoice.", "Notice", "");
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Customer orders are not allowed for charge invoice.", "Notice", "");
                 return;
             }
             
             if (_source_code.equals("JO")) {
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Job orders are not allowede for charge invoice.", "Notice", "");
+                JobOrder instance = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true);
+
+                if (instance.OpenTransaction(_source_number)){
+                    if (instance.PostTransaction()){
+                        ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction released successfully.", "Notice", "");                    
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), instance.getMessage(), "Notice", "");                    
+                    }
+                } else {
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), instance.getMessage(), "Notice", "");                    
+                }
+                //ShowMessageFX.Warning(_main_screen_controller.getStage(), "Job orders are not allowed for charge invoice.", "Notice", "");
                 return;
             }
             
