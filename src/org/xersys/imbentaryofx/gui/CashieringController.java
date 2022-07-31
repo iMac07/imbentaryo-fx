@@ -401,7 +401,7 @@ public class CashieringController implements Initializable, ControlledScreen {
                 JobOrder instance = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true);
 
                 if (instance.OpenTransaction(_source_number)){
-                    if (instance.PostTransaction()){
+                    if (instance.ReleaseTransaction()){
                         ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction released successfully.", "Notice", "");                    
                         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                     } else {
@@ -410,7 +410,6 @@ public class CashieringController implements Initializable, ControlledScreen {
                 } else {
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), instance.getMessage(), "Notice", "");                    
                 }
-                //ShowMessageFX.Warning(_main_screen_controller.getStage(), "Job orders are not allowed for charge invoice.", "Notice", "");
                 return;
             }
             

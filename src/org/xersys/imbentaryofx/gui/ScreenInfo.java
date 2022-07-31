@@ -77,13 +77,28 @@ public class ScreenInfo {
         SP_WHOLESALE_ORDER_HISTORY,
         SP_WHOLESALE_ORDER_ISSUANCE,
         SP_WHOLESALE_ORDER_ISSUANCE_DETAIL,
-        LABOR
+        LABOR,
+        INV_PRICE_CHANGE,
+        INV_PRICE_CHANGE_DETAIL,
+        INV_PRICE_CHANGE_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
         JSONObject loJSON = new JSONObject();
         
         switch (foModule){
+            case INV_PRICE_CHANGE_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChangeHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeHistoryController");
+                return loJSON;
+            case INV_PRICE_CHANGE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChangeDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeDetailController");
+                return loJSON;
+            case INV_PRICE_CHANGE:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChange.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeController");
+                return loJSON;
             case LABOR:
                 loJSON.put("resource", RESOURCE_URL + "Labor.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "LaborController");

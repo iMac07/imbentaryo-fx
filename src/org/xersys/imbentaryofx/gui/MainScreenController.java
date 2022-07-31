@@ -338,6 +338,7 @@ public class MainScreenController implements Initializable {
         _no_tab.add("InvAdjustmentDetail");
         _no_tab.add("InvRequestDetail");
         _no_tab.add("InvTransferDetail");
+        _no_tab.add("InvPriceChangeDetail");
         
 //        //set screens that will not trigger on window tabs
 //        _no_tab_screen = "";
@@ -515,6 +516,8 @@ public class MainScreenController implements Initializable {
         Label label = lbl.get("lblOther" + lsButton.substring(8));
         
         switch (label.getText().toLowerCase()){
+            case "inv. price change":
+                if (canSwitch()) loadScreen(ScreenInfo.NAME.INV_PRICE_CHANGE); break;
             case "labor":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.LABOR); break;
             case "purchase order":

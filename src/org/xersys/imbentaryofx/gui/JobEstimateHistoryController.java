@@ -37,7 +37,8 @@ import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.JobEstimate;
 
 public class JobEstimateHistoryController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Selected");
+    private ObservableList<String> _status = 
+        FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Selected");
     
     private XNautilus _nautilus;
     private JobEstimate _trans;

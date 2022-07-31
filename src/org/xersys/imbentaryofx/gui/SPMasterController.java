@@ -690,7 +690,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField09.setDisable(true);
         txtField10.setDisable(!lbShow);
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField12.setDisable(lnEditMode != EditMode.ADDNEW && lnEditMode != EditMode.UPDATE);
+        txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
         
         disableInvMasterFields();
         
