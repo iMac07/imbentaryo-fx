@@ -263,7 +263,7 @@ public class InvPriceChangeHistoryController implements Initializable, Controlle
         double lnSelPrce1, lxSelPrce1;
         int lnQtyOnHnd;
         
-        for(lnCtr = 1; lnCtr <= lnRow - 1; lnCtr++){       
+        for(lnCtr = 1; lnCtr <= lnRow; lnCtr++){       
             lnQtyOnHnd = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "xQtyOnHnd")));
             lxUnitPrce = ((Number)_trans.getDetail(lnCtr, "xUnitPrce")).doubleValue();
             lxSelPrce1 = ((Number)_trans.getDetail(lnCtr, "xSelPrce1")).doubleValue();
@@ -374,11 +374,11 @@ public class InvPriceChangeHistoryController implements Initializable, Controlle
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(80);
         
-        index07.setText("New SRP"); 
+        index07.setText("New Cost"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(80);
         
-        index08.setText("New Cost"); 
+        index08.setText("New SRP"); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
         index08.prefWidthProperty().set(80);
         
