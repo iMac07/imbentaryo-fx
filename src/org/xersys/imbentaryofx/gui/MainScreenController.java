@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -31,8 +32,6 @@ import org.json.simple.JSONObject;
 import org.xersys.commander.contants.UserLevel;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
-import org.xersys.commander.util.MiscUtil;
-import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringHelper;
 
 public class MainScreenController implements Initializable {
@@ -237,6 +236,39 @@ public class MainScreenController implements Initializable {
         //keyboard events
         AnchorPaneMain.setOnKeyPressed(this::keyPressed);
         AnchorPaneMain.setOnKeyReleased(this::keyReleased);
+        
+        _seconds = 0;
+        
+        _session = new Thread() {
+            @Override
+            public void run() {  // override the run() for the running behaviors
+                while (true){
+                    try {
+                        sleep(1000);//1 second = 1000 milliseconds
+                        _seconds++;
+                        
+                        if (_seconds == _limit) System.exit(1);
+                    } catch (InterruptedException ex) {}
+                }
+            }
+        };
+        _session.start();
+        
+        EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                _seconds = 0;
+//                System.out.println(mouseEvent.getEventType() + "\n"
+//                        + "X : Y - " + mouseEvent.getX() + " : " + mouseEvent.getY() + "\n"
+//                        + "SceneX : SceneY - " + mouseEvent.getSceneX() + " : " + mouseEvent.getSceneY() + "\n"
+//                        + "ScreenX : ScreenY - " + mouseEvent.getScreenX() + " : " + mouseEvent.getScreenY());
+
+
+            }
+
+        };
+        
+        AnchorPaneMain.setOnMouseMoved(mouseHandler);
         
         initButton();        
         load("");
@@ -672,6 +704,10 @@ public class MainScreenController implements Initializable {
     private boolean _shift_pressed;
     
     private boolean _logged;
+    
+    private Thread _session;
+    private int _seconds;
+    private final int _limit = 900; //900 seconds is 5 minutes
     
     Map<String, AnchorPane> btn = new HashMap<String,AnchorPane>();
     Map<String, Label> lbl = new HashMap<String,Label>();
