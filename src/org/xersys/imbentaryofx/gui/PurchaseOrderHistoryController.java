@@ -1,6 +1,13 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -23,16 +30,23 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.purchasing.base.PurchaseOrder;
 
@@ -459,20 +473,37 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 searchTransaction("a.sTransNox", "", false);
                 break;
             case "btn02": //print
-                if (_trans.CloseTransaction()){
-                    //print the transaction here
-                    
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
-                    
-                    initGrid();
-                    clearFields();
-                    
-                    _trans.setTranStat(1);
-                    searchTransaction("a.sTransNox", _old_trans, true);
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if ("0".equals((String) _trans.getMaster("cTranStat"))){
+                    if (_trans.CloseTransaction()){
+                        ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
+
+                        initGrid();
+                        clearFields();
+
+                        _trans.setTranStat(1);
+                        searchTransaction("a.sTransNox", _old_trans, true);
+                        printTrans(true);
+                    } else 
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                } else if ("1".equals((String) _trans.getMaster("cTranStat"))){
+                    printTrans(true);
+                } else if ("2".equals((String) _trans.getMaster("cTranStat"))){
+                    printTrans(true);
+                } else {
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction is not yet approved.", "Warning", "");
+                }               
                 break;
             case "btn03": //confirmation by supplier
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.PostTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
                     
@@ -485,6 +516,11 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn04": //cancel
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CancelTransaction()){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction cancelled successfully.", "Success", "");
                     
@@ -518,6 +554,47 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                         System.exit(0);
                 }
                 break;
+        }
+    }
+    
+    private void printTrans(boolean fbSendMail){
+        try {
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj;
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sDescript") + "(" +
+                                            (String) _trans.getDetail(lnCtr, "sBarCodex") + ")");
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                json_arr.add(json_obj); 
+            }
+
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sCompnyNm", System.getProperty("store.company.name"));  
+            params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));      
+            
+            params.put("sSupplier", (String) _trans.getMaster("sClientNm"));
+            params.put("dTransact", SQLUtil.dateFormat(_trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sRemarksx", (String) _trans.getMaster("sRemarksx"));
+
+            InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+            JsonDataSource jrjson = new JsonDataSource(stream); 
+
+            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                "reports/SP-PO.jasper", params, jrjson);
+            JasperViewer jv = new JasperViewer(_jrprint, false);
+            jv.setVisible(true);
+        } catch (JRException | UnsupportedEncodingException  ex) {
+            ex.printStackTrace();
+            ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
         }
     }
     

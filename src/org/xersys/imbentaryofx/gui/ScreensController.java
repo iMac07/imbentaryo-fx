@@ -165,6 +165,23 @@ public class ScreensController{
         return true;
     }
     
+    public boolean unloadScreen(String fsValue){
+        int lnCurrent = getCurrentScreenIndex();
+        
+        Node loNode;
+        for (int lnCtr = 0; lnCtr <= getScreenCount()-1; lnCtr++){
+            if (lnCtr != lnCurrent){
+                loNode = getScreen(lnCtr);
+                if (loNode.getId().equals(fsValue)) {
+                    unloadScreen(lnCtr);
+                    return true;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
     public void prevScreen(){
         if (getScreenCount() == 0)
             System.err.println("No screen was loaded.");

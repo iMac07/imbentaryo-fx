@@ -9,8 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.xersys.commander.util.FXUtil;
 
 /**
  * FXML Controller class
@@ -31,6 +33,9 @@ public class SystemApprovalController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        txtField01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField02.setOnKeyPressed(this::txtField_KeyPressed);
+        
         txtField01.setText("");
         txtField02.setText("");
         
@@ -39,21 +44,43 @@ public class SystemApprovalController implements Initializable {
 
     @FXML
     private void btnOkay_Click(ActionEvent event) {
-        psUsername = txtField01.getText();
-        psPassword = txtField02.getText();
-        pbCancelled = false;
-        unloadScene(event);
+        logUser();
     }
 
     @FXML
     private void btnCancel_Click(ActionEvent event) {
         pbCancelled = true;
-        unloadScene(event);
+        unloadScene();
     }
     
-    private void unloadScene(ActionEvent event){
-        Node source = (Node)  event.getSource(); 
-        Stage stage = (Stage) source.getScene().getWindow();
+    private void txtField_KeyPressed(KeyEvent event) {
+        TextField txtField = (TextField) event.getSource();
+        
+        switch (event.getCode()){
+        case ENTER:
+        case DOWN:        
+            if (txtField.getId().equals("txtField02")){
+                logUser();
+                event.consume();
+                return;
+            }
+            
+            FXUtil.SetNextFocus(txtField);
+            break;
+        case UP:
+            FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
+    private void logUser(){
+        psUsername = txtField01.getText();
+        psPassword = txtField02.getText();
+        pbCancelled = false;
+        unloadScene();
+    }
+    
+    private void unloadScene(){
+        Stage stage = (Stage) txtField01.getScene().getWindow();
         stage.close();
     }
     

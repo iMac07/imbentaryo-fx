@@ -1,37 +1,28 @@
 package org.xersys.imbentaryofx.gui;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRResultSetDataSource;
-import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JsonDataSource;
 import net.sf.jasperreports.swing.JRViewer;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.util.SQLUtil;
+import org.xersys.commander.iface.XReport;
 import org.xersys.reports.ReportMaster;
+import org.xersys.reports.ReportsFactory;
 
 public class ReportsController implements Initializable, ControlledScreen{
     @FXML
@@ -46,9 +37,19 @@ public class ReportsController implements Initializable, ControlledScreen{
     private Button btn01;
     @FXML
     private Button btn02;
+    @FXML
+    private RadioButton rad01;
+    @FXML
+    private RadioButton rad03;
+    @FXML
+    private RadioButton rad02;
+    @FXML
+    private RadioButton rad04;
     
     private ReportMaster _trans;
-    private JasperPrint _jprint;
+    
+    private ArrayList<String> _list;
+    private int _index;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -68,14 +69,39 @@ public class ReportsController implements Initializable, ControlledScreen{
         btn01.setOnAction(this::cmdButton_Click);
         btn02.setOnAction(this::cmdButton_Click);
         
+        ToggleGroup toggleGroup = new ToggleGroup();
+
+        rad01.setUserData(1);
+        rad02.setUserData(2);
+        rad03.setUserData(3);
+        rad04.setUserData(4);
+        
+        rad01.setToggleGroup(toggleGroup);
+        rad02.setToggleGroup(toggleGroup);
+        rad03.setToggleGroup(toggleGroup);
+        rad04.setToggleGroup(toggleGroup);
+        
+        rad01.setSelected(true);
+        _index = 1;
+        
+        toggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                _index = (int) newValue.getUserData();
+            }
+        });
+        
         _trans = new ReportMaster(_nautilus);
         
         if (_trans.LoadReports()){
+            _list = new ArrayList<>();
             ArrayList<String> loList = new ArrayList<>();
+            
             
             int lnRow = _trans.getItemCount();
             
             for (int lnCtr = 0; lnCtr<=lnRow-1; lnCtr++){
+                _list.add((String) _trans.getMaster(lnCtr, "sReportID"));
                 loList.add((String) _trans.getMaster(lnCtr, "sReportNm"));
             }
             
@@ -83,13 +109,6 @@ public class ReportsController implements Initializable, ControlledScreen{
             cmbReport.setItems(list);
             cmbReport.getSelectionModel().select(0);
         }
-        
-        loadCriteria();
-        
-        //loadInventory();
-        //loadPayables();
-        loadFastMovingAccount();
-        //loadPurchaseVSSales();
     }    
 
     @Override
@@ -118,6 +137,7 @@ public class ReportsController implements Initializable, ControlledScreen{
         
         switch (lsButton){
             case "btn01": //load
+                processReport();
                 break;
             case "btn02": //cloase
                 if (_screens_controller.getScreenCount() > 1)
@@ -130,265 +150,38 @@ public class ReportsController implements Initializable, ControlledScreen{
         }
     }
     
-    private boolean loadInventory(){
-        String lsReport = "c:/icarus/reports/Stocks.jasper";
-        String lsSQL = "SELECT" +
-                            "  b.sStockIDx sField00" +
-                            ", b.sBarCodex sField01" +
-                            ", b.sDescript sField02" +
-                            ", b.sBrandCde sField03" +
-                            ", a.cClassify sField04" +
-                            ", a.nMinLevel nField01" +
-                            ", a.nMaxLevel nField02" +
-                            ", b.nSelPrce1 lField01" +
-                            ", a.nQtyOnHnd nField03" +
-                            ", b.nUnitPrce lField02" +
-                        " FROM Inv_Master a" +
-                            " LEFT JOIN Inventory b ON a.sStockIDx = b.sStockIDx" +
-                        " WHERE a.sBranchCd = " + SQLUtil.toSQL((String) _nautilus.getBranchConfig("sBranchCd"));
+    private void processReport(){
+        int lnIndex = cmbReport.getSelectionModel().getSelectedIndex();        
         
-        ResultSet loRS = _nautilus.executeQuery(lsSQL);
-        //Convert the data-source to JasperReport data-source
-        JRResultSetDataSource jrRS = new JRResultSetDataSource(loRS);
+        XReport loReport = ReportsFactory.make(_list.get(lnIndex));
         
-        //Create the parameter
-        Map<String, Object> params = new HashMap<>();
-        params.put("sReportNm", "Stocks");
-        params.put("sPrintdBy", (String) _nautilus.getUserInfo("xClientNm"));
-        params.put("sCompnyNm", "Moto Arena");
-        params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
-        params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
-        
-        try {
-            _jprint = JasperFillManager.fillReport(lsReport,
-                                                        params, 
-                                                        jrRS);
-            
-            if (_jprint != null) showReport();
-        } catch (JRException e) {
-            e.printStackTrace();
+        if (loReport == null) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Object for this report is not set. Please contact your system administrator.", "Warning", "");
+            return;
         }
         
-        return true;
-    }
-    
-    private boolean loadFastMovingAccount(){
-        String lsReport = "c:/icarus/reports/FastMoving.jasper";
+        System.setProperty("store.report.criteria.presentation", String.valueOf(_index));
         
-        JSONArray loArray = new JSONArray();
-        JSONObject loJSON = new JSONObject(); 
-        loJSON.put("sField01", "90793-AP423-00");
-        loJSON.put("sField02", "Yamalube Elite 800ml (24s)");
-        loJSON.put("sField05", "YAMAHA");
-        loJSON.put("nField01", 500);
-        loJSON.put("nField02", 550);
-        loJSON.put("nField03", 450);
-        loJSON.put("nField04", 650);
-        loJSON.put("sField03", "Low");
-        loJSON.put("sField04", "Order Now");
-        loArray.add(loJSON);
+        loReport.setNautilus(_nautilus);
         
-        loJSON = new JSONObject(); 
-        loJSON.put("sField01", "90793-AP424-00");
-        loJSON.put("sField02", "Yamalube Ellite 1L(24s)");
-        loJSON.put("sField05", "YAMAHA");
-        loJSON.put("nField01", 460);
-        loJSON.put("nField02", 500);
-        loJSON.put("nField03", 450);
-        loJSON.put("nField04", 600);
-        loJSON.put("sField03", "Low");
-        loJSON.put("sField04", "Order Now");
-        loArray.add(loJSON);
-        
-        loJSON = new JSONObject(); 
-        loJSON.put("sField01", "90793-AP428-00");
-        loJSON.put("sField02", "YM Performance SL 20L");
-        loJSON.put("sField05", "YAMAHA");
-        loJSON.put("nField01", 440);
-        loJSON.put("nField02", 510);
-        loJSON.put("nField03", 450);
-        loJSON.put("nField04", 600);
-        loJSON.put("sField03", "Low");
-        loJSON.put("sField04", "Order Now");
-        loArray.add(loJSON);
-        
-        loJSON = new JSONObject(); 
-        loJSON.put("sField01", "90793-AP429-00");
-        loJSON.put("sField02", "YM Automatic SL 800ml(24s)");
-        loJSON.put("sField05", "YAMAHA");
-        loJSON.put("nField01", 400);
-        loJSON.put("nField02", 800);
-        loJSON.put("nField03", 400);
-        loJSON.put("nField04", 450);
-        loJSON.put("sField03", "Medium");
-        loJSON.put("sField04", "");
-        loArray.add(loJSON);
-        
-        loJSON = new JSONObject(); 
-        loJSON.put("sField01", "90793-AP807-00");
-        loJSON.put("sField02", "YM Gear Oil SL100ml(36s)");
-        loJSON.put("sField05", "YAMAHA");
-        loJSON.put("nField01", 390);
-        loJSON.put("nField02", 1000);
-        loJSON.put("nField03", 400);
-        loJSON.put("nField04", 450);
-        loJSON.put("sField03", "High");
-        loJSON.put("sField04", "");
-        loArray.add(loJSON);
-        
-        //Create the parameter
-        Map<String, Object> params = new HashMap<>();
-        params.put("sReportNm", "Fast Moving Account");
-        params.put("sPrintdBy", (String) _nautilus.getUserInfo("xClientNm"));
-        params.put("sCompnyNm", "Moto Arena");
-        params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
-        params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
-        
-        try {
-            InputStream stream = new ByteArrayInputStream(loArray.toJSONString().getBytes("UTF-8"));
-            JsonDataSource jrjson = new JsonDataSource(stream); 
-            
-            _jprint = JasperFillManager.fillReport(lsReport,
-                                                        params, 
-                                                        jrjson);
-            
-            if (_jprint != null) showReport();
-        } catch (JRException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
+        if (!loReport.getParam()) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "Report criteria is not set Unable to load report.", "Warning", "");
+            return;
         }
         
-        return true;
-    }
-    
-    private boolean loadPurchaseVSSales(){
-        String lsReport = "c:/icarus/reports/PurchaseSales.jasper";
+        JasperPrint loPrint = loReport.processReport();
         
-        JSONArray loArray = new JSONArray();
-        JSONObject loJSON = new JSONObject(); 
-        loJSON.put("sField01", "Oct");
-        loArray.add(loJSON);
-        
-        loJSON = new JSONObject(); 
-        loJSON.put("sField01", "Nov");
-        loArray.add(loJSON);
-        
-        loJSON.put("sField01", "Dec");
-        loArray.add(loJSON);
-        
-        loJSON.put("sField01", "Jan");
-        loArray.add(loJSON);
-        
-        loJSON.put("sField01", "Feb");
-        loArray.add(loJSON);
-        
-        //Create the parameter
-        Map<String, Object> params = new HashMap<>();
-        params.put("sReportNm", "Purchase Vs Sales Analysis");
-        params.put("sPrintdBy", (String) _nautilus.getUserInfo("xClientNm"));
-        params.put("sCompnyNm", "Moto Arena");
-        params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
-        params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
-        
-        
-        params.put("sBarrCode", "90793-AP423-00");
-        params.put("sDescript", "Yamalube Elite 800ml (24s)");
-        params.put("sSupplier", "YAMAHA");
-        params.put("nAveMonSl", 760);
-        params.put("nQtyOnHnd", 600);
-        params.put("nMinLevel", 500);
-        
-        try {
-            InputStream stream = new ByteArrayInputStream(loArray.toJSONString().getBytes("UTF-8"));
-            JsonDataSource jrjson = new JsonDataSource(stream); 
-            
-            _jprint = JasperFillManager.fillReport(lsReport,
-                                                        params, 
-                                                        jrjson);
-            
-            if (_jprint != null) showReport();
-        } catch (JRException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
+        if (loPrint == null){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), loReport.getMessage(), "Warning", "");
+            return;
         }
         
-        return true;
+        showReport(loPrint);
     }
     
-    private boolean loadPayables(){
-        String lsReport = "c:/icarus/reports/MaturingPayables.jasper";
-        
-        String lsSQL = "SELECT" + 
-                            "  d.sCompnyNm sField01" +
-                            ", CONCAT(b.sInvTypCd, ' Purchase') sField02" + 
-                            ", e.sClientNm sField03" +
-                            ", b.sReferNox sField04" +
-                            ", '' sField05" +
-                            ", DATE_FORMAT(b.dTransact, '%Y-%m-%d') sField06" + 
-                            ", DATE_FORMAT(b.dRefernce, '%Y-%m-%d') sField07" + 
-                            ", DATE_ADD(DATE_FORMAT(b.dRefernce, '%Y-%m-%d'), INTERVAL IFNULL(c.nTermValx, 0) DAY) sField08" + 
-                            ", 'OPEN' sField09" +
-                            ", a.nCreditxx lField01" +  
-                        " FROM AP_Ledger a" + 
-                                " LEFT JOIN Client_Master e ON a.sClientID = e.sClientID" +
-                            ", PO_Receiving_Master b" + 
-                                " LEFT JOIN Term c ON b.sTermCode = c.sTermCode" + 
-                                " LEFT JOIN xxxSysClient d ON b.sBranchCd = d.sBranchCd" +
-                        " WHERE a.sSourceCd = 'DA'" + 
-                            " AND a.sSourceNo = b.sTransNox" + 
-                            " AND (a.nCreditxx - b.nAmtPaidx) > 0.00" + 
-                            " AND b.cTranStat <> '3'";
-//                        " UNION SELECT "+ 
-//                            "  CONCAT(b.sInvTypCd, ' Purchase Return') xDescript" + 
-//                            ", b.sTransNox sReferNox" + 
-//                            ", DATE_FORMAT(b.dTransact, '%Y-%m-%d') dTransact" + 
-//                            ", DATE_FORMAT(b.dTransact, '%Y-%m-%d') dRefernce" +
-//                            ", DATE_FORMAT(b.dTransact, '%Y-%m-%d') dDueDatex" + 
-//                            ", DATEDIFF(NOW(), DATE_FORMAT(b.dTransact, '%Y-%m-%d')) nAgexxxxx" +
-//                            ", a.nCreditxx nDebitxxx" + 
-//                            ", a.nDebitxxx - b.nAmtPaidx nCreditxx" + 
-//                            ", a.nDebitxxx nAppliedx" + 
-//                            ", a.sSourceNo sTransNox" + 
-//                            ", a.sSourceCd" + 
-//                            ", a.sClientID" + 
-//                        " FROM AP_Ledger a" + 
-//                            ", PO_Return_Master b" + 
-//                                " LEFT JOIN xxxSysClient c ON a.sBranchCd = c.sBranchCd" +
-//                        " WHERE a.sSourceCd = 'PR'" + 
-//                            " AND a.sSourceNo = b.sTransNox" + 
-//                            " AND a.dPostedxx IS NULL" + 
-//                            " AND b.cTranStat <> '3'";
-        
-        ResultSet loRS = _nautilus.executeQuery(lsSQL);
-        //Convert the data-source to JasperReport data-source
-        JRResultSetDataSource jrRS = new JRResultSetDataSource(loRS);
-        
-        //Create the parameter
-        Map<String, Object> params = new HashMap<>();
-        params.put("sReportNm", "Maturing Payables");
-        params.put("sPrintdBy", (String) _nautilus.getUserInfo("xClientNm"));
-        params.put("sCompnyNm", "Moto Arena");
-        params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
-        params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + " " + (String) _nautilus.getBranchConfig("xTownName"));
-        
-        try {
-            _jprint = JasperFillManager.fillReport(lsReport,
-                                                        params, 
-                                                        jrRS);
-            
-            if (_jprint != null) showReport();
-        } catch (JRException e) {
-            e.printStackTrace();
-        }
-        
-        return true;
-    }
-    
-    private void showReport(){
+    private void showReport(JasperPrint foPrint){
         SwingNode swingNode = new SwingNode();
-        JRViewer jrViewer =  new JRViewer(_jprint);
+        JRViewer jrViewer =  new JRViewer(foPrint);
         jrViewer.setOpaque(true);
         jrViewer.setVisible(true);
         jrViewer.setFitPageZoomRatio();
@@ -399,22 +192,6 @@ public class ReportsController implements Initializable, ControlledScreen{
         ReportPane.setLeftAnchor(swingNode,0.0);
         ReportPane.setRightAnchor(swingNode,0.0);
         ReportPane.getChildren().add(swingNode);
-    }
-    
-    private void loadCriteria(){
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("ReportCriteriaDate.fxml"));
-
-            ReportCriteriaDateController loCriteria = new ReportCriteriaDateController();
-            fxmlLoader.setController(loCriteria);
-
-            Parent loadScreen = (Parent) fxmlLoader.load();
-
-            AnchorCriteria.getChildren().add(loadScreen);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     
     XNautilus _nautilus;

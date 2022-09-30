@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="PODetail" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="PODetail" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -55,16 +55,16 @@
                                        <children>
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Part Number:" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Description:" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Rec. Order" GridPane.rowIndex="3" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Unit Price:" GridPane.rowIndex="5" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Rec. Order" GridPane.rowIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Unit Price:" GridPane.rowIndex="3" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Qty. On Hand:" GridPane.rowIndex="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Qty. Order:" GridPane.rowIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Qty. Order:" GridPane.rowIndex="5" />
                                           <TextField fx:id="txtDetail01" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                           <TextField fx:id="txtDetail02" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
                                           <TextField fx:id="txtDetail05" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtDetail03" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtDetail06" alignment="CENTER" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtDetail04" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                          <TextField fx:id="txtDetail04" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtDetail03" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtDetail06" alignment="CENTER" prefHeight="25.0" prefWidth="186.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                           <Label id="lblTransSummary" alignment="CENTER_RIGHT" prefHeight="41.0" prefWidth="100.0" text="Total:" GridPane.columnIndex="2" GridPane.rowIndex="7">
                                              <GridPane.margin>
                                                 <Insets right="10.0" />

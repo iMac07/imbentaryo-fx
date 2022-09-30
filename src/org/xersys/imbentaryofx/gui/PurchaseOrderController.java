@@ -179,7 +179,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchBranchInventory("sBarCodex", lsValue, true);
+                    searchBranchInventory("sBarCodex", lsValue, false);
                     event.consume();
                     return;
                 case "txtField06":
@@ -563,6 +563,18 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn03": //search
+                switch (_index){
+                    case 1:
+                        searchBranchInventory("sDescript", txtSeeks01.getText().trim(), false);
+                        break;
+                    case 6:
+                        searchSupplier("a.sClientNm", txtField06.getText().trim(), false);
+                        event.consume();
+                        break;
+                    case 8:
+                        searchTerm("sDescript", txtField08.getText().trim(), false);
+                        break;
+                }
                 break;
             case "btn04": //pay
                 if (_trans.SaveTransaction(true)){
@@ -749,6 +761,12 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
 
             @Override
             public void FormClosing(TextField foField) {
+                switch (foField.getId()){
+                case "txtField06":    
+                    foField.setText((String) _trans.getMaster("sClientNm")); break;
+                case "txtField08":
+                    foField.setText((String) _trans.getMaster("sTermName")); break;
+                }
                 foField.requestFocus();
             }
         };
@@ -865,7 +883,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         txtField08.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
+        txtField08.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
         
         cmbOrders.valueProperty().addListener(new ChangeListener() {
@@ -901,6 +922,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
+                case 1:
+                case 6:
+                case 8:
+                    break;
                 case 7: //po number
                     _trans.setMaster("sReferNox", lsValue);
                     break;

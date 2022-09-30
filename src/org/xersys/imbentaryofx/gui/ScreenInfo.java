@@ -10,13 +10,17 @@ public class ScreenInfo {
         AP_CLIENT,
         AR_CLIENT,
         JOB_ORDER,
+        JO_DETAIL_UPDATE,
         JOB_ESTIMATE,
         PARTS_INQUIRY,
         PARTS_CATALOGUE,
         POS,
         POS_HISTORY,
         CUSTOMER_ORDER,
+        CUSTOMER_ORDER_DETAIL,
         CUSTOMER_ORDER_HISTORY,
+        CUSTOMER_ORDER_ISSUANCE,
+        CUSTOMER_ORDER_ISSUANCE_DETAIL,
         DASHBOARD,
         CART, 
         QUICK_SEARCH,
@@ -35,6 +39,7 @@ public class ScreenInfo {
         PAYMENT,
         PAYMENT_NO_INVOICE,
         PAYMENT_CHARGE,
+        PAYMENT_JO,
         SP_SALES,
         SP_SALES_HISTORY,
         SP_INV_MASTER,
@@ -64,13 +69,68 @@ public class ScreenInfo {
         INV_ADJUSTMENT,
         INV_ADJUSTMENT_DETAIL,
         INV_ADJUSTMENT_HISTORY,
-        USER_MANAGER
+        USER_MANAGER,
+        SI_HISTORY,
+        OR_HISTORY,
+        SP_WHOLESALE_ORDER,
+        SP_WHOLESALE_ORDER_DETAIL,
+        SP_WHOLESALE_ORDER_HISTORY,
+        SP_WHOLESALE_ORDER_ISSUANCE,
+        SP_WHOLESALE_ORDER_ISSUANCE_DETAIL,
+        LABOR,
+        INV_PRICE_CHANGE,
+        INV_PRICE_CHANGE_DETAIL,
+        INV_PRICE_CHANGE_HISTORY
     }
     
     public static JSONObject get(NAME foModule){
         JSONObject loJSON = new JSONObject();
         
         switch (foModule){
+            case INV_PRICE_CHANGE_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChangeHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeHistoryController");
+                return loJSON;
+            case INV_PRICE_CHANGE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChangeDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeDetailController");
+                return loJSON;
+            case INV_PRICE_CHANGE:
+                loJSON.put("resource", RESOURCE_URL + "InvPriceChange.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeController");
+                return loJSON;
+            case LABOR:
+                loJSON.put("resource", RESOURCE_URL + "Labor.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "LaborController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_ISSUANCE:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderIssuance.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderIssuanceController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_ISSUANCE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderIssuanceDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderIssuanceDetailController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrder.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderDetailController");
+                return loJSON;
+            case SP_WHOLESALE_ORDER_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPWSOrderHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPWSOrderHistoryController");
+                return loJSON;
+            case SI_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SIHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SIHistoryController");
+                return loJSON;
+            case OR_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "ORHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ORHistoryController");
+                return loJSON;
             case JOB_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "JobOrder.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "JobOrderController");
@@ -99,6 +159,14 @@ public class ScreenInfo {
                 loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderHistoryController");
                 return loJSON;
+            case CUSTOMER_ORDER_ISSUANCE:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderIssuance.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderIssuanceController");
+                return loJSON;
+            case CUSTOMER_ORDER_ISSUANCE_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderIssuanceDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderIssuanceDetailController");
+                return loJSON;
             case DASHBOARD:
                 loJSON.put("resource", RESOURCE_URL + "Dashboard.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "DashboardController");
@@ -118,6 +186,10 @@ public class ScreenInfo {
             case POS_DETAIL_UPDATE:
                 loJSON.put("resource", RESOURCE_URL + "POSDetail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "POSDetailController");
+                return loJSON;
+            case JO_DETAIL_UPDATE:
+                loJSON.put("resource", RESOURCE_URL + "JODetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "JODetailController");
                 return loJSON;
             case PURCHASE_ORDER:
                 loJSON.put("resource", RESOURCE_URL + "PurchaseOrder.fxml");
@@ -178,6 +250,10 @@ public class ScreenInfo {
             case PAYMENT_CHARGE:
                 loJSON.put("resource", RESOURCE_URL + "PaymentCharge.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "PaymentChargeController");
+                return loJSON;
+            case PAYMENT_JO:
+                loJSON.put("resource", RESOURCE_URL + "PaymentJO.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "PaymentJOController");
                 return loJSON;
             case SP_SALES:
                 loJSON.put("resource", RESOURCE_URL + "SPSales.fxml");
@@ -302,6 +378,10 @@ public class ScreenInfo {
             case USER_MANAGER:
                 loJSON.put("resource", RESOURCE_URL + "UserManager.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "UserManagerController");
+                return loJSON;
+            case CUSTOMER_ORDER_DETAIL:
+                loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderDetail.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderController");
                 return loJSON;
         }
         

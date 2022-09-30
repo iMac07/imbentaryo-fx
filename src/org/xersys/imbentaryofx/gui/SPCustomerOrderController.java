@@ -271,9 +271,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
         double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
         
-        txtField10.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField11.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
-        txtField09.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
+        txtField09.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
+        txtField10.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        txtField11.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblTranTotal.setText(StringUtil.NumberFormat(lnTranTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
@@ -283,7 +283,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
     
     private void loadTransaction(){
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
-        txtField05.setText((String) _trans.getMaster("xSalesman"));
+        txtField05.setText((String) _trans.getMaster("xClientNm"));
         
         computeSummary();
         
@@ -307,18 +307,18 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - (lnQuantity * lnAddDiscx);
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -350,18 +350,18 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - (lnQuantity * lnAddDiscx);
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -386,18 +386,16 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
         TableColumn index09 = new TableColumn("");
-        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");        
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -421,25 +419,21 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("ROQ"); 
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Disc."); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
-        index08.setText("Disc."); 
+        index08.setText("Adtl."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
         index08.prefWidthProperty().set(60);
         
-        index09.setText("Adtl."); 
+        index09.setText("Total"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(60);
-        
-        index10.setText("Total"); 
-        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(85);
+        index09.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -450,7 +444,6 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
         _table.getColumns().add(index09);
-        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -463,9 +456,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         if (event.getClickCount() >= 2){
             if (_detail_row >= 0){
                 //multiple result, load the quick search to display records
-                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.POS_DETAIL_UPDATE);
+                JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.CUSTOMER_ORDER_DETAIL);
                 
-                POSDetailController instance = new POSDetailController();
+                SPCustomerOrderDetailController instance = new SPCustomerOrderDetailController();
                 
                 instance.setNautilus(_nautilus);
                 instance.setParentController(_main_screen_controller);
@@ -569,6 +562,14 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                 }
                 break;
             case "btn03": //search
+                switch (_index) {
+                    case 1:
+                        searchBranchInventory("sDescript", txtSeeks01.getText().trim(), false);
+                        break;
+                    case 5:
+                        searchClient("a.sClientNm", txtField05.getText().trim(), false);
+                        break;
+                }
                 break;
             case "btn04": //pay
                 if (_trans.SaveTransaction(true)){
@@ -592,11 +593,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                 break;
             case "btn07":
                 break;
-            case "btn08":
+            case "btn08": //parts inquiry
                 break;
-            case "btn09": //parts inquiry
-                break;
-            case "btn10": //parts catalogue
+            case "btn09": //parts catalogue
                 //loadScreen(ScreenInfo.NAME.PARTS_CATALOGUE);
                 
                 JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
@@ -611,6 +610,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
 
                     _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
                 }
+                break;
+            case "btn10": //releasing
+                loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_ISSUANCE);
                 break;
             case "btn11": //history
                 loadScreen(ScreenInfo.NAME.CUSTOMER_ORDER_HISTORY);
@@ -688,7 +690,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                     case "nFreightx":
                         computeSummary();
                         break;
-                    case "sSalesman":
+                    case "sClientID":
                         txtField05.setText((String) foValue);
                         break;
                 }
@@ -698,12 +700,12 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
             public void MasterRetreive(int fnIndex, Object foValue) {
                 switch(fnIndex){
                     case 8: //nTranTotl
-                    case 10: //nDiscount
-                    case 11: //nAddDiscx
-                    case 12: //nFreightx
+                    case 9: //nDiscount
+                    case 10: //nAddDiscx
+                    case 11: //nFreightx
                         computeSummary();
                         break;
-                    case 7:
+                    case 5:
                         txtField05.setText((String) foValue);
                         break;
                 }
@@ -731,7 +733,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                         _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", (String) foValue.get("sStockIDx"));
                         break;
                     case "txtField05":
-                        _trans.setMaster("sSalesman", (String) foValue.get("sClientID"));
+                        _trans.setMaster("sClientID", (String) foValue.get("sClientID"));
                         break;
                 }
             }
@@ -816,9 +818,9 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("");
-        btn09.setText("Inquiry");
-        btn10.setText("Catalogue");
+        btn08.setText("Inquiry");
+        btn09.setText("Catalogue");
+        btn10.setText("Releasing");
         btn11.setText("History");
         btn12.setText("Close");
         
@@ -829,7 +831,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(false);
+        btn08.setVisible(true);
         btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
@@ -858,6 +860,8 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         txtField09.setOnKeyPressed(this::txtField_KeyPressed);
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
@@ -900,7 +904,7 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                 switch (loArray.size()){
                     case 1: //one record found
                         loJSON = (JSONObject) loArray.get(0);
-                        _trans.setMaster("sSalesman", (String) loJSON.get("sClientID"));
+                        _trans.setMaster("sClientID", (String) loJSON.get("sClientID"));
                         FXUtil.SetNextFocus(txtField05);
                         break;
                     default: //multiple records found
@@ -942,12 +946,15 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
+                case 1: //search detail
+                case 5: //sClientID
+                    break;
                 case 6: //remarks
                     _trans.setMaster("sRemarksx", lsValue);
                     break;
-                case 10: //discount rate
-                case 11: //additional discount
-                case 12: //freight charge                    
+                case 9: //discount rate
+                case 10: //additional discount
+                case 11: //freight charge                    
                     double x = 0.00;
                     try {
                         //this mus be numeric else it will throw an error
@@ -959,10 +966,10 @@ public class SPCustomerOrderController implements Initializable, ControlledScree
                     }
                     
                     switch (lnIndex) {
-                        case 10:
+                        case 9:
                             _trans.setMaster("nDiscount", x);
                             break;
-                        case 11:
+                        case 10:
                             _trans.setMaster("nAddDiscx", x);
                             break;
                         default:

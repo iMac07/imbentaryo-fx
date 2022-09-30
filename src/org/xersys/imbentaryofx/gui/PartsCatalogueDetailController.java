@@ -166,6 +166,7 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         CheckBox loCheck;
         JSONArray loArray = new JSONArray();
         
+        
         for (int lnCtr = 0; lnCtr <= _parts.size()-1; lnCtr++){
             loCheck = _table_data.get(lnCtr).getIndex07();
             if (loCheck.isSelected()){
@@ -175,11 +176,19 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
         
         if (loArray.size() > 0) {
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.CART);
-            Cart2Controller instance = new Cart2Controller();
-            instance.setData(loArray);
+            JSONArray loCart = _cart.getData();
+            if (loCart == null)
+                loCart = loArray;
+            else
+                loCart.addAll(loArray);
+            
+            _cart.setData(loCart);
             if (loJSON != null) {
-                _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
-                _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                if (_screens_dashboard_controller.getScreen(_screens_dashboard_controller.getCurrentScreenIndex()) != (ControlledScreen) _cart) {
+                    _screens_dashboard_controller.unloadScreen(_screens_dashboard_controller.getCurrentScreenIndex());
+                }
+                
+                _screens_dashboard_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) _cart);
             }
         }
         
@@ -372,5 +381,6 @@ public class PartsCatalogueDetailController implements Initializable, Controlled
     
     private JSONObject _data = null;
     private JSONArray _parts = null;
+    private Cart2Controller _cart = new Cart2Controller();
     private ObservableList<TableCatalogParts> _table_data = FXCollections.observableArrayList();
 }

@@ -2,6 +2,7 @@ package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.DatePicker;
@@ -24,12 +25,16 @@ public class ReportCriteriaDateController implements Initializable {
         AnchorMain.setLeftAnchor(AnchorMain, 0.0);
         AnchorMain.setRightAnchor(AnchorMain, 0.0);
     }    
-    
-    public String getDateFrom(){
-        return SQLUtil.dateFormat(dateFrom.valueProperty().getValue(), SQLUtil.FORMAT_SHORT_DATE);
+
+    @FXML
+    private void dateFrom_Action(ActionEvent event) {
+        System.err.println(dateFrom.valueProperty().getValue());
+        System.err.println(SQLUtil.dateFormat(dateFrom.valueProperty().getValue(), SQLUtil.FORMAT_SHORT_DATE));
     }
-    
-    public String getDateThru(){
-        return SQLUtil.dateFormat(dateThru.valueProperty().getValue(), SQLUtil.FORMAT_SHORT_DATE);
+
+    @FXML
+    private void dateThru_Action(ActionEvent event) {
+        System.err.println(dateThru.valueProperty().getValue());
+        System.err.println( SQLUtil.dateFormat(dateThru.valueProperty().getValue(), SQLUtil.FORMAT_SHORT_DATE));
     }
 }

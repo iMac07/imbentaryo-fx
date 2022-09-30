@@ -37,6 +37,7 @@ import javax.sql.rowset.CachedRowSet;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.contants.UserLevel;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.imbentaryofx.listener.DataCallback;
@@ -230,7 +231,17 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             if (_supplier) _trans.setMaster("cSupplier", "1");
             if (_mechanic) _trans.setMaster("cMechanic", "1");
             if (_advisor) _trans.setMaster("cSrvcAdvs", "1");
-        }
+        } 
+        
+        searchCitizenship("sCntryCde", "01", "", "", true);
+        
+        boolean lbShow = (int) _nautilus.getUserInfo("nUserLevl") >= UserLevel.MANAGER;
+        
+        chkCustomer.setSelected(!lbShow);
+        chkAdvisor.setSelected(lbShow);
+        chkEmployee.setSelected(lbShow);
+        chkMechanic.setSelected(lbShow);
+        chkSupplier.setSelected(lbShow);
         
         initButton();
         clearFields();
@@ -264,7 +275,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtField10":
-                    searchCitizenship("sCntryNme", lsValue, "", "", false);
+                    searchCitizenship("sNational", lsValue, "", "", false);
                     event.consume();
                     return;
                 case "txtField12":
@@ -501,7 +512,7 @@ public class ClientMasterController implements Initializable, ControlledScreen{
             case "btn03": //search
                 switch (_index){
                     case 10:
-                        searchCitizenship("sCntryNme", txtField10.getText(), "", "", false);
+                        searchCitizenship("sNational", txtField10.getText(), "", "", false);
                         break;
                     case 12:
                         searchTownCity("sTownName", txtField12.getText(), "", "", false);
@@ -942,11 +953,14 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         
         txtField07.setEditable(false);
         
-        chkAdvisor.setVisible(_data_callback == null);
-        chkCustomer.setVisible(_data_callback == null);
-        chkMechanic.setVisible(_data_callback == null);
-        chkSupplier.setVisible(_data_callback == null);
-        chkEmployee.setVisible(_data_callback == null);
+        boolean lbShow = (int) _nautilus.getUserInfo("nUserLevl") >= UserLevel.MANAGER;
+        
+        chkAdvisor.setVisible(lbShow);
+        chkCustomer.setVisible(lbShow);
+        chkCustomer.setVisible(lbShow);
+        chkEmployee.setVisible(lbShow);
+        chkMechanic.setVisible(lbShow);
+        chkSupplier.setVisible(lbShow);
     }
     
     private void cmbGenderCd_Click(Event event) {

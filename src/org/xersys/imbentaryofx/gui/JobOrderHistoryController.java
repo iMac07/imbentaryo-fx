@@ -1,7 +1,14 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -23,10 +30,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xersys.commander.contants.EditMode;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
@@ -40,13 +54,15 @@ import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.sales.base.JobOrder;
 
 public class JobOrderHistoryController implements Initializable, ControlledScreen{
-    private ObservableList<String> _status = FXCollections.observableArrayList("Open", "Closed", "Posted", "Cancelled", "Void");
+    private ObservableList<String> _status = 
+        FXCollections.observableArrayList("All", "New", "Printed", "Payed", "Cancelled", "Released");
     
     private XNautilus _nautilus;
     private JobOrder _trans;
     private LMasDetTrans _listener;
     private LOthTrans _oth_listener;
     private FormClosingCallback _close_listener;
+    private LApproval _approval;
     
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
@@ -167,6 +183,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         _trans.setSaveToDisk(false);
         _trans.setListener(_listener);
         _trans.setOtherListener(_oth_listener);
+        _trans.setApprvListener(_approval);
         
         clearFields();
         initButton();
@@ -199,7 +216,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
         
-        if (event.getCode() == KeyCode.ENTER){
+        if (event.getCode() == KeyCode.ENTER ||
+            event.getCode() == KeyCode.F3){
             switch(lsTxt){
                 case "txtSeeks01":
                     searchTransaction(txtSeeks01, "a.sTransNox", lsValue, false);
@@ -253,7 +271,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         cmbStatus.getSelectionModel().select(0);
         
-        _transtat = 0;
+        _transtat = 12340;
         _trans.setTranStat(_transtat);
         
         setTranStat("-1");
@@ -314,22 +332,28 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     
     private void computeSummary(){
         double lnLabrTotl = ((Number) _trans.getMaster("nLabrTotl")).doubleValue();
-        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
-        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
-        double lnDiscount = ((Number) _trans.getMaster("nDiscount")).doubleValue();
-        double lnAddDiscx = ((Number) _trans.getMaster("nAddDiscx")).doubleValue();
-        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
-        double lnTotlDisc = (lnTranTotl * (lnDiscount / 100)) + lnAddDiscx;
+        double lnLabrDisc = ((Number) _trans.getMaster("nLabrDisc")).doubleValue();
         
-        txtField24.setText(StringUtil.NumberFormat(lnDiscount, "##0.00"));
-        txtField25.setText(StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"));
+        double lnPartTotl = ((Number) _trans.getMaster("nPartTotl")).doubleValue();
+        double lnPartDisc = ((Number) _trans.getMaster("nPartDisc")).doubleValue();
+        
+        double lnTranTotl = ((Number) _trans.getMaster("nTranTotl")).doubleValue();
+        
+        double lnTotlDisc = 0.00;
+        lnTotlDisc += lnLabrTotl * lnLabrDisc / 100;
+        lnTotlDisc += lnPartTotl * lnPartDisc / 100;
+        
+        double lnFreightx = ((Number) _trans.getMaster("nFreightx")).doubleValue();
+        
+        txtField24.setText(StringUtil.NumberFormat(lnLabrDisc, "##0.00"));
+        txtField25.setText(StringUtil.NumberFormat(lnPartDisc, "##0.00"));
         txtField26.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         
         lblLabrTotl.setText(StringUtil.NumberFormat(lnLabrTotl, "#,##0.00"));
         lblPartTotl.setText(StringUtil.NumberFormat(lnPartTotl, "#,##0.00"));
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
-        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        lblPayable.setText(StringUtil.NumberFormat(lnTranTotl + lnFreightx, "#,##0.00"));
     }
     
     private void loadTransaction(){        
@@ -347,13 +371,13 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         Date lsDate = null;
         
         if (_trans.getMaster("dStartedx") != null){
-            lsDate = SQLUtil.toDate((String) _trans.getMaster("dStartedx"), SQLUtil.FORMAT_TIMESTAMP);
+            lsDate = SQLUtil.toDate(String.valueOf(_trans.getMaster("dStartedx")), SQLUtil.FORMAT_TIMESTAMP);
             lblStartTime.setText(SQLUtil.dateFormat(lsDate, SQLUtil.FORMAT_TIME));
         } else
             lblStartTime.setText("00:00:00");
         
         if (_trans.getMaster("dFinished") != null){
-            lsDate = SQLUtil.toDate((String) _trans.getMaster("dFinished"), SQLUtil.FORMAT_TIMESTAMP);
+            lsDate = SQLUtil.toDate(String.valueOf(_trans.getMaster("dFinished")), SQLUtil.FORMAT_TIMESTAMP);
             lblEndTime.setText(SQLUtil.dateFormat(lsDate, SQLUtil.FORMAT_TIME));
         } else
             lblEndTime.setText("00:00:00");
@@ -361,6 +385,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         chkWarranty.setSelected("1".equals((String) _trans.getMaster("cWarranty")));
         
         setTranStat(String.valueOf(_trans.getMaster("cTranStat")));
+        
+        btn11.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) == 2);
         
         _index = 1;
         
@@ -424,9 +450,11 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         double lnAddDiscx;
         double lnTranTotl;
         int lnQuantity;
+        int lnIssuedxx;
         
         for(lnCtr = 0; lnCtr <= lnRow - 1; lnCtr++){           
             lnQuantity = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nQuantity")));
+            lnIssuedxx = Integer.valueOf(String.valueOf(_trans.getParts(lnCtr, "nIssuedxx")));
             lnUnitPrce = ((Number)_trans.getParts(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getParts(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getParts(lnCtr, "nAddDiscx")).doubleValue();
@@ -437,8 +465,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                         (String) _trans.getParts(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getParts(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
+                        String.valueOf(lnIssuedxx),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
@@ -471,8 +499,8 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
         index03.setSortable(false); index03.setResizable(false);
-        index04.setSortable(false); index04.setResizable(false);
-        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
         index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
@@ -491,21 +519,21 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
-        index03.prefWidthProperty().set(185);
+        index03.prefWidthProperty().set(200);
         
-        index04.setText("Other Info"); 
+        index04.setText("Unit Price"); 
         index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
-        index04.prefWidthProperty().set(137);
+        index04.prefWidthProperty().set(80);
         
-        index05.setText("Unit Price"); 
+        index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
-        index05.prefWidthProperty().set(80);
+        index05.prefWidthProperty().set(60);
         
-        index06.setText("QOH"); 
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Issued"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
@@ -615,18 +643,30 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                     searchTransaction(txtSeeks02, "a.sTransNox", "", false);
                 break;
             case "btn02": //print
-                if (_trans.CloseTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction closed successfully.", "Success", "");
-                    
-                    initGrid();
-                    initButton();
-                    clearFields();
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
+                if (printJO()){
+                    if ("0".equals((String) _trans.getMaster("cTranStat"))){
+                        if (!_trans.CloseTransaction())
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");                        
+                    }
+                }
+                                
+                initButton();
+                clearFields();
+                
                 break;
             case "btn03": //cancel
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
+                    return;
+                }
+                
                 if (_trans.CancelTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "", "", "");
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was cancelled successfully.", "Success", "");
                     
                     initGrid();
                     initButton();
@@ -634,15 +674,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn04": //confirm
-                if (_trans.PostTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction confirmed successfully.", "Success", "");
-                    
-                    initGrid();
-                    initButton();
-                    clearFields();
-                } else 
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            case "btn04":
                 break;
             case "btn05":
                 break;
@@ -656,7 +688,9 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 break;
             case "btn10":
                 break;
-            case "btn11":
+            case "btn11": //print invoices
+                printReceipt();
+                printInvoice();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -667,6 +701,231 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
                 }
                 break;
         }
+    }
+    
+    private boolean printReceipt(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Official Receipt?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getReceipt_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj;
+
+                for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
+                    json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nLabrPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                                
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nLabrDisc"))) / 100;
+                params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/JO-OR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean printJO(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        try {
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj;
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sLaborNme"));
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                json_arr.add(json_obj); 
+            }
+            
+            for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+
+                json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sDescript"));
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nUnitPrce"))));
+                json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nDiscount"))));
+                json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nAddDiscx"))));
+                json_arr.add(json_obj); 
+            }
+
+            String lsTranStat = "";
+            switch((String) _trans.getMaster("cTranStat")){
+                case "0":
+                    lsTranStat = "NEW";
+                    break;
+                case "1":
+                    lsTranStat = "PRINTED";
+                    break;
+                case "2":
+                    lsTranStat = "PAYED";
+                    break;
+                case "3":
+                    lsTranStat = "CANCELLED";
+                    break;
+                case "4":
+                    lsTranStat = "RELEASED";
+                    break;
+                default:
+                    lsTranStat = "UNKNOWN";
+            }
+            
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sClientNm", (String) _trans.getMaster("xClientNm"));
+            params.put("xAddressx", "-");
+            params.put("sReferNox", lsTranStat);
+            params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nLabrPaid")))));
+            params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+            double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl"))) +
+                Double.valueOf(String.valueOf(_trans.getMaster("nPartTotl")));
+            params.put("nTranTotl", lnTranTotl);
+
+            double lnDiscount = Double.valueOf(String.valueOf(_trans.getMaster("nLabrTotl"))) * Double.valueOf(String.valueOf(_trans.getMaster("nLabrDisc"))) / 100;
+            lnDiscount += Double.valueOf(String.valueOf(_trans.getMaster("nPartTotl"))) * Double.valueOf(String.valueOf(_trans.getMaster("nPartDisc"))) / 100;
+            
+            params.put("nDiscount", lnDiscount);
+
+            InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+            JsonDataSource jrjson = new JsonDataSource(stream); 
+
+            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                "reports/JOForm.jasper", params, jrjson);
+            JasperViewer jv = new JasperViewer(_jrprint, false);
+            jv.setVisible(true);
+        } catch (JRException | UnsupportedEncodingException  ex) {
+            ex.printStackTrace();
+            ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            if (!ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to print Sales Invoice?", "Confirm", "")) return false;
+            
+            try {
+                ResultSet loRS = _trans.getInvoice_Info();
+                
+                if (!loRS.next()) return false;
+                
+                JSONArray json_arr = new JSONArray();
+                json_arr.clear();
+
+                JSONObject json_obj;
+
+                for (int lnCtr = 0; lnCtr <= _trans.getPartsCount()-1; lnCtr++){
+                    json_obj = new JSONObject();
+                    
+                    json_obj.put("nField01", (int) _trans.getParts(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getParts(lnCtr, "sBarCodex"));
+                    json_obj.put("sField02", (String) _trans.getParts(lnCtr, "sDescript"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getParts(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+
+                //Create the parameter
+                Map<String, Object> params = new HashMap<>();
+                params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+                params.put("sClientNm", loRS.getString("sClientNm"));
+                params.put("xAddressx", loRS.getString("xAddressx"));
+                params.put("sReferNox", loRS.getString("sInvNumbr"));
+                params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nPartPaid")))));
+                params.put("dTransact", SQLUtil.dateFormat(loRS.getDate("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+                params.put("sSalesman", (String) _trans.getMaster("xMechanic"));
+
+                double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nPartTotl")));
+                params.put("nTranTotl", lnTranTotl);
+                
+                params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+                
+                double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nPartDisc"))) / 100;
+                params.put("nDiscount", lnDiscount);
+
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/SP_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | SQLException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     public void keyReleased(KeyEvent event) {
@@ -700,6 +959,13 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     }
     
     private void initListener(){
+        _approval = new LApproval() {
+            @Override
+            public void Request() {
+                _main_screen_controller.seekApproval();
+            }
+        };
+        
         _search_callback = new QuickSearchCallback() {
             @Override
             public void Result(TextField foField, JSONObject foValue) {
@@ -777,20 +1043,20 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("");
+        btn11.setText("Invoice");
         btn12.setText("Close");
         
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(true);
-        btn11.setVisible(true);
+        btn10.setVisible(false);
+        btn11.setVisible(false);
         btn12.setVisible(true);
     }
     
@@ -803,7 +1069,7 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
         
         cmbStatus.setItems(_status);
         cmbStatus.getSelectionModel().select(0);
-        _transtat = 0;
+        _transtat = 12340;
     }
     
     private void loadScreen(ScreenInfo.NAME  foValue){
@@ -824,19 +1090,19 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     private void setTranStat(String fsValue){
         switch(fsValue){
             case "0":
-                lblTranStat.setText("OPEN");
+                lblTranStat.setText("NEW");
                 break;
             case "1":
-                lblTranStat.setText("CLOSED");
+                lblTranStat.setText("PRINTED");
                 break;
             case "2":
-                lblTranStat.setText("POSTED");
+                lblTranStat.setText("PAYED");
                 break;
             case "3":
                 lblTranStat.setText("CANCELLED");
                 break;
             case "4":
-                lblTranStat.setText("FULLY SERVED");
+                lblTranStat.setText("RELEASED");
                 break;
             default:
                 lblTranStat.setText("UNKNOWN");
@@ -845,7 +1111,15 @@ public class JobOrderHistoryController implements Initializable, ControlledScree
     
     @FXML
     private void cmbStatus_Click(ActionEvent event) {
-        _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
+        switch (cmbStatus.getSelectionModel().getSelectedIndex()){
+            case 0:
+                _transtat = 12340;
+                break;
+            default:
+                _transtat = cmbStatus.getSelectionModel().getSelectedIndex() - 1;
+        }
+        
+        
         _trans.setTranStat(_transtat);
     }
     

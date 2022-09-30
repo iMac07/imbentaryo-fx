@@ -13,6 +13,11 @@ public class TableModel {
     private SimpleStringProperty index08;
     private SimpleStringProperty index09;
     private SimpleStringProperty index10;
+    private SimpleStringProperty index11;
+    private SimpleStringProperty index12;
+    private SimpleStringProperty index13;
+    private SimpleStringProperty index14;
+    private SimpleStringProperty index15;
     
     TableModel(String index01, String index02, String index03, String index04, String index05,
                 String index06, String index07, String index08, String index09, String index10){
@@ -26,6 +31,26 @@ public class TableModel {
         this.index08 = new SimpleStringProperty(index08);
         this.index09 = new SimpleStringProperty(index09);
         this.index10 = new SimpleStringProperty(index10);
+    }
+    
+    TableModel(String index01, String index02, String index03, String index04, String index05,
+                String index06, String index07, String index08, String index09, String index10,
+                String index11, String index12, String index13, String index14, String index15){
+        this.index01 = new SimpleStringProperty(index01);
+        this.index02 = new SimpleStringProperty(index02);
+        this.index03 = new SimpleStringProperty(index03);
+        this.index04 = new SimpleStringProperty(index04);
+        this.index05 = new SimpleStringProperty(index05);
+        this.index06 = new SimpleStringProperty(index06);
+        this.index07 = new SimpleStringProperty(index07);
+        this.index08 = new SimpleStringProperty(index08);
+        this.index09 = new SimpleStringProperty(index09);
+        this.index10 = new SimpleStringProperty(index10);
+        this.index11 = new SimpleStringProperty(index11);
+        this.index12 = new SimpleStringProperty(index12);
+        this.index13 = new SimpleStringProperty(index13);
+        this.index14 = new SimpleStringProperty(index14);
+        this.index15 = new SimpleStringProperty(index15);
     }
     
     public String getIndex01(){return index01.get();}
@@ -57,4 +82,19 @@ public class TableModel {
     
     public String getIndex10(){return index10.get();}
     public void setIndex10(String index10){this.index10.set(index10);}
+    
+    public String getIndex11(){return index11.get();}
+    public void setIndex11(String index11){this.index11.set(index11);}
+    
+    public String getIndex12(){return index12.get();}
+    public void setIndex12(String index12){this.index12.set(index12);}
+    
+    public String getIndex13(){return index13.get();}
+    public void setIndex13(String index13){this.index13.set(index13);}
+    
+    public String getIndex14(){return index14.get();}
+    public void setIndex14(String index14){this.index14.set(index14);}
+    
+    public String getIndex15(){return index15.get();}
+    public void setIndex15(String index15){this.index15.set(index15);}
 }

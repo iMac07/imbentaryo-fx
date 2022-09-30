@@ -223,6 +223,37 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                     event.consume();
                     return;
             }
+        } else if (event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
+                    searchLabor("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtSeeks02":
+                    searchBranchInventory("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField03":
+                    searchClient("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField06":
+                    searchMCDealer("sDescript", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField07":
+                    searchAdvisor("a.sClientNm", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField17":
+                    searchSerial(txtField17, "a.sSerial01", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField18":
+                    searchSerial(txtField18, "a.sSerial02", lsValue, false);
+                    event.consume();
+                    return;
+            }
         }
         
         switch (event.getCode()){
@@ -364,11 +395,11 @@ public class JobEstimateController implements Initializable, ControlledScreen{
                         (String) _trans.getParts(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getParts(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -393,7 +424,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
         TableColumn index09 = new TableColumn("");
-        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
@@ -401,10 +431,9 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index08.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -428,25 +457,21 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
         
-        index06.setText("ROQ"); 
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
+        index07.setText("Disc."); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
         index07.prefWidthProperty().set(60);
         
-        index08.setText("Disc."); 
+        index08.setText("Adtl."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
         index08.prefWidthProperty().set(60);
         
-        index09.setText("Adtl."); 
+        index09.setText("Total"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(60);
-        
-        index10.setText("Total"); 
-        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(85);
+        index09.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -457,7 +482,6 @@ public class JobEstimateController implements Initializable, ControlledScreen{
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
         _table.getColumns().add(index09);
-        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tablePartsClicked);
@@ -903,10 +927,10 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             case "btn03": //search
                 switch (_index){
                     case 1:
-                        searchLabor("sLaborCde", txtSeeks01.getText(), false);
+                        searchLabor("sDescript", txtSeeks01.getText(), false);
                         return;
                     case 2:
-                        searchBranchInventory("sBarCodex", txtSeeks02.getText(), false);
+                        searchBranchInventory("sDescript", txtSeeks02.getText(), false);
                         return;
                     case 3:
                         searchClient("a.sClientNm", txtField03.getText(), false);
@@ -1015,12 +1039,15 @@ public class JobEstimateController implements Initializable, ControlledScreen{
             public void FormClosing() {
                 _loaded = false;
                 
+                //reload temp transactions
+                _trans.loadTempTransactions();
+                
+                cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                
                 createNew(_trans.TempTransactions().get(_trans.TempTransactions().size() - 1).getOrderNo());
                 initButton();
                 clearFields();
                 loadTransaction();
-                
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
                
                _loaded = true;
 

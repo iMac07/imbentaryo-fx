@@ -1,6 +1,12 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -22,6 +28,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,6 +44,7 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.sales.base.SP_Sales;
 import org.xersys.sales.search.SalesSearch;
@@ -119,6 +131,12 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     private ComboBox cmbStatus;
     @FXML
     private TextField txtSeeks01;
+    @FXML
+    private TextField txtField05;
+    @FXML
+    private Label lblReferNox;
+    @FXML
+    private TextField txtSeeks02;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -176,6 +194,31 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         String lsValue = txtField.getText();
         
         switch (event.getCode()){
+            case ENTER:
+                switch (lsTxt){
+                    case "txtSeeks01":
+                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), false);
+                        event.consume();
+                        break;
+                    case "txtSeeks02":
+                        searchTransaction(txtSeeks02, "IFNULL(b.sClientNm, '')", txtSeeks02.getText().trim(), false);
+                        event.consume();
+                        break;
+                }
+            case F3:
+                switch (lsTxt){
+                    case "txtSeeks01":
+                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), false);
+                        event.consume();
+                        break;
+                    case "txtSeeks02":
+                        searchTransaction(txtSeeks02, "IFNULL(b.sClientNm, '')", txtSeeks02.getText().trim(), false);
+                        event.consume();
+                        break;
+                }
+        }
+        
+        switch (event.getCode()){
         case ENTER:
         case DOWN:
             FXUtil.SetNextFocus(txtField);
@@ -189,6 +232,8 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         initGrid();
         
         txtSeeks01.setText("");
+        txtSeeks02.setText("");
+        txtField05.setText("");
         txtField06.setText("");
         txtField07.setText("");
         txtField10.setText("0.00");
@@ -199,6 +244,9 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         lblTotalDisc.setText("0.00");
         lblFreight.setText("0.00");
         lblPayable.setText("0.00");
+        
+        lblReferNox.setText("N/A");
+        lblPaymTotl.setText("0.00");
 
         _table_data.clear();
         
@@ -224,11 +272,15 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         lblTotalDisc.setText(StringUtil.NumberFormat(lnTotlDisc, "#,##0.00"));
         lblFreight.setText(StringUtil.NumberFormat(lnFreightx, "#,##0.00"));
         lblPayable.setText(StringUtil.NumberFormat(lnTranTotl - lnTotlDisc + lnFreightx, "#,##0.00"));
+        
+        lblReferNox.setText((String) _trans.getMaster("xInvNumbr"));
         lblPaymTotl.setText(StringUtil.NumberFormat(lnPaymTotl, "#,##0.00"));
     }
     
     private void loadTransaction(){
         txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
+        txtSeeks02.setText((String) _trans.getMaster("xClientNm"));
+        txtField05.setText((String) _trans.getMaster("xClientNm"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
         txtField07.setText((String) _trans.getMaster("xSalesman"));
         
@@ -245,12 +297,13 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn02.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn03.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
         btn04.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) < 2);
+        btn11.setVisible(Integer.parseInt((String) _trans.getMaster("cTranStat")) == 2);
     }
     
-    private void searchTransaction(){
-        _trans_search.setKey("a.sTransNox");
-        _trans_search.setValue("");
-        _trans_search.setExact(false);
+    private void searchTransaction(TextField foTextField, String fsField, String fsValue, boolean fbByCode){
+        _trans_search.setKey(fsField);
+        _trans_search.setValue(fsValue);
+        _trans_search.setExact(fbByCode);
         _trans_search.addFilter("Status", cmbStatus.getSelectionModel().getSelectedIndex());
         
         JSONObject loJSON =  _trans_search.Search();
@@ -320,18 +373,18 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - (lnQuantity * lnAddDiscx);
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sBarCodex"),
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
-                        "-",
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnDiscount * 100, "#,##0.00") + "%",
                         StringUtil.NumberFormat(lnAddDiscx, "#,##0.00"),
-                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00")));
+                        StringUtil.NumberFormat(lnTranTotl, "#,##0.00"), 
+                        ""));
         }
 
         if (!_table_data.isEmpty()){
@@ -390,7 +443,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         TableColumn index07 = new TableColumn("");
         TableColumn index08 = new TableColumn("");
         TableColumn index09 = new TableColumn("");
-        TableColumn index10 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
@@ -398,10 +450,9 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index09.setSortable(false); index09.setResizable(false); index09.setStyle( "-fx-alignment: CENTER-RIGHT;");
-        index10.setSortable(false); index10.setResizable(false); index10.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -424,26 +475,22 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         index05.setText("QOH"); 
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(60);
-        
-        index06.setText("ROQ"); 
+                
+        index06.setText("Order"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Order"); 
-        index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
+        index07.setText("Disc."); 
+        index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index07.prefWidthProperty().set(60);
         
-        index08.setText("Disc."); 
+        index08.setText("Adtl."); 
         index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
         index08.prefWidthProperty().set(60);
         
-        index09.setText("Adtl."); 
+        index09.setText("Total"); 
         index09.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index09"));
-        index09.prefWidthProperty().set(60);
-        
-        index10.setText("Total"); 
-        index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(85);
+        index09.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -454,7 +501,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         _table.getColumns().add(index07);
         _table.getColumns().add(index08);
         _table.getColumns().add(index09);
-        _table.getColumns().add(index10);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
@@ -475,7 +521,15 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         switch (lsButton){
             case "btn01":
-                searchTransaction();
+                switch (_index){
+                    case 1:
+                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), false);
+                        break;
+                    case 2:
+                        searchTransaction(txtSeeks02, "IFNULL(b.sClientNm, '')", txtSeeks02.getText().trim(), false);
+                        break;
+                }
+                
                 break;
             case "btn02": //pay
                 payWithInvoice();
@@ -504,7 +558,8 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                 break;
             case "btn10":
                 break;
-            case "btn11":
+            case "btn11": //print invoice
+                printInvoice();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -625,7 +680,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("");
+        btn11.setText("Print");
         btn12.setText("Close");
         
         btn01.setVisible(true);
@@ -638,17 +693,21 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         btn08.setVisible(false);
         btn09.setVisible(false);
         btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn11.setVisible(true);
         btn12.setVisible(true);
     }
     
     private void initFields(){
+        txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtSeeks02.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         txtField07.setOnKeyPressed(this::txtField_KeyPressed);
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);        
         
+        txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
         txtField11.focusedProperty().addListener(txtField_Focus);
@@ -679,6 +738,70 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             default:
                 lblTranStat.setText("UNKNOWN");
         }
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj;
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+                
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
+                json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                json_arr.add(json_obj); 
+            }
+
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sClientNm", (String) _trans.getMaster("vClientNm"));
+            params.put("xAddressx", (String) _trans.getMaster("xAddressx"));
+            params.put("sReferNox", (String) _trans.getMaster("xInvNumbr"));
+            params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("xAmtPaidx")))));
+            params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sSalesman", (String) _trans.getMaster("xSalesman"));
+            
+            double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nTranTotl")));
+            params.put("nTranTotl", lnTranTotl);
+            params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+            
+            double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+            
+            lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+            params.put("nDiscount", lnDiscount);
+
+            try {
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/SP_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{

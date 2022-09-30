@@ -79,6 +79,10 @@ public class Cart2Controller implements Initializable, ControlledScreen {
         if (_data != null) displayOrders();
     }
     
+    public JSONArray getData(){
+        return _data;
+    }
+    
     private void displayOrders(){
         JSONObject loJSON;
         

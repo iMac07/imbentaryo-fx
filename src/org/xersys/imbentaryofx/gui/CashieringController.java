@@ -16,12 +16,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.apache.poi.ss.usermodel.Font;
 import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.payment.base.CashierTrans;
+import org.xersys.sales.base.JobOrder;
 
 public class CashieringController implements Initializable, ControlledScreen {
     private XNautilus _nautilus;
@@ -34,6 +36,7 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private String _source_code = "";
     private String _source_number = "";
+    private double _adv_payment = 0.00;
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
     private TableModel _model;
@@ -87,16 +90,13 @@ public class CashieringController implements Initializable, ControlledScreen {
         table.setOnMouseClicked(this::mouseClicked);
         
         _trans = new CashierTrans(_nautilus);
-        _trans.setSourceCd("SO;JO;WS");
+        _trans.setSourceCd("SO»JO»WS»CO");
         
         initButton();
         initGrid();
         
         try {
-            if (_trans.LoadTransactions())
-                loadDetail();
-            else
-                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Notice", "");
+            if (_trans.LoadTransactions()) loadDetail();
         } catch (SQLException ex) {
             ex.printStackTrace();
             ShowMessageFX.Warning(_main_screen_controller.getStage(), "Error loading cashier transactions.", "Warning", "");
@@ -146,6 +146,7 @@ public class CashieringController implements Initializable, ControlledScreen {
         
         _source_code = (String) _trans.getDetail(pnSelectd + 1, "sSourceCd");
         _source_number = (String) _trans.getDetail(pnSelectd + 1, "sTransNox");
+        _adv_payment = Double.valueOf(String.valueOf(_trans.getDetail(pnSelectd + 1, "nDeductnx")));
     }
     
     private void mouseClicked(MouseEvent event) {
@@ -252,8 +253,8 @@ public class CashieringController implements Initializable, ControlledScreen {
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
-        btn11.setText("");
+        btn10.setText("OR");
+        btn11.setText("SI");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -278,9 +279,6 @@ public class CashieringController implements Initializable, ControlledScreen {
             case "btn01": //pay
                 if (!_source_code.isEmpty() && !_source_number.isEmpty()) {
                     payWithInvoice();
-                    
-                    //option for non invoice payment
-                    //payNoInvoice();
                 }
                 break;
             case "btn02": //release
@@ -302,8 +300,10 @@ public class CashieringController implements Initializable, ControlledScreen {
             case "btn09":
                 break;
             case "btn10":
+                loadScreen(ScreenInfo.NAME.OR_HISTORY);
                 break;
             case "btn11":
+                loadScreen(ScreenInfo.NAME.SI_HISTORY);
                 break;
             case "btn12": //close screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
@@ -328,27 +328,49 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private void payWithInvoice(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
-            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
-            PaymentController instance = new PaymentController();
-            instance.setSourceCd(_source_code);
-            instance.setSourceNo(_source_number);
+            JSONObject loJSON;
+                    
+            if (_source_code.equals("JO")){
+                loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_JO);
+                PaymentJOController instance = new PaymentJOController();
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
 
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            instance.setDashboardScreensController(_screens_dashboard_controller);
-            instance.setSourceCd(_source_code);
-            instance.setSourceNo(_source_number);
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
+                
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+            } else{
+                loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
+                PaymentController instance = new PaymentController();
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
 
-            //close this screen
-            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-            //load the payment screen
-            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+                instance.setDashboardScreensController(_screens_dashboard_controller);
+                instance.setSourceCd(_source_code);
+                instance.setSourceNo(_source_number);
+                instance.setAdvancePayment(_adv_payment);
+                
+                //close this screen
+                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                //load the payment screen
+                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+            }
         }
     }
     
     private void payNoInvoice(){
-        if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+        if (!_source_code.isEmpty() && !_source_number.isEmpty()){           
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_NO_INVOICE);
             PaymentNoInvoiceController instance = new PaymentNoInvoiceController();
             instance.setSourceCd(_source_code);
@@ -370,6 +392,28 @@ public class CashieringController implements Initializable, ControlledScreen {
     
     private void payCharge(){
         if (!_source_code.isEmpty() && !_source_number.isEmpty()){
+            if (_source_code.equals("CO")) {
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "Customer orders are not allowed for charge invoice.", "Notice", "");
+                return;
+            }
+            
+            if (_source_code.equals("JO")) {
+                JobOrder instance = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true);
+
+                if (instance.OpenTransaction(_source_number)){
+                    if (instance.ReleaseTransaction()){
+                        ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction released successfully.", "Notice", "");                    
+                        _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), instance.getMessage(), "Notice", "");                    
+                    }
+                } else {
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), instance.getMessage(), "Notice", "");                    
+                }
+                return;
+            }
+            
+            
             JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
             PaymentChargeController instance = new PaymentChargeController();
             instance.setSourceCd(_source_code);
