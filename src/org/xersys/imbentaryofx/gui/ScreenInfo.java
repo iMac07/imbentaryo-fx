@@ -80,7 +80,14 @@ public class ScreenInfo {
         LABOR,
         INV_PRICE_CHANGE,
         INV_PRICE_CHANGE_DETAIL,
-        INV_PRICE_CHANGE_HISTORY
+        INV_PRICE_CHANGE_HISTORY,
+        PARAMETERS,
+        BRAND,
+        MODEL,
+        COLOR,
+        BARANGAY,
+        TOWN,
+        PROVINCE
     }
     
     public static JSONObject get(NAME foModule){
@@ -382,6 +389,34 @@ public class ScreenInfo {
             case CUSTOMER_ORDER_DETAIL:
                 loJSON.put("resource", RESOURCE_URL + "SPCustomerOrderDetail.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPCustomerOrderController");
+                return loJSON;
+            case PARAMETERS:
+                loJSON.put("resource", RESOURCE_URL + "Parameters.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ParametersController");
+                return loJSON;
+            case BRAND:
+                loJSON.put("resource", RESOURCE_URL + "Brand.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "BrandController");
+                return loJSON;
+            case MODEL:
+                loJSON.put("resource", RESOURCE_URL + "Model.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ModelController");
+                return loJSON;
+            case COLOR:
+                loJSON.put("resource", RESOURCE_URL + "Color.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ColorController");
+                return loJSON;
+            case BARANGAY:
+                loJSON.put("resource", RESOURCE_URL + "Barangay.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "BarangayController");
+                return loJSON;
+            case TOWN:
+                loJSON.put("resource", RESOURCE_URL + "Town.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "TownController");
+                return loJSON;
+            case PROVINCE:
+                loJSON.put("resource", RESOURCE_URL + "Province.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ProvinceController");
                 return loJSON;
         }
         
