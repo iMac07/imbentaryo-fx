@@ -209,18 +209,8 @@ public class BrandController implements Initializable, ParameterControlledScreen
             case "btn11": //history
                 break;
             case "btn12": //close screen
-                closeScreen();
+                _main_screen_controller.closeScreen();
                 break;
-        }
-    }
-    private void closeScreen(){
-//        if (_data_callback != null) _trans.RemoveTempTranssaction();
-        
-        if (_screens_controller.getScreenCount() > 1)
-            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-        else{
-            if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
-                System.exit(0);
         }
     }
     
