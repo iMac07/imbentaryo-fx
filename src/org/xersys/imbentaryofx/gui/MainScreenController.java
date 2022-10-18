@@ -183,6 +183,12 @@ public class MainScreenController implements Initializable {
     private Label lblOther21;
     @FXML
     private ImageView imgOther21;
+    @FXML
+    private AnchorPane btnOther22;
+    @FXML
+    private Label lblOther22;
+    @FXML
+    private ImageView imgOther22;
     
     public void setNautilus(XNautilus foValue){
         _nautilus = foValue;
@@ -371,6 +377,7 @@ public class MainScreenController implements Initializable {
         _no_tab.add("InvRequestDetail");
         _no_tab.add("InvTransferDetail");
         _no_tab.add("InvPriceChangeDetail");
+//        _no_tab.add("Parameters");
         
 //        //set screens that will not trigger on window tabs
 //        _no_tab_screen = "";
@@ -417,6 +424,7 @@ public class MainScreenController implements Initializable {
         btn.put("btnOther19", btnOther19); lbl.put("lblOther19", lblOther19); img.put("imgOther19", imgOther19);
         btn.put("btnOther20", btnOther20); lbl.put("lblOther20", lblOther20); img.put("imgOther20", imgOther20);
         btn.put("btnOther21", btnOther21); lbl.put("lblOther21", lblOther21); img.put("imgOther21", imgOther21);
+        btn.put("btnOther22", btnOther22); lbl.put("lblOther22", lblOther22); img.put("imgOther22", imgOther22);
         
         AnchorPane button;
         Label label;
@@ -425,7 +433,7 @@ public class MainScreenController implements Initializable {
         int lnCtr;
         String lsCtr;
         
-        for (lnCtr = 1; lnCtr <= 21; lnCtr++){
+        for (lnCtr = 1; lnCtr <= 22; lnCtr++){
             lsCtr = StringHelper.prepad(String.valueOf(lnCtr), 2, '0');
             
             button = btn.get("btnOther" + lsCtr);
@@ -518,6 +526,7 @@ public class MainScreenController implements Initializable {
         btnOther18.setOnMouseClicked(this::cmdMouse_Click);
         btnOther19.setOnMouseClicked(this::cmdMouse_Click);
         btnOther20.setOnMouseClicked(this::cmdMouse_Click);
+        btnOther22.setOnMouseClicked(this::cmdMouse_Click);
     }
     
     private boolean canSwitch(){
@@ -589,6 +598,8 @@ public class MainScreenController implements Initializable {
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.MC_SERIAL); break;
             case "manage user":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.USER_MANAGER); break;
+            case "parameters":
+                if (canSwitch()) loadScreen(ScreenInfo.NAME.PARAMETERS); break;
             case "login":
                 loadScreen(ScreenInfo.NAME.LOGIN);
                 return;

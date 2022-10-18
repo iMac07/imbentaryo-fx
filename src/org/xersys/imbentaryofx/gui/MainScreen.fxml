@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="MainScreen" fx:id="AnchorPaneMain" prefHeight="500.0" prefWidth="500.0" stylesheets="@../css/MainController.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="MainScreen" fx:id="AnchorPaneMain" prefHeight="500.0" prefWidth="500.0" stylesheets="@../css/MainController.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -197,6 +197,12 @@
                            <children>
                               <Label fx:id="lblOther21" text="Menu 21" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <ImageView fx:id="imgOther21" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="btnOther22" layoutX="10.0" layoutY="470.0" prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Label fx:id="lblOther22" text="Menu 21" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ImageView fx:id="imgOther22" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
                            </children>
                         </AnchorPane>
                      </children>
