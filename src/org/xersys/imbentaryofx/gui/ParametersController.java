@@ -110,9 +110,6 @@ public class ParametersController implements Initializable, ControlledScreen{
             System.exit(1);
         }
         
-        _param_screens_controller = new ParameterScreenController();
-        _param_screens_controller.setParentPane(AnchorPaneParamBody);
-        _param_screens_controller.setParentController(this);
         cmbParameters.setItems(_lsParams);
         cmbParameters.getSelectionModel().select(0);
         loadScreen(ScreenInfo.NAME.MODEL);
@@ -136,11 +133,15 @@ public class ParametersController implements Initializable, ControlledScreen{
         ParameterControlledScreen instance;
         if (loJSON != null){
             
+            _param_screens_controller = new ParameterScreenController();
+            _param_screens_controller.setParentPane(AnchorPaneParamBody);
+            _param_screens_controller.setParentController(this);
             String lsValue = (String) cmbParameters.getSelectionModel().getSelectedItem();
         
             lblTitle.setText(lsValue.toUpperCase());  
             instance = (ParameterControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller"));
             instance.setNautilus(_nautilus);
+//            instance.setParentPane(AnchorPaneParamBody);
             instance.setParentController(this);
             instance.setScreensController(_param_screens_controller);
             
