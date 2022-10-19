@@ -175,7 +175,16 @@ public class ParametersController implements Initializable, ControlledScreen{
     public Stage getStage(){
         return (Stage) AnchorParameterMain.getScene().getWindow();
     }
-    
+    public void closeScreen(){
+//        if (_data_callback != null) _trans.RemoveTempTranssaction();
+        
+        if (_screens_controller.getScreenCount() > 1)
+            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+        else{
+            if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
+                System.exit(0);
+        }
+    }
     
     private static XNautilus _nautilus;
     private static ScreensController _screens_controller;
