@@ -1,8 +1,8 @@
-../lib/.processing.enabled=true
-../lib/.processing.enabled.in.editor=false
-../lib/.processing.processors.list=
-../lib/.processing.run.all.processors=true
-../lib/.processing.source.output=${build.generated.sources.dir}/ap-source-output
+C:\\icarus\\lib\\.processing.enabled=true
+C:\\icarus\\lib\\.processing.enabled.in.editor=false
+C:\\icarus\\lib\\.processing.processors.list=
+C:\\icarus\\lib\\.processing.run.all.processors=true
+C:\\icarus\\lib\\.processing.source.output=${build.generated.sources.dir}/ap-source-output
 annotation.processing.enabled=true
 annotation.processing.enabled.in.editor=false
 annotation.processing.processors.list=
@@ -37,29 +37,41 @@ dist.jar=${dist.dir}/imbentaryo-fx.jar
 dist.javadoc.dir=${dist.dir}/javadoc
 endorsed.classpath=
 excludes=
-file.reference.commons-beanutils-1.9.3.jar=../lib/commons-beanutils-1.9.3.jar
-file.reference.commons-codec-1.9.jar=../lib/commons-codec-1.9.jar
-file.reference.commons-collections-3.2.2.jar=../lib/commons-collections-3.2.2.jar
-file.reference.commons-collections4-4.1.jar=../lib/commons-collections4-4.1.jar
-file.reference.commons-digester-2.1.jar=../lib/commons-digester-2.1.jar
-file.reference.commons-lang3-3.3.2.jar=../lib/commons-lang3-3.3.2.jar
-file.reference.commons-logging-1.1.1.jar=../lib/commons-logging-1.1.1.jar
-file.reference.fontawesomefx-8.9.jar=../lib/fontawesomefx-8.9.jar
-file.reference.itext-2.1.7.jar=../lib/itext-2.1.7.jar
-file.reference.itextpdf-5.2.1.jar=../lib/itextpdf-5.2.1.jar
-file.reference.jackson-annotations-2.9.5.jar=D:\\MTC Files\\Programs\\Java\\icarus\\lib\\jackson-annotations-2.9.5.jar
-file.reference.jackson-core-2.9.5.jar=../lib/jackson-core-2.9.5.jar
-file.reference.jackson-databind-2.9.5.jar=../lib/jackson-databind-2.9.5.jar
-file.reference.jasperreports-6.7.0.jar=D:\\icarus\\jasperreports-6.7.0.jar
-file.reference.javax.persistence-2.2.1.jar=../lib/javax.persistence-2.2.1.jar
-file.reference.jcommon-1.0.24.jar=../lib/jcommon-1.0.24.jar
-file.reference.jfreechart.jar=../lib/jfreechart.jar
-file.reference.json-simple-1.1.1.jar=../lib/json-simple-1.1.1.jar
-file.reference.mysql-connector-java-5.1.49.jar=../lib/mysql-connector-java-5.1.49.jar
-file.reference.poi-3.17.jar=../lib/poi-3.17.jar
-file.reference.poi-ooxml-3.17.jar=../lib/poi-ooxml-3.17.jar
-file.reference.poi-ooxml-schemas-3.17.jar=../lib/poi-ooxml-schemas-3.17.jar
-file.reference.xmlbeans-2.6.0.jar=../lib/xmlbeans-2.6.0.jar
+file.reference.accounts.jar=C:\\icarus\\lib\\accounts.jar
+file.reference.clients.jar=C:\\icarus\\lib\\clients.jar
+file.reference.commander.jar=C:\\icarus\\lib\\commander.jar
+file.reference.commons-beanutils-1.9.3.jar=C:\\icarus\\lib\\commons-beanutils-1.9.3.jar
+file.reference.commons-codec-1.9.jar=C:\\icarus\\lib\\commons-codec-1.9.jar
+file.reference.commons-collections-3.2.2.jar=C:\\icarus\\lib\\commons-collections-3.2.2.jar
+file.reference.commons-collections4-4.1.jar=C:\\icarus\\lib\\commons-collections4-4.1.jar
+file.reference.commons-digester-2.1.jar=C:\\icarus\\lib\\commons-digester-2.1.jar
+file.reference.commons-lang3-3.3.2.jar=C:\\icarus\\lib\\commons-lang3-3.3.2.jar
+file.reference.commons-logging-1.1.1.jar=C:\\icarus\\lib\\commons-logging-1.1.1.jar
+file.reference.fontawesomefx-8.9.jar=C:\\icarus\\lib\\fontawesomefx-8.9.jar
+file.reference.inventory.jar=C:\\icarus\\lib\\inventory.jar
+file.reference.itext-2.1.7.jar=C:\\icarus\\lib\\itext-2.1.7.jar
+file.reference.itextpdf-5.2.1.jar=C:\\icarus\\lib\\itextpdf-5.2.1.jar
+file.reference.jackson-annotations-2.9.5.jar=C:\\icarus\\lib\\jackson-annotations-2.9.5.jar
+file.reference.jackson-core-2.9.5.jar=C:\\icarus\\lib\\jackson-core-2.9.5.jar
+file.reference.jackson-databind-2.9.5.jar=C:\\icarus\\lib\\jackson-databind-2.9.5.jar
+file.reference.jasperreports-6.7.0.jar=C:\\icarus\\jasperreports-6.7.0.jar
+file.reference.javax.mail.jar=C:\\icarus\\lib\\javax.mail.jar
+file.reference.javax.persistence-2.2.1.jar=C:\\icarus\\lib\\javax.persistence-2.2.1.jar
+file.reference.jcommon-1.0.24.jar=C:\\icarus\\lib\\jcommon-1.0.24.jar
+file.reference.jfreechart.jar=C:\\icarus\\lib\\jfreechart.jar
+file.reference.jfx-asynctask-1.0.1.jar=C:\\icarus\\lib\\jfx-asynctask-1.0.1.jar
+file.reference.json-simple-1.1.1.jar=C:\\icarus\\lib\\json-simple-1.1.1.jar
+file.reference.mysql-connector-java-5.1.49.jar=C:\\icarus\\lib\\mysql-connector-java-5.1.49.jar
+file.reference.parameters.jar=C:\\icarus\\lib\\parameters.jar
+file.reference.payments.jar=C:\\icarus\\lib\\payments.jar
+file.reference.poi-3.17.jar=C:\\icarus\\lib\\poi-3.17.jar
+file.reference.poi-ooxml-3.17.jar=C:\\icarus\\lib\\poi-ooxml-3.17.jar
+file.reference.poi-ooxml-schemas-3.17.jar=C:\\icarus\\lib\\poi-ooxml-schemas-3.17.jar
+file.reference.purchasing.jar=C:\\icarus\\lib\\purchasing.jar
+file.reference.reports.jar=C:\\icarus\\lib\\reports.jar
+file.reference.sales.jar=C:\\icarus\\lib\\sales.jar
+file.reference.xersys-lib.jar=C:\\icarus\\lib\\xersys-lib.jar
+file.reference.xmlbeans-2.6.0.jar=C:\\icarus\\lib\\xmlbeans-2.6.0.jar
 includes=**
 # Non-JavaFX jar file creation is deactivated in JavaFX 2.0+ projects
 jar.archive.disabled=true
@@ -67,23 +79,12 @@ jar.compress=false
 javac.classpath=\
     ${javafx.classpath.extension}:\
     ${file.reference.mysql-connector-java-5.1.49.jar}:\
-    ${reference.accounts.jar}:\
-    ${reference.xersys-lib.jar}:\
-    ${reference.imbentaryo.jar}:\
-    ${reference.benta.jar}:\
-    ${reference.bili.jar}:\
-    ${reference.kumander.jar}:\
-    ${reference.kliyente.jar}:\
-    ${reference.payments.jar}:\
-    ${reference.parameters.jar}:\
-    ${reference.reports.jar}:\
     ${file.reference.commons-codec-1.9.jar}:\
     ${file.reference.fontawesomefx-8.9.jar}:\
     ${file.reference.json-simple-1.1.1.jar}:\
     ${file.reference.commons-collections-3.2.2.jar}:\
     ${file.reference.commons-lang3-3.3.2.jar}:\
     ${file.reference.javax.persistence-2.2.1.jar}:\
-    ${file.reference.jasperreports-6.7.0.jar}:\
     ${file.reference.commons-logging-1.1.1.jar}:\
     ${file.reference.itext-2.1.7.jar}:\
     ${file.reference.itextpdf-5.2.1.jar}:\
@@ -98,7 +99,20 @@ javac.classpath=\
     ${file.reference.jfreechart.jar}:\
     ${file.reference.jackson-annotations-2.9.5.jar}:\
     ${file.reference.jcommon-1.0.24.jar}:\
-    ${file.reference.commons-collections4-4.1.jar}
+    ${file.reference.commons-collections4-4.1.jar}:\
+    ${file.reference.javax.mail.jar}:\
+    ${file.reference.accounts.jar}:\
+    ${file.reference.jasperreports-6.7.0.jar}:\
+    ${file.reference.clients.jar}:\
+    ${file.reference.commander.jar}:\
+    ${file.reference.inventory.jar}:\
+    ${file.reference.parameters.jar}:\
+    ${file.reference.payments.jar}:\
+    ${file.reference.purchasing.jar}:\
+    ${file.reference.reports.jar}:\
+    ${file.reference.sales.jar}:\
+    ${file.reference.xersys-lib.jar}:\
+    ${file.reference.jfx-asynctask-1.0.1.jar}
 # Space-separated list of extra javac options
 javac.compilerargs=
 javac.deprecation=false
@@ -173,26 +187,6 @@ manifest.file=manifest.mf
 meta.inf.dir=${src.dir}/META-INF
 mkdist.disabled=false
 platform.active=default_platform
-project.accounts=../accounts
-project.benta=../sales
-project.bili=../purchasing
-project.imbentaryo=../inventory
-project.kliyente=../clients
-project.kumander=../commander
-project.parameters=../parameters
-project.payments=../payments
-project.reports=../reports
-project.xersys-lib=../xersys-lib
-reference.accounts.jar=${project.accounts}/dist/accounts.jar
-reference.benta.jar=${project.benta}/dist/sales.jar
-reference.bili.jar=${project.bili}/dist/purchasing.jar
-reference.imbentaryo.jar=${project.imbentaryo}/dist/inventory.jar
-reference.kliyente.jar=${project.kliyente}/dist/clients.jar
-reference.kumander.jar=${project.kumander}/dist/commander.jar
-reference.parameters.jar=${project.parameters}/dist/parameters.jar
-reference.payments.jar=${project.payments}/dist/payments.jar
-reference.reports.jar=${project.reports}/dist/reports.jar
-reference.xersys-lib.jar=${project.xersys-lib}/dist/xersys-lib.jar
 run.classpath=\
     ${javac.classpath}:\
     ${build.classes.dir}

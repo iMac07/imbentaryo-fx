@@ -2,4 +2,8 @@
 /build/
 /nbproject/private/
 *.properties
-*.properties
+nbproject/build-impl.xml
+nbproject/project.properties
+nbproject/project.properties.bak
+nbproject/project.xml
+db-config.properties

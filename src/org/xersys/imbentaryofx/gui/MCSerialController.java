@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
@@ -24,7 +23,8 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
-import org.xersys.parameters.base.MCSerial;
+import org.xersys.inventory.base.MCSerial;
+//import org.xersys.parameters.base.MCSerial;
 
 public class MCSerialController implements Initializable, ControlledScreen{    
     private XNautilus _nautilus;
@@ -77,19 +77,11 @@ public class MCSerialController implements Initializable, ControlledScreen{
     @FXML
     private TextField txtSeeks02;
     @FXML
-    private ComboBox cmbSoldStat;
-    @FXML
-    private ComboBox cmbUnitType;
-    @FXML
     private TextField txtSeeks01;
     @FXML
     private TextField txtField06;
     @FXML
     private TextField txtField07;
-    @FXML
-    private TextField txtField08;
-    @FXML
-    private TextField txtField09;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {     
@@ -136,13 +128,6 @@ public class MCSerialController implements Initializable, ControlledScreen{
         _screens_dashboard_controller = foValue;
     }
     
-    @FXML
-    private void cmbSoldStat_Click(ActionEvent event) {
-    }
-
-    @FXML
-    private void cmbUnitType_Click(ActionEvent event) {
-    }
     
     private void txtField_KeyPressed(KeyEvent event) {
         TextField txtField = (TextField) event.getSource();
@@ -155,6 +140,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
                     searchSerial(txtField, "a.sSerial01", lsValue, false); break;
                 case "txtSeeks02":
                     searchSerial(txtField, "a.sSerial02", lsValue, false); break;
+                case "txtField05":
+                    searchModel(txtField, "c.sDescript", lsValue, false); break;
             }
         }
         
@@ -177,8 +164,6 @@ public class MCSerialController implements Initializable, ControlledScreen{
         txtField05.setText("");
         txtField06.setText("");
         txtField07.setText("");
-        txtField08.setText("");
-        txtField09.setText("");
     }
     
     private void loadRecord(){
@@ -188,6 +173,9 @@ public class MCSerialController implements Initializable, ControlledScreen{
             
             txtField03.setText((String) _trans.getMaster("sSerial01"));
             txtField04.setText((String) _trans.getMaster("sSerial02"));
+            txtField05.setText((String) _trans.getMaster("xModelNme"));
+            txtField06.setText((String) _trans.getMaster("xBrandNme"));
+            txtField07.setText((String) _trans.getMaster("xColorNme"));
         } catch (NumberFormatException ex) {
             ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
             ex.printStackTrace();
@@ -249,6 +237,12 @@ public class MCSerialController implements Initializable, ControlledScreen{
             case "btn10":
                 break;
             case "btn11":
+                if (!_trans.UpdateRecord()){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                    System.exit(1);
+                }
+
+                initButton();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -300,6 +294,12 @@ public class MCSerialController implements Initializable, ControlledScreen{
                         txtField03.setText((String) foValue); break;
                     case "sSerial02":
                         txtField04.setText((String) foValue); break;
+                    case "xModelNme":
+                        txtField05.setText((String) foValue); break;
+                    case "xBrandNme":
+                        txtField06.setText((String) foValue); break;
+                    case "xColorNme":
+                        txtField07.setText((String) foValue); break;
                 }
             }
 
@@ -310,6 +310,12 @@ public class MCSerialController implements Initializable, ControlledScreen{
                         txtField03.setText((String) foValue); break;
                     case 4:
                         txtField04.setText((String) foValue); break;
+                    case 13:
+                        txtField06.setText((String) foValue); break;
+                    case 14:
+                        txtField05.setText((String) foValue); break;
+                    case 15:
+                        txtField07.setText((String) foValue); break;
                 }
             }
         };
@@ -330,6 +336,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
                                 clearFields();
                             }
                             break;
+                        case "txtField05":
+                            _trans.setMaster("sStockIDx", (String) foValue.get("sStockIDx"));
                     }
                 }
             }
@@ -377,7 +385,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn07.setText("");
         btn08.setText("");
         btn09.setText("");
-        btn10.setText("");
+        btn10.setText("QR");
         btn11.setText("Update");
         btn12.setText("Close");              
         
@@ -390,7 +398,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn07.setVisible(false);
         btn08.setVisible(false);
         btn09.setVisible(false);
-        btn10.setVisible(false);
+        btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
         
@@ -400,13 +408,15 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
         
-        txtSeeks01.setDisable(lnEditMode == EditMode.ADDNEW);
-        txtSeeks02.setDisable(lnEditMode == EditMode.ADDNEW);
+        txtSeeks01.setDisable(lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE);
+        txtSeeks02.setDisable(lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE);
         
-        txtField04.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField03.setDisable(lnEditMode != EditMode.ADDNEW);       
+        txtField03.setDisable(lnEditMode != EditMode.ADDNEW && lnEditMode != EditMode.UPDATE);  
+        txtField04.setDisable(lnEditMode != EditMode.ADDNEW && lnEditMode != EditMode.UPDATE);
+        txtField05.setDisable(lnEditMode != EditMode.ADDNEW && lnEditMode != EditMode.UPDATE);
 
         if (lbShow)
             txtField03.requestFocus();
@@ -420,6 +430,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
         
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
                 
         txtField03.focusedProperty().addListener(txtField_Focus);
         txtField04.focusedProperty().addListener(txtField_Focus);
@@ -455,6 +466,50 @@ public class MCSerialController implements Initializable, ControlledScreen{
                             instance.setScreensController(_screens_controller);
 
                             instance.setSearchObject(_trans.getSearchSerial());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(foField);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
+                foField.setText("");
+                FXUtil.SetNextFocus(foField);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            foField.setText("");
+            FXUtil.SetNextFocus(foField);
+        }
+    }
+    
+    private void searchModel(TextField foField, String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchModel(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sStockIDx", (String) loJSON.get("sStockIDx"));
+                        FXUtil.SetNextFocus(foField);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchModel());
                             instance.setSearchCallback(_search_callback);
                             instance.setTextField(foField);
 

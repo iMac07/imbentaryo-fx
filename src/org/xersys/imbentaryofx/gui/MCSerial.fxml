@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -81,20 +80,12 @@
                                           <TextField fx:id="txtField03" GridPane.columnIndex="1" GridPane.columnSpan="4" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Frame No.:" GridPane.rowIndex="1" />
                                           <TextField fx:id="txtField04" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Model:" visible="false" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField05" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brand:" visible="false" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtField06" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" visible="false" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField07" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Warranty No:" visible="false" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField08" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Location:" visible="false" GridPane.rowIndex="6" />
-                                          <TextField fx:id="txtField09" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="6" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Sold Status:" visible="false" GridPane.rowIndex="7" />
-                                          <ComboBox id="cmbOrder" fx:id="cmbSoldStat" disable="true" onAction="#cmbSoldStat_Click" prefHeight="25.0" prefWidth="178.0" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="7" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Unit Type:" visible="false" GridPane.rowIndex="8" />
-                                          <ComboBox id="cmbOrder" fx:id="cmbUnitType" disable="true" onAction="#cmbUnitType_Click" prefHeight="25.0" prefWidth="178.0" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="8" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Model:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField05" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brand:" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField06" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField07" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -203,7 +194,14 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="9">
                                                    <children>
-                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                      <Button fx:id="btn10" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                         <graphic>
+                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@../icons/print-invoice.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </graphic></Button>
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="10">
