@@ -1,6 +1,5 @@
 package org.xersys.imbentaryofx.gui;
 
-import com.victorlaerte.asynctask.AsyncTask;
 import static java.lang.Thread.sleep;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -8,12 +7,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
