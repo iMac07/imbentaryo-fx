@@ -1,8 +1,8 @@
-C:\\icarus\\lib\\.processing.enabled=true
-C:\\icarus\\lib\\.processing.enabled.in.editor=false
-C:\\icarus\\lib\\.processing.processors.list=
-C:\\icarus\\lib\\.processing.run.all.processors=true
-C:\\icarus\\lib\\.processing.source.output=${build.generated.sources.dir}/ap-source-output
+D:\\icarus\\lib\\.processing.enabled=true
+D:\\icarus\\lib\\.processing.enabled.in.editor=false
+D:\\icarus\\lib\\.processing.processors.list=
+D:\\icarus\\lib\\.processing.run.all.processors=true
+D:\\icarus\\lib\\.processing.source.output=${build.generated.sources.dir}/ap-source-output
 annotation.processing.enabled=true
 annotation.processing.enabled.in.editor=false
 annotation.processing.processors.list=
@@ -54,12 +54,11 @@ file.reference.itextpdf-5.2.1.jar=C:\\icarus\\lib\\itextpdf-5.2.1.jar
 file.reference.jackson-annotations-2.9.5.jar=C:\\icarus\\lib\\jackson-annotations-2.9.5.jar
 file.reference.jackson-core-2.9.5.jar=C:\\icarus\\lib\\jackson-core-2.9.5.jar
 file.reference.jackson-databind-2.9.5.jar=C:\\icarus\\lib\\jackson-databind-2.9.5.jar
-file.reference.jasperreports-6.7.0.jar=C:\\icarus\\jasperreports-6.7.0.jar
+file.reference.jasperreports-6.7.0.jar=C:\\icarus\\lib\\jasperreports-6.7.0.jar
 file.reference.javax.mail.jar=C:\\icarus\\lib\\javax.mail.jar
 file.reference.javax.persistence-2.2.1.jar=C:\\icarus\\lib\\javax.persistence-2.2.1.jar
 file.reference.jcommon-1.0.24.jar=C:\\icarus\\lib\\jcommon-1.0.24.jar
 file.reference.jfreechart.jar=C:\\icarus\\lib\\jfreechart.jar
-file.reference.jfx-asynctask-1.0.1.jar=C:\\icarus\\lib\\jfx-asynctask-1.0.1.jar
 file.reference.json-simple-1.1.1.jar=C:\\icarus\\lib\\json-simple-1.1.1.jar
 file.reference.mysql-connector-java-5.1.49.jar=C:\\icarus\\lib\\mysql-connector-java-5.1.49.jar
 file.reference.parameters.jar=C:\\icarus\\lib\\parameters.jar
@@ -78,41 +77,40 @@ jar.archive.disabled=true
 jar.compress=false
 javac.classpath=\
     ${javafx.classpath.extension}:\
-    ${file.reference.mysql-connector-java-5.1.49.jar}:\
-    ${file.reference.commons-codec-1.9.jar}:\
-    ${file.reference.fontawesomefx-8.9.jar}:\
-    ${file.reference.json-simple-1.1.1.jar}:\
-    ${file.reference.commons-collections-3.2.2.jar}:\
-    ${file.reference.commons-lang3-3.3.2.jar}:\
-    ${file.reference.javax.persistence-2.2.1.jar}:\
-    ${file.reference.commons-logging-1.1.1.jar}:\
-    ${file.reference.itext-2.1.7.jar}:\
-    ${file.reference.itextpdf-5.2.1.jar}:\
+    ${file.reference.commons-beanutils-1.9.3.jar}:\
+    ${file.reference.commons-collections4-4.1.jar}:\
+    ${file.reference.commons-digester-2.1.jar}:\
+    ${file.reference.jackson-annotations-2.9.5.jar}:\
+    ${file.reference.jackson-core-2.9.5.jar}:\
+    ${file.reference.jackson-databind-2.9.5.jar}:\
+    ${file.reference.jasperreports-6.7.0.jar}:\
+    ${file.reference.javax.mail.jar}:\
+    ${file.reference.jcommon-1.0.24.jar}:\
+    ${file.reference.jfreechart.jar}:\
     ${file.reference.poi-3.17.jar}:\
     ${file.reference.poi-ooxml-3.17.jar}:\
     ${file.reference.poi-ooxml-schemas-3.17.jar}:\
     ${file.reference.xmlbeans-2.6.0.jar}:\
-    ${file.reference.commons-digester-2.1.jar}:\
-    ${file.reference.commons-beanutils-1.9.3.jar}:\
-    ${file.reference.jackson-databind-2.9.5.jar}:\
-    ${file.reference.jackson-core-2.9.5.jar}:\
-    ${file.reference.jfreechart.jar}:\
-    ${file.reference.jackson-annotations-2.9.5.jar}:\
-    ${file.reference.jcommon-1.0.24.jar}:\
-    ${file.reference.commons-collections4-4.1.jar}:\
-    ${file.reference.javax.mail.jar}:\
     ${file.reference.accounts.jar}:\
-    ${file.reference.jasperreports-6.7.0.jar}:\
     ${file.reference.clients.jar}:\
     ${file.reference.commander.jar}:\
+    ${file.reference.commons-codec-1.9.jar}:\
+    ${file.reference.commons-collections-3.2.2.jar}:\
+    ${file.reference.commons-lang3-3.3.2.jar}:\
+    ${file.reference.commons-logging-1.1.1.jar}:\
+    ${file.reference.fontawesomefx-8.9.jar}:\
     ${file.reference.inventory.jar}:\
+    ${file.reference.itext-2.1.7.jar}:\
+    ${file.reference.itextpdf-5.2.1.jar}:\
+    ${file.reference.javax.persistence-2.2.1.jar}:\
+    ${file.reference.json-simple-1.1.1.jar}:\
+    ${file.reference.mysql-connector-java-5.1.49.jar}:\
     ${file.reference.parameters.jar}:\
     ${file.reference.payments.jar}:\
     ${file.reference.purchasing.jar}:\
     ${file.reference.reports.jar}:\
     ${file.reference.sales.jar}:\
-    ${file.reference.xersys-lib.jar}:\
-    ${file.reference.jfx-asynctask-1.0.1.jar}
+    ${file.reference.xersys-lib.jar}
 # Space-separated list of extra javac options
 javac.compilerargs=
 javac.deprecation=false
