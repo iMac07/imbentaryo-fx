@@ -1,9 +1,6 @@
 /dist/
 /build/
+/nbproject/
 /nbproject/private/
 *.properties
-nbproject/build-impl.xml
-nbproject/project.properties
-nbproject/project.properties.bak
-nbproject/project.xml
 db-config.properties
