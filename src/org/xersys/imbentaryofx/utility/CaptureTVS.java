@@ -12,11 +12,10 @@ import org.xersys.commander.base.Nautilus;
 import org.xersys.commander.base.SQLConnection;
 import org.xersys.commander.crypt.CryptFactory;
 import org.xersys.commander.base.Property;
-import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
-public class CaptureTVC {
+public class CaptureTVS {
     public static void main(String [] args){
         final String BRANDCODE = "TVS";
         final String PRODUCTID = "Daedalus";
@@ -107,12 +106,11 @@ public class CaptureTVC {
                     
                     lnUnitPrce = 0.00;
                     lsStockIDx = MiscUtil.getNextCode("Inventory", "sStockIDx", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));
-                    lsDescript = lsDescript;
                     
                     lsValue = "SELECT" +
                                     " sStockIDx" +
                                 " FROM Inventory" +
-                                " WHERE sDescript = " + SQLUtil.toSQL(lsDescript) +
+                                " WHERE sBarCodex = " + SQLUtil.toSQL(lsBarCodex) +
                                     " AND sBrandCde = " + SQLUtil.toSQL(BRANDCODE) +
                                     " AND sInvTypCd = 'SP'";
                     
@@ -155,41 +153,6 @@ public class CaptureTVC {
                         loNautilus.rollbackTrans();
                         System.exit(1);
                     }
-                    
-//                    lsValue = "INSERT INTO Inv_Master SET" +
-//                                    "  sStockIDx = " + SQLUtil.toSQL(lsStockIDx) +
-//                                    ", sBranchCd = " + SQLUtil.toSQL((String) loNautilus.getBranchConfig("sBranchCd")) +
-//                                    ", sLocatnCd = ''" + 
-//                                    ", nBinNumbr = 0" + 
-//                                    ", dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-//                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-//                                    ", nBegQtyxx = " + lnQtyOnHnd +
-//                                    ", nQtyOnHnd = " + lnQtyOnHnd +
-//                                    ", nMinLevel = 0" + 
-//                                    ", nMaxLevel = 0" + 
-//                                    ", nAvgMonSl = 0.00" + 
-//                                    ", nAvgCostx = 0.00" + 
-//                                    ", cClassify = 'F'" + 
-//                                    ", nBackOrdr = 0" + 
-//                                    ", nResvOrdr = 0" + 
-//                                    ", nFloatQty = 0" + 
-//                                    ", cRecdStat = '1'" + 
-//                                    ", dDeactive = NULL" + 
-//                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
-//                                " ON DUPLICATE KEY UPDATE" +
-//                                    "  dAcquired = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-//                                    ", dBegInvxx = " + SQLUtil.toSQL(SQLUtil.dateFormat(loNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE)) +
-//                                    ", nBegQtyxx = " + lnQtyOnHnd +
-//                                    ", nQtyOnHnd = " + lnQtyOnHnd +
-//                                    ", cRecdStat = '1'" + 
-//                                    ", dDeactive = NULL" + 
-//                                    ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate());
-//                    
-//                    if (loNautilus.executeUpdate(lsValue) <= 0) {
-//                        System.err.println(loNautilus.getMessage());
-//                        loNautilus.rollbackTrans();
-//                        System.exit(1);
-//                    }
                 }
                 
                 lnRow++;

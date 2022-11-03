@@ -65,135 +65,149 @@ public class DashboardController implements Initializable, ControlledScreen {
         
         laDetail = new JSONArray();
         loMaster = new JSONObject();
-        
-        laData = new JSONArray();
-        laData.add("Amount: " + 1000.00);
-        laData.add("Due Date: 2022-10-01");
-        laData.add("Mobile No: 09260375777");
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Sabiniano, Jonathan");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
-        laData = new JSONArray();
-        laData.add("Amount: " + 1000.00);
-        laData.add("Due Date: 2022-10-01");
-        laData.add("Mobile No: 09260375777");
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Garcia, Jonathan");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
-        laData = new JSONArray();
-        laData.add("Amount: " + 1000.00);
-        laData.add("Due Date: 2022-10-01");
-        laData.add("Mobile No: 09260375777");
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Valencia, Maynard");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
+        ////
+        loMaster = new JSONObject();
         loMaster.put("parent", "Account Receivables");
-        loMaster.put("child", laDetail);          
         laMaster.add(loMaster);
-        
         loMaster = new JSONObject();
-        laDetail = new JSONArray();
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Check 1");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Check 2");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Check 3");
-        laDetail.add(loDetail);
-        
         loMaster.put("parent", "For Deposit - Check");
-        loMaster.put("child", laDetail);
         laMaster.add(loMaster);
-        
         loMaster = new JSONObject();
-        laDetail = new JSONArray();
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "De Celis, Teejei");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Cerezo, Rowel");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "De Vera, Genesis");
-        laDetail.add(loDetail);
-        
-        loMaster.put("parent", "For Release Orders");
-        loMaster.put("child", laDetail);
+        loMaster.put("parent", "Stocks to Replenish");
         laMaster.add(loMaster);
-        
         loMaster = new JSONObject();
-        laDetail = new JSONArray();
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "01110609 | WASHER-PLAIN");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "11001-1499 | HEAD CYLINDER");
-        laDetail.add(loDetail);
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "11002-0126 | HEAD-ASSY-CYLINDER");
-        laDetail.add(loDetail);
-        
-        loMaster.put("parent", "For Replenisments Items");
-        loMaster.put("child", laDetail);
-        laMaster.add(loMaster);
-        
-        laDetail = new JSONArray();
-        loMaster = new JSONObject();
-        
-        laData = new JSONArray();
-        laData.add("Previous: 2022-10-01");
-        laData.add("Engine No: 4D56AAG8242");
-        laData.add("Mobile No: 09260375777");
-        
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Sabiniano, Jonathan");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
-        laData = new JSONArray();
-        laData.add("Previous: 2022-10-01");
-        laData.add("Engine No: 4D56AAG8242");
-        laData.add("Mobile No: 09260375777");
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Garcia, Michael");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
-        laData = new JSONArray();
-        laData.add("Previous: 2022-10-01");
-        laData.add("Engine No: 4D56AAG8242");
-        laData.add("Mobile No: 09260375777");
-        
-        loDetail = new JSONObject();
-        loDetail.put("parent", "Valencia, Maynard");
-        loDetail.put("child", laData);
-        laDetail.add(loDetail);
-        
         loMaster.put("parent", "Service Reminder");
-        loMaster.put("child", laDetail);      
-        laMaster.add(loMaster);
+        laMaster.add(loMaster);      
+        /////
+        
+//        laData = new JSONArray();
+//        laData.add("Amount: " + 1000.00);
+//        laData.add("Due Date: 2022-10-01");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Sabiniano, Jonathan");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        laData = new JSONArray();
+//        laData.add("Amount: " + 1000.00);
+//        laData.add("Due Date: 2022-10-01");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Garcia, Jonathan");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        laData = new JSONArray();
+//        laData.add("Amount: " + 1000.00);
+//        laData.add("Due Date: 2022-10-01");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Valencia, Maynard");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        loMaster.put("parent", "Account Receivables");
+//        loMaster.put("child", laDetail);          
+//        laMaster.add(loMaster);
+//        
+//        loMaster = new JSONObject();
+//        laDetail = new JSONArray();
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Check 1");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Check 2");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Check 3");
+//        laDetail.add(loDetail);
+//        
+//        loMaster.put("parent", "For Deposit - Check");
+//        loMaster.put("child", laDetail);
+//        laMaster.add(loMaster);
+//        
+//        loMaster = new JSONObject();
+//        laDetail = new JSONArray();
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "De Celis, Teejei");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Cerezo, Rowel");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "De Vera, Genesis");
+//        laDetail.add(loDetail);
+//        
+//        loMaster.put("parent", "For Release Orders");
+//        loMaster.put("child", laDetail);
+//        laMaster.add(loMaster);
+//        
+//        loMaster = new JSONObject();
+//        laDetail = new JSONArray();
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "01110609 | WASHER-PLAIN");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "11001-1499 | HEAD CYLINDER");
+//        laDetail.add(loDetail);
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "11002-0126 | HEAD-ASSY-CYLINDER");
+//        laDetail.add(loDetail);
+//        
+//        loMaster.put("parent", "For Replenisments Items");
+//        loMaster.put("child", laDetail);
+//        laMaster.add(loMaster);
+//        
+//        laDetail = new JSONArray();
+//        loMaster = new JSONObject();
+//        
+//        laData = new JSONArray();
+//        laData.add("Previous: 2022-10-01");
+//        laData.add("Engine No: 4D56AAG8242");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Sabiniano, Jonathan");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        laData = new JSONArray();
+//        laData.add("Previous: 2022-10-01");
+//        laData.add("Engine No: 4D56AAG8242");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Garcia, Michael");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        laData = new JSONArray();
+//        laData.add("Previous: 2022-10-01");
+//        laData.add("Engine No: 4D56AAG8242");
+//        laData.add("Mobile No: 09260375777");
+//        
+//        loDetail = new JSONObject();
+//        loDetail.put("parent", "Valencia, Maynard");
+//        loDetail.put("child", laData);
+//        laDetail.add(loDetail);
+//        
+//        loMaster.put("parent", "Service Reminder");
+//        loMaster.put("child", laDetail);      
+//        laMaster.add(loMaster);
                 
         dissectJSON(laMaster.toJSONString()); 
         _seconds = 0;
