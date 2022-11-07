@@ -135,6 +135,8 @@ public class LaborController implements Initializable, ControlledScreen{
         String lsValue = txtField.getText();
                 
         if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.F3){
+            if (lsValue == null) lsValue = "";
+            
             switch (lsTxt){
                 case "txtSeeks01":
                     searchSerial(txtField, "sLaborCde", lsValue, false); break;
@@ -165,8 +167,8 @@ public class LaborController implements Initializable, ControlledScreen{
     
     private void loadRecord(){
         try {
-            txtSeeks01.setText((String) _trans.getMaster("sSerial01"));
-            txtSeeks02.setText((String) _trans.getMaster("sSerial02"));
+            txtSeeks01.setText((String) _trans.getMaster("sLaborCde"));
+            txtSeeks02.setText((String) _trans.getMaster("sDescript"));
             
             txtField01.setText((String) _trans.getMaster("sLaborCde"));
             txtField02.setText((String) _trans.getMaster("sDescript"));
