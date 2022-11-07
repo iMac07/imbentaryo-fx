@@ -182,8 +182,6 @@ public class ModelController implements Initializable, ControlledScreen{
                     searchModel(txtField, "sModelCde", lsValue, false); break;
                 case "txtField05":
                     searchBrand(txtField, "sBrandCde", lsValue, false); break;
-                case "txtField06":
-                    searchBrand(txtField, "sBrandCde", lsValue, false); break;
             }
         }
         
@@ -487,7 +485,6 @@ public class ModelController implements Initializable, ControlledScreen{
         txtField03.setDisable(!lbShow);
         txtField04.setDisable(!lbShow); 
         txtField05.setDisable(!lbShow);    
-        txtField06.setDisable(!lbShow);      
         cbStatus.setDisable(!lbShow);
         
         if (lbShow)
@@ -504,7 +501,6 @@ public class ModelController implements Initializable, ControlledScreen{
         txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField04.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
-        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
                 
         txtField01.focusedProperty().addListener(txtField_Focus);
         txtField02.focusedProperty().addListener(txtField_Focus);

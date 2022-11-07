@@ -87,14 +87,14 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Name :" />
-                                          <TextField fx:id="txtField01" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Code : " GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField02" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Name :" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField02" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" />
+                                          <TextField fx:id="txtField01" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Code : " />
                                           <TextField fx:id="txtField03" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="2" />
                                           <TextField fx:id="txtField04" alignment="TOP_LEFT" disable="true" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="3" GridPane.rowSpan="2" />
                                           <TextField fx:id="txtField05" disable="true" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField06" disable="true" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="6" />
+                                          <TextField fx:id="txtField06" disable="true" editable="false" promptText="Quick Search" GridPane.columnIndex="1" GridPane.columnSpan="6" GridPane.rowIndex="6" />
                                           <CheckBox fx:id="cbStatus" alignment="CENTER" mnemonicParsing="false" onAction="#cbStatus_Click" text="Active" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Brand :" GridPane.rowIndex="5" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Type :" GridPane.rowIndex="6" />
