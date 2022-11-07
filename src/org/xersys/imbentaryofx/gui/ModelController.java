@@ -47,26 +47,32 @@ import org.xersys.commander.util.Temp_Transactions;
 import org.xersys.imbentaryofx.listener.CachedRowsetCallback;
 import org.xersys.imbentaryofx.listener.DataCallback;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
+import org.xersys.parameters.base.Brand;
+import org.xersys.parameters.base.Labor;
+import org.xersys.parameters.base.Model;
 
 /**
  * FXML Controller class
  *
  * @author user1
  */
-public class ModelController implements Initializable, ParameterControlledScreen{
+public class ModelController implements Initializable, ControlledScreen{    
     private XNautilus _nautilus;
-    
-    private ParametersController _main_screen_controller;
-    private ParameterScreenController _screens_controller;
-    private ScreensController _screens_dashboard_controller;
-    private DataCallback _data_callback;
-    private ClientMaster _trans;
     private LRecordMas _listener;
+    
+    private Model _trans;
+    
+    private MainScreenController _main_screen_controller;
+    private ScreensController _screens_controller;
+    private ScreensController _screens_dashboard_controller;
+    private QuickSearchCallback _search_callback;
+    private DataCallback _data_callback;
+    
     private int _index;
     private boolean _loaded = false;
     
     @FXML
-    private AnchorPane AnchorModelMain;
+    private AnchorPane AnchorMain;
     @FXML
     private VBox btnbox00;
     @FXML
@@ -93,24 +99,47 @@ public class ModelController implements Initializable, ParameterControlledScreen
     private Button btn11;
     @FXML
     private Button btn12;
+    @FXML
+    private TextField txtSeeks01;
+    @FXML
+    private TextField txtSeeks02;
+    @FXML
+    private TextField txtField01;
+    @FXML
+    private TextField txtField02;
+    @FXML
+    private TextField txtField03;
+    @FXML
+    private TextField txtField04;
+    @FXML
+    private TextField txtField05;
+    @FXML
+    private TextField txtField06;
+    @FXML
+    private CheckBox cbStatus;
+    
     
     @Override
-    public void initialize(URL url, ResourceBundle rb) {        
+    public void initialize(URL url, ResourceBundle rb) {     
         //set the main anchor pane fit the size of its parent anchor pane
-        AnchorModelMain.setTopAnchor(AnchorModelMain, 0.0);
-        AnchorModelMain.setBottomAnchor(AnchorModelMain, 0.0);
-        AnchorModelMain.setLeftAnchor(AnchorModelMain, 0.0);
-        AnchorModelMain.setRightAnchor(AnchorModelMain, 0.0);  
+        AnchorMain.setTopAnchor(AnchorMain, 0.0);
+        AnchorMain.setBottomAnchor(AnchorMain, 0.0);
+        AnchorMain.setLeftAnchor(AnchorMain, 0.0);
+        AnchorMain.setRightAnchor(AnchorMain, 0.0);   
         
-        _trans = new ClientMaster(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
-        _trans.setSaveToDisk(true);
-        _trans.setListener(_listener);
-        
-        initButton();
         if (_nautilus  == null) {
             System.err.println("Application driver is not set.");
             System.exit(1);
         }
+        
+        initFields();
+        initListener();
+        
+        _trans = new Model(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+        _trans.setListener(_listener);
+
+        initButton();
+        clearFields();
         
         _loaded = true;
     }    
@@ -121,97 +150,127 @@ public class ModelController implements Initializable, ParameterControlledScreen
     }    
 
     @Override
-    public void setParentController(ParametersController foValue) {
+    public void setParentController(MainScreenController foValue) {
         _main_screen_controller = foValue;
     }
-
+    
     @Override
-    public void setScreensController(ParameterScreenController foValue) {
+    public void setScreensController(ScreensController foValue) {
         _screens_controller = foValue;
     }
     
-    private void initButton(){
-        btn01.setOnAction(this::cmdButton_Click);
-        btn02.setOnAction(this::cmdButton_Click);
-        btn03.setOnAction(this::cmdButton_Click);
-        btn04.setOnAction(this::cmdButton_Click);
-        btn05.setOnAction(this::cmdButton_Click);
-        btn06.setOnAction(this::cmdButton_Click);
-        btn07.setOnAction(this::cmdButton_Click);
-        btn08.setOnAction(this::cmdButton_Click);
-        btn09.setOnAction(this::cmdButton_Click);
-        btn10.setOnAction(this::cmdButton_Click);
-        btn11.setOnAction(this::cmdButton_Click);
-        btn12.setOnAction(this::cmdButton_Click);
-        
-        
-        btn01.setTooltip(new Tooltip("F1"));
-        btn02.setTooltip(new Tooltip("F2"));
-        btn03.setTooltip(new Tooltip("F3"));
-        btn04.setTooltip(new Tooltip("F4"));
-        btn05.setTooltip(new Tooltip("F5"));
-        btn06.setTooltip(new Tooltip("F6"));
-        btn07.setTooltip(new Tooltip("F7"));
-        btn08.setTooltip(new Tooltip("F8"));
-        btn09.setTooltip(new Tooltip("F9"));
-        btn10.setTooltip(new Tooltip("F10"));
-        btn11.setTooltip(new Tooltip("F11"));
-        btn12.setTooltip(new Tooltip("F12"));
-        
-        btn01.setText("New");
-        btn02.setText("Clear");
-        btn03.setText("Search");
-        btn04.setText("Save");
-        btn05.setText("");
-        btn06.setText("");
-        btn07.setText("");
-        btn08.setText("");
-        btn09.setText("");
-        btn10.setText("");
-        btn11.setText("History");
-        btn12.setText("Close");              
-        
-        btn01.setVisible(_data_callback == null);
-        btn02.setVisible(_data_callback == null);
-        btn03.setVisible(true);
-        btn04.setVisible(true);
-        btn05.setVisible(false);
-        btn06.setVisible(false);
-        btn07.setVisible(false);
-        btn08.setVisible(false);
-        btn09.setVisible(false);
-        btn10.setVisible(false);
-        btn11.setVisible(_data_callback == null);
-        btn12.setVisible(true);
-        
-        int lnEditMode = _trans.getEditMode();
-        boolean lbShow = lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE;
-        
-        btn02.setVisible(lbShow && _data_callback == null);
-        btn03.setVisible(lbShow);
-        btn04.setVisible(lbShow);
-        
-        
+    @Override
+    public void setDashboardScreensController(ScreensController foValue) {
+        _screens_dashboard_controller = foValue;
     }
+    
+    
+    @FXML
+    private void cbStatus_Click(ActionEvent event) {
+        _trans.setMaster("cRecdStat", cbStatus.isSelected() ? "1" : "0");
+    }
+    private void txtField_KeyPressed(KeyEvent event) {
+        TextField txtField = (TextField) event.getSource();
+        String lsTxt = txtField.getId();
+        String lsValue = txtField.getText();
+                
+        if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.F3){
+            switch (lsTxt){
+                case "txtSeeks01":
+                    searchModel(txtField, "sModelNme", lsValue, false); break;
+                case "txtSeeks02":
+                    searchModel(txtField, "sModelCde", lsValue, false); break;
+                case "txtField05":
+                    searchBrand(txtField, "sBrandCde", lsValue, false); break;
+                case "txtField06":
+                    searchBrand(txtField, "sBrandCde", lsValue, false); break;
+            }
+        }
+        
+        switch (event.getCode()){
+        case ENTER:
+        case DOWN:
+            FXUtil.SetNextFocus(txtField);
+            break;
+        case UP:
+            FXUtil.SetPreviousFocus(txtField);
+        }
+    }
+    
+    private void clearFields(){      
+        txtSeeks01.setText("");
+        
+        txtField01.setText("");
+        txtField02.setText("");
+        txtField03.setText("");
+        txtField04.setText("");
+        txtField05.setText("");
+        txtField06.setText("");
+        cbStatus.setSelected(false);
+    }
+    
+    private void loadRecord(){
+        try {
+            txtSeeks01.setText((String) _trans.getMaster("sModelNme"));
+            txtSeeks02.setText((String) _trans.getMaster("sModelCde"));
+            
+            txtField01.setText((String) _trans.getMaster("sModelNme"));
+            txtField02.setText((String) _trans.getMaster("sModelCde"));
+            txtField03.setText((String) _trans.getMaster("sDescript"));
+            txtField04.setText((String) _trans.getMaster("sBriefDsc"));
+            txtField05.setText((String) _trans.getMaster("sInvTypCd"));
+            txtField06.setText((String) _trans.getMaster("sBrandCde"));
+            cbStatus.setSelected((_trans.getMaster("cRecdStat").toString().equalsIgnoreCase("1")));
+            
+//            txtField03.setText((String) _trans.getMaster("sBriefDsc"));
+//            txtField04.setText(StringUtil.NumberFormat(Double.valueOf(String.valueOf(_trans.getMaster("nPriceLv1"))), "#,##0.00"));
+        } catch (NumberFormatException ex) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), ex.getMessage(), "Warning", "");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+    }    
+    
     private void cmdButton_Click(ActionEvent event) {
         String lsButton = ((Button) event.getSource()).getId();
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
-            case "btnChild01": 
-                break;
-            case "btnChild02": //
-                break;
-            case "btnChild03": //
-                break;
             case "btn01": //new
-                break;
+                if (_trans.getEditMode() == EditMode.ADDNEW) return;
+                
+                _loaded = false;
+                
+                if (_trans.NewRecord()){
+                    initButton();
+                    clearFields();
+                    loadRecord();
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+
+               _loaded = true;
+                break; 
             case "btn02": //clear
+                _trans = new Model(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), false);
+                _trans.setListener(_listener);
+
+                clearFields();
+                initButton();
                 break;
             case "btn03": //search
-                
                 break;
             case "btn04": //save                
+                if (_trans.SaveRecord()){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
+                    
+                    _loaded = false;
+
+                    initButton();
+                    clearFields();
+
+                   _loaded = true;
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
                 break;
@@ -225,10 +284,22 @@ public class ModelController implements Initializable, ParameterControlledScreen
                 break;
             case "btn10":
                 break;
-            case "btn11": //history
+            case "btn11": //update
+                if (_trans.UpdateRecord()){
+                    initButton();
+                    txtField02.requestFocus();
+                    txtField02.selectAll();
+                } else 
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                
                 break;
             case "btn12": //close screen
-                _main_screen_controller.closeScreen();
+                if (_screens_controller.getScreenCount() > 1)
+                    _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                else{
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
+                        System.exit(0);
+                }
                 break;
         }
     }
@@ -263,5 +334,302 @@ public class ModelController implements Initializable, ParameterControlledScreen
         }
     }
     
+    private void initListener(){
+        _data_callback = new DataCallback() {
+            @Override
+            public void Payload(JSONObject foValue) {
+                _main_screen_controller.delNoTabScreen(_screens_controller.getScreen(_screens_controller.getCurrentScreenIndex()).getId());
+                _trans.setMaster("sBrandCde", (String) foValue.get("sBrandCde"));
+                
+            }
+        };
+        _listener = new LRecordMas() {
+            @Override
+            public void MasterRetreive(String fsFieldNm, Object foValue) {
+                System.out.println("fsFieldNm = " + fsFieldNm);
+                System.out.println("foValue = " + (String) foValue);
+                switch (fsFieldNm){
+                    case "sModelNme":
+                        txtField01.setText((String) foValue); break;
+                    case "sModelCde":
+                        txtField02.setText((String) foValue); break;
+                    case "sDescript":
+                        txtField03.setText((String) foValue); break;
+                    case "sBriefDsc":
+                        txtField04.setText((String) foValue); break;
+                    case "sBrandCde":
+                        txtField05.setText((String) foValue); break;
+                    case "sInvTypCd":
+                        txtField06.setText((String) foValue); break;
+                }
+            }
+
+            @Override
+            public void MasterRetreive(int fnIndex, Object foValue) {
+                
+                System.out.println("fnIndex = " + fnIndex);
+                System.out.println("foValue = " + (String) foValue);
+                switch (fnIndex){
+                    case 1:
+                        txtField02.setText((String) foValue); break;
+                    case 2:
+                        txtField06.setText((String) foValue); break;
+                    case 3:
+                        txtField04.setText((String) foValue); break;
+                    case 4:
+                        txtField01.setText((String) foValue); break;
+                    case 5:
+                        txtField03.setText((String) foValue); break;
+                    case 6:
+                        txtField05.setText((String) foValue); break;
+                }
+            }
+        };
+        
+        _search_callback = new QuickSearchCallback() {
+            @Override
+            public void Result(TextField foField, JSONObject foValue) {
+                if ("success".equals((String) foValue.get("result"))){
+                    foValue = (JSONObject) foValue.get("payload");
+                
+                    switch (foField.getId()){
+                        case "txtSeeks01":
+                            if (_trans.OpenRecord((String) foValue.get("sModelCde"))){
+                                loadRecord();
+                            } else {
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                                clearFields();
+                            }
+                            break;
+                        
+                        case "txtField05":
+                        case "txtField06":
+                            _trans.setMaster("sBrandCde", (String) foValue.get("sBrandCde"));
+                            _trans.setMaster("sInvTypCd", (String) foValue.get("sInvTypCd"));
+                            txtField05.setText((String) foValue.get("sDescript"));
+                            txtField06.setText((String) foValue.get("sInvTypCd"));
+                    }
+                }
+            }
+
+            @Override
+            public void FormClosing(TextField foField) {
+                FXUtil.SetNextFocus(foField);
+            }
+        };
+    }
     
+    private void initButton(){        
+        btn01.setOnAction(this::cmdButton_Click);
+        btn02.setOnAction(this::cmdButton_Click);
+        btn03.setOnAction(this::cmdButton_Click);
+        btn04.setOnAction(this::cmdButton_Click);
+        btn05.setOnAction(this::cmdButton_Click);
+        btn06.setOnAction(this::cmdButton_Click);
+        btn07.setOnAction(this::cmdButton_Click);
+        btn08.setOnAction(this::cmdButton_Click);
+        btn09.setOnAction(this::cmdButton_Click);
+        btn10.setOnAction(this::cmdButton_Click);
+        btn11.setOnAction(this::cmdButton_Click);
+        btn12.setOnAction(this::cmdButton_Click);
+        
+        btn01.setTooltip(new Tooltip("F1"));
+        btn02.setTooltip(new Tooltip("F2"));
+        btn03.setTooltip(new Tooltip("F3"));
+        btn04.setTooltip(new Tooltip("F4"));
+        btn05.setTooltip(new Tooltip("F5"));
+        btn06.setTooltip(new Tooltip("F6"));
+        btn07.setTooltip(new Tooltip("F7"));
+        btn08.setTooltip(new Tooltip("F8"));
+        btn09.setTooltip(new Tooltip("F9"));
+        btn10.setTooltip(new Tooltip("F10"));
+        btn11.setTooltip(new Tooltip("F11"));
+        btn12.setTooltip(new Tooltip("F12"));
+        
+        btn01.setText("New");
+        btn02.setText("Clear");
+        btn03.setText("Search");
+        btn04.setText("Save");
+        btn05.setText("");
+        btn06.setText("");
+        btn07.setText("");
+        btn08.setText("");
+        btn09.setText("");
+        btn10.setText("");
+        btn11.setText("Update");
+        btn12.setText("Close");              
+        
+        btn01.setVisible(true);
+        btn02.setVisible(true);
+        btn03.setVisible(true);
+        btn04.setVisible(true);
+        btn05.setVisible(false);
+        btn06.setVisible(false);
+        btn07.setVisible(false);
+        btn08.setVisible(false);
+        btn09.setVisible(false);
+        btn10.setVisible(false);
+        btn11.setVisible(true);
+        btn12.setVisible(true);
+        
+        int lnEditMode = _trans.getEditMode();
+        boolean lbShow = lnEditMode == EditMode.ADDNEW || lnEditMode == EditMode.UPDATE;
+        
+        btn02.setVisible(lbShow);
+        btn03.setVisible(lbShow);
+        btn04.setVisible(lbShow);
+        btn11.setVisible(!lbShow);
+        
+        txtSeeks01.setDisable(lbShow);
+        
+        txtField01.setDisable(!lbShow); 
+        txtField02.setDisable(!lbShow);
+        txtField03.setDisable(!lbShow);
+        txtField04.setDisable(!lbShow); 
+        txtField05.setDisable(!lbShow);    
+        txtField06.setDisable(!lbShow);      
+        cbStatus.setDisable(!lbShow);
+        
+        if (lbShow)
+            txtField01.requestFocus();
+        else
+            txtSeeks01.requestFocus();
+    }
+       
+    private void initFields(){              
+        txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        
+        txtField01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField02.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField04.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField05.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField06.setOnKeyPressed(this::txtField_KeyPressed);
+                
+        txtField01.focusedProperty().addListener(txtField_Focus);
+        txtField02.focusedProperty().addListener(txtField_Focus);
+        txtField03.focusedProperty().addListener(txtField_Focus);
+        txtField04.focusedProperty().addListener(txtField_Focus);
+    }
+    
+    private void searchModel(TextField foField, String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchModel(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        if (_trans.OpenRecord((String) loJSON.get("sModelCde"))){
+                                loadRecord();
+                            } else {
+                                ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                                clearFields();
+                            }
+                        FXUtil.SetNextFocus(foField);
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchModel());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(foField);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
+                foField.setText("");
+                FXUtil.SetNextFocus(foField);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            foField.setText("");
+            FXUtil.SetNextFocus(foField);
+        }
+    }
+       
+    private void searchBrand(TextField foField, String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchBrand(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONParser loParser = new JSONParser();
+            
+            try {
+                JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+                
+                switch (loArray.size()){
+                    case 1: //one record found
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setMaster("sBrandCde", (String) loJSON.get("sBrandCde")); 
+                        _trans.setMaster("sInvTypCd", (String) loJSON.get("sInvTypCd"));
+                        break;
+                    default: //multiple records found
+                        JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+                        if (loScreen != null){
+                            QuickSearchNeoController instance = new QuickSearchNeoController();
+                            instance.setNautilus(_nautilus);
+                            instance.setParentController(_main_screen_controller);
+                            instance.setScreensController(_screens_controller);
+
+                            instance.setSearchObject(_trans.getSearchBrand());
+                            instance.setSearchCallback(_search_callback);
+                            instance.setTextField(foField);
+
+                            _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+                        }
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Warning(_main_screen_controller.getStage(), "ParseException detected.", "Warning", "");
+                foField.setText("");
+                FXUtil.SetNextFocus(foField);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            foField.setText("");
+            FXUtil.SetNextFocus(foField);
+        }
+    }
+    final ChangeListener<? super Boolean> txtField_Focus = (o,ov,nv)->{
+        if (!_loaded) return;
+        
+        TextField txtField = (TextField)((ReadOnlyBooleanPropertyBase)o).getBean();
+        int lnIndex = Integer.parseInt(txtField.getId().substring(8));
+        String lsValue = txtField.getText();
+        
+        if (lsValue == null) return;
+        if(!nv){ //Lost Focus          
+            switch (lnIndex){
+                case 1:
+                    _trans.setMaster("sModelNme", lsValue); break;
+                case 2:
+                    _trans.setMaster("sModelCde", lsValue); break;
+                case 3:
+                    _trans.setMaster("sDescript", lsValue); break;
+                case 4:
+                    _trans.setMaster("sBriefDsc", lsValue); break;
+                default:
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Text field with name " + txtField.getId() + " not registered.", "Warning", "");
+            }
+            _index = lnIndex;
+        } else{ //Got Focus   
+            
+            _index = lnIndex;
+            txtField.selectAll();
+        }
+    };        
 }
