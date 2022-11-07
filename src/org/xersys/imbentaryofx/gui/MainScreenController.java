@@ -343,7 +343,7 @@ public class MainScreenController implements Initializable {
             instance.setParentController(this);
             instance.setScreensController(_screens_controller);
             instance.setDashboardScreensController(_screens_dashboard_controller);
-            
+            System.out.println((String) loJSON.get("controller"));
             _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
         }
     }
@@ -573,7 +573,7 @@ public class MainScreenController implements Initializable {
     private void cmdMouse_Click(MouseEvent event) {
         String lsButton = ((AnchorPane) event.getSource()).getId();       
         Label label = lbl.get("lblOther" + lsButton.substring(8));
-        
+        System.out.println(label.getText().toLowerCase());
         switch (label.getText().toLowerCase()){
             case "inv. price change":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.INV_PRICE_CHANGE); break;
