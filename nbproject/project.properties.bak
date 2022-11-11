@@ -1,8 +1,8 @@
-D:\\icarus\\lib\\.processing.enabled=true
-D:\\icarus\\lib\\.processing.enabled.in.editor=false
-D:\\icarus\\lib\\.processing.processors.list=
-D:\\icarus\\lib\\.processing.run.all.processors=true
-D:\\icarus\\lib\\.processing.source.output=${build.generated.sources.dir}/ap-source-output
+C:\\icarus\\lib\\.processing.enabled=true
+C:\\icarus\\lib\\.processing.enabled.in.editor=false
+C:\\icarus\\lib\\.processing.processors.list=
+C:\\icarus\\lib\\.processing.run.all.processors=true
+C:\\icarus\\lib\\.processing.source.output=${build.generated.sources.dir}/ap-source-output
 annotation.processing.enabled=true
 annotation.processing.enabled.in.editor=false
 annotation.processing.processors.list=
@@ -77,6 +77,11 @@ jar.archive.disabled=true
 jar.compress=false
 javac.classpath=\
     ${javafx.classpath.extension}:\
+    ${file.reference.parameters.jar}:\
+    ${file.reference.payments.jar}:\
+    ${file.reference.reports.jar}:\
+    ${file.reference.sales.jar}:\
+    ${file.reference.xersys-lib.jar}:\
     ${file.reference.commons-beanutils-1.9.3.jar}:\
     ${file.reference.commons-collections4-4.1.jar}:\
     ${file.reference.commons-digester-2.1.jar}:\
@@ -91,9 +96,6 @@ javac.classpath=\
     ${file.reference.poi-ooxml-3.17.jar}:\
     ${file.reference.poi-ooxml-schemas-3.17.jar}:\
     ${file.reference.xmlbeans-2.6.0.jar}:\
-    ${file.reference.accounts.jar}:\
-    ${file.reference.clients.jar}:\
-    ${file.reference.commander.jar}:\
     ${file.reference.commons-codec-1.9.jar}:\
     ${file.reference.commons-collections-3.2.2.jar}:\
     ${file.reference.commons-lang3-3.3.2.jar}:\
@@ -105,12 +107,10 @@ javac.classpath=\
     ${file.reference.javax.persistence-2.2.1.jar}:\
     ${file.reference.json-simple-1.1.1.jar}:\
     ${file.reference.mysql-connector-java-5.1.49.jar}:\
-    ${file.reference.parameters.jar}:\
-    ${file.reference.payments.jar}:\
-    ${file.reference.purchasing.jar}:\
-    ${file.reference.reports.jar}:\
-    ${file.reference.sales.jar}:\
-    ${file.reference.xersys-lib.jar}
+    ${file.reference.accounts.jar}:\
+    ${file.reference.clients.jar}:\
+    ${file.reference.commander.jar}:\
+    ${file.reference.purchasing.jar}
 # Space-separated list of extra javac options
 javac.compilerargs=
 javac.deprecation=false

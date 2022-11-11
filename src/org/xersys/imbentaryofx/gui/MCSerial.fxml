@@ -84,8 +84,8 @@
                                           <TextField fx:id="txtField05" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Brand:" GridPane.rowIndex="3" />
                                           <TextField fx:id="txtField06" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField07" disable="true" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" visible="false" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField07" disable="true" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                  </children>
