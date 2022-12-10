@@ -425,7 +425,7 @@ public class BrandController implements Initializable, ControlledScreen{
         cbStatus.setDisable(!lbShow);
         
         if (lbShow)
-            txtField01.requestFocus();
+            txtField02.requestFocus();
         else
             txtSeeks01.requestFocus();
     }
