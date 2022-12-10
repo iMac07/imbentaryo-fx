@@ -23,6 +23,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
+import org.xersys.commander.util.CommonUtil;
 import org.xersys.inventory.base.MCSerial;
 //import org.xersys.parameters.base.MCSerial;
 
@@ -231,9 +232,9 @@ public class MCSerialController implements Initializable, ControlledScreen{
             case "btn07":
                 break;
             case "btn08":
-                break;
+                loadScreen(ScreenInfo.NAME.BRAND); break;
             case "btn09":
-                break;
+                loadScreen(ScreenInfo.NAME.MODEL); break;
             case "btn10":
                 break;
             case "btn11":
@@ -252,6 +253,21 @@ public class MCSerialController implements Initializable, ControlledScreen{
                         System.exit(0);
                 }
                 break;
+        }
+    }
+    
+    private void loadScreen(ScreenInfo.NAME  foValue){
+        JSONObject loJSON = ScreenInfo.get(foValue);
+        ControlledScreen instance;
+        
+        if (loJSON != null){
+            instance = (ControlledScreen) CommonUtil.createInstance((String) loJSON.get("controller"));
+            instance.setNautilus(_nautilus);
+            instance.setParentController(_main_screen_controller);
+            instance.setScreensController(_screens_controller);
+            instance.setDashboardScreensController(_screens_dashboard_controller);
+            System.out.println((String) loJSON.get("controller"));
+            _screens_controller.loadScreen((String) loJSON.get("resource"), instance);
         }
     }
     
@@ -383,8 +399,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("");
-        btn09.setText("");
+        btn08.setText("Brand");
+        btn09.setText("Model");
         btn10.setText("QR");
         btn11.setText("Update");
         btn12.setText("Close");              
@@ -396,8 +412,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(false);
-        btn09.setVisible(false);
+        btn08.setVisible(true);
+        btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
@@ -408,6 +424,8 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn09.setVisible(!lbShow);
+        btn08.setVisible(!lbShow);
         btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
         
