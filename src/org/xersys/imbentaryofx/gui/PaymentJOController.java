@@ -412,18 +412,18 @@ public class PaymentJOController implements Initializable, ControlledScreen {
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                 }
                 
+                if (_trans.OpenTransaction(_source_number)){
+                    if ((double) _trans_or.getMaster("nCashAmtx") > 0.00) printReceipt(); 
+
+                    if ((double) _trans_si.getMaster("nCashAmtx") > 0.00) printInvoice();
+                }
+                
                 if ((double) _trans_or.getMaster("nCashAmtx") > 0.00){
                     if (!_trans_or.SaveTransaction()){
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans_or.getMessage(), "Warning", "");
                         return;
                     }
                 }           
-                
-                if (_trans.OpenTransaction(_source_number)){
-                    if ((double) _trans_or.getMaster("nCashAmtx") > 0.00) printReceipt(); 
-
-                    if ((double) _trans_si.getMaster("nCashAmtx") > 0.00) printInvoice();
-                }
                 
                 //close this screen
                 _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());

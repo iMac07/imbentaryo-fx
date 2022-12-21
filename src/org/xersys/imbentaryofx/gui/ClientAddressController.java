@@ -166,7 +166,9 @@ public class ClientAddressController implements Initializable, ControlledScreen{
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
                 
-        if (event.getCode() == KeyCode.ENTER){
+        if (event.getCode() == KeyCode.ENTER ||
+            event.getCode() == KeyCode.F3 ||
+            event.getCode() == KeyCode.TAB){
             try{
                 switch (lsTxt){
                     case "txtField01":

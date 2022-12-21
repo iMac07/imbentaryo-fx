@@ -226,7 +226,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
         if (event.getCode() == KeyCode.ENTER){
             switch (lsTxt){
                 case "txtSeeks01":
-                    searchLabor("sLaborCde", lsValue, false);
+                    searchLabor("sDescript", lsValue, false);
                     event.consume();
                     return;
                 case "txtSeeks02":

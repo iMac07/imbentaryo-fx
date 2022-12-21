@@ -272,7 +272,8 @@ public class ClientMasterController implements Initializable, ControlledScreen{
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
                 
-        if (event.getCode() == KeyCode.ENTER){
+        if (event.getCode() == KeyCode.ENTER ||
+            event.getCode() == KeyCode.F3){
             switch (lsTxt){
                 case "txtField10":
                     searchCitizenship("sNational", lsValue, "", "", false);
