@@ -1,6 +1,12 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -22,6 +28,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,6 +44,7 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.sales.base.WholeSale;
 import org.xersys.sales.search.SalesSearch;
@@ -231,7 +243,7 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
     private void loadTransaction(){
         txtSeeks01.setText((String) _trans.getMaster("sTransNox"));
         txtField08.setText((String) _trans.getMaster("sRemarksx"));
-        txtField04.setText((String) _trans.getMaster("sClientNm"));
+        txtField04.setText((String) _trans.getMaster("xClientNm"));
         
         txtField12.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nDiscount"), "##0.00"));
         txtField13.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nAddDiscx"), "#,##0.00"));
@@ -348,6 +360,11 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
             @Override
             public void Request() {
                 _main_screen_controller.seekApproval();
+            }
+            
+            @Override
+            public void ShowMessage(String fsValue) {
+                ShowMessageFX.Okay(_main_screen_controller.getStage(), fsValue, "Notice", "");
             }
         };
         
@@ -497,7 +514,8 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
                 break;
             case "btn10":
                 break;
-            case "btn11":
+            case "btn11"://print invoice
+                printInvoice();
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -508,6 +526,72 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
                 }
                 break;
         }
+    }
+    
+    private boolean printInvoice(){
+        if (_trans.getEditMode() != EditMode.READY){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+            return false;
+        }
+        
+        if ("2".equals((String) _trans.getMaster("cTranStat"))){
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj;
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+                
+                if (!"".equals((String) _trans.getDetail(lnCtr, "sStockIDx"))){
+                    json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                    json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
+                    json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));
+                    json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                    json_obj.put("lField02", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDiscount"))));
+                    json_obj.put("lField03", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nAddDiscx"))));
+                    json_arr.add(json_obj); 
+                }
+            }
+
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sClientNm", (String) _trans.getMaster("xClientNm"));
+            params.put("xAddressx", _trans.getMaster("xAddressx") != null ? (String) _trans.getMaster("xAddressx") : "");
+            params.put("sReferNox", (String) _trans.getMaster("xInvNumbr"));
+            params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("nAmtPaidx")))));
+            params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sInvoiceT", (String) _trans.getMaster("sInvoiceT"));
+            
+            double lnTranTotl = Double.valueOf(String.valueOf(_trans.getMaster("nTranTotl")));
+            params.put("nTranTotl", lnTranTotl);
+            params.put("nFreightx", Double.valueOf(String.valueOf(_trans.getMaster("nFreightx"))));
+            
+            double lnDiscount = lnTranTotl * Double.valueOf(String.valueOf(_trans.getMaster("nDiscount"))) / 100;
+            
+            lnDiscount = lnDiscount + Double.valueOf(String.valueOf(_trans.getMaster("nAddDiscx")));
+            params.put("nDiscount", lnDiscount);
+
+            try {
+                InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+                JsonDataSource jrjson = new JsonDataSource(stream); 
+
+                JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                    "reports/WSO_DR.jasper", params, jrjson);
+                JasperViewer jv = new JasperViewer(_jrprint, false);
+                jv.setVisible(true);
+            } catch (JRException | UnsupportedEncodingException  ex) {
+                ex.printStackTrace();
+                ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+                return false;
+            }
+        } else {    
+            ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was not yet invoiced.", "Notice", "");
+            return false;
+        }
+        
+        return true;
     }
     
     private void payCharge(){
@@ -619,7 +703,7 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
         btn08.setText("");
         btn09.setText("");
         btn10.setText("");
-        btn11.setText("");
+        btn11.setText("Print");
         btn12.setText("Close");
         
         btn01.setVisible(true);
@@ -632,7 +716,7 @@ public class SPWholeSaleHistoryController implements Initializable, ControlledSc
         btn08.setVisible(false);
         btn09.setVisible(false);
         btn10.setVisible(false);
-        btn11.setVisible(false);
+        btn11.setVisible(true);
         btn12.setVisible(true);
     }
     

@@ -31,7 +31,7 @@ import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
 
 public class UserManagerController implements Initializable, ControlledScreen{    
-    private ObservableList<String> _userlevel = FXCollections.observableArrayList("Encoder", "Supservisor", "Manager", "Sys Admin", "Owner", "Master");
+    private ObservableList<String> _userlevel = FXCollections.observableArrayList("Encoder", "Supervisor", "Manager", "Sys Admin", "Owner", "Master");
     
     private XNautilus _nautilus;
     private LRecordMas _listener;

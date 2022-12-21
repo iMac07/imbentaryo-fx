@@ -461,6 +461,11 @@ public class SPCustomerOrderHistoryController implements Initializable, Controll
             public void Request() {
                 _main_screen_controller.seekApproval();
             }
+            
+            @Override
+            public void ShowMessage(String fsValue) {
+                ShowMessageFX.Okay(_main_screen_controller.getStage(), fsValue, "Notice", "");
+            }
         };
         
         _search_callback = new QuickSearchCallback() {

@@ -275,7 +275,7 @@ public class SPWholeSaleController implements Initializable, ControlledScreen{
     }
     
     private void loadTransaction(){
-        txtField04.setText((String) _trans.getMaster("sClientNm"));
+        txtField04.setText((String) _trans.getMaster("xClientNm"));
         txtField08.setText((String) _trans.getMaster("sRemarksx"));
         
         computeSummary();
@@ -673,6 +673,7 @@ public class SPWholeSaleController implements Initializable, ControlledScreen{
                         break;
                     case "sClientID":
                     case "sClientNm":
+                    case "xClientNm":
                         txtField04.setText((String) foValue);
                         break;
                 }

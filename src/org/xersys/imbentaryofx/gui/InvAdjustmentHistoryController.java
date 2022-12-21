@@ -260,7 +260,11 @@ public class InvAdjustmentHistoryController implements Initializable, Controlled
             lnDebitQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nDebitQty")));
             lnCredtQty = Integer.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nCredtQty")));
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nInvCostx")).doubleValue();
-            lnNetQtyxx = lnQtyOnHnd - lnCredtQty + lnDebitQty;
+            if (((String) _trans.getMaster("cTranStat")).equals("2")){
+                lnNetQtyxx = lnQtyOnHnd;
+            } else {
+                lnNetQtyxx = lnQtyOnHnd - lnCredtQty + lnDebitQty;
+            }
             
             _table_data.add(new TableModel(String.valueOf(lnCtr), 
                         (String) _trans.getDetail(lnCtr, "xBarCodex"),
@@ -289,6 +293,11 @@ public class InvAdjustmentHistoryController implements Initializable, Controlled
             @Override
             public void Request() {
                 _main_screen_controller.seekApproval();
+            }
+
+            @Override
+            public void ShowMessage(String fsValue) {
+                ShowMessageFX.Okay(_main_screen_controller.getStage(), fsValue, "Notice", "");
             }
         };
         

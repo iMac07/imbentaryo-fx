@@ -89,6 +89,18 @@ public class ShowMessageFX {
         return result.orElse(No) == Yes;
     }
     
+    public static boolean Okay(Stage foOwner, String fsMessage, String fsTitle, String fsHeader){
+        ButtonType Yes = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, fsMessage, Yes);
+        alert.initOwner(foOwner);
+        alert.setTitle(fsTitle);
+        alert.setHeaderText(fsHeader);
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        return true;
+    }
+    
     public static void Information(String fsMessage, String fsTitle, String fsHeader){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(fsTitle);
