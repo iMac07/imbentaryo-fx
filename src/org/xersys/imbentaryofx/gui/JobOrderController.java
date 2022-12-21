@@ -428,7 +428,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
             lnUnitPrce = ((Number)_trans.getDetail(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getDetail(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getDetail(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount)- lnAddDiscx));
             
             _table_data2.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getDetail(lnCtr, "sLaborNme"), 
@@ -473,7 +473,7 @@ public class JobOrderController implements Initializable, ControlledScreen{
             lnUnitPrce = ((Number)_trans.getParts(lnCtr, "nUnitPrce")).doubleValue();
             lnDiscount = ((Number)_trans.getParts(lnCtr, "nDiscount")).doubleValue() / 100;
             lnAddDiscx = ((Number)_trans.getParts(lnCtr, "nAddDiscx")).doubleValue();
-            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount))) - lnAddDiscx;
+            lnTranTotl = (lnQuantity * (lnUnitPrce - (lnUnitPrce * lnDiscount) - lnAddDiscx));
             
             _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
                         (String) _trans.getParts(lnCtr, "sBarCodex"),
@@ -934,7 +934,12 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 
                 switch (loArray.size()){
                     case 1: //one record found
-                        txtSeeks01.setText((String) loJSON.get("sDescript"));
+//                        txtSeeks01.setText((String) loJSON.get("sDescript"));
+//                        FXUtil.SetNextFocus(txtSeeks01);
+                        
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setDetail(_trans.getItemCount()- 1, "sLaborCde", (String) loJSON.get("sLaborCde"));
+                        loadDetail();
                         FXUtil.SetNextFocus(txtSeeks01);
                         break;
                     default: //multiple records found
@@ -977,9 +982,12 @@ public class JobOrderController implements Initializable, ControlledScreen{
                 
                 switch (loArray.size()){
                     case 1: //one record found
-                        txtSeeks02.setText((String) loJSON.get("sDescript"));
-                        FXUtil.SetNextFocus(txtSeeks02);
-                        break;
+                        loJSON = (JSONObject) loArray.get(0);
+                        _trans.setParts(_trans.getPartsCount()- 1, "sStockIDx", (String) loJSON.get("sStockIDx"));
+                        loadDetail();
+//                        txtSeeks02.setText((String) loJSON.get("sDescript"));
+//                        FXUtil.SetNextFocus(txtSeeks02);
+//                        break;
                     default: //multiple records found
                         JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
 

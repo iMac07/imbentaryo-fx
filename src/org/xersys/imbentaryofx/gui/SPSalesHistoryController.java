@@ -402,6 +402,11 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             public void Request() {
                 _main_screen_controller.seekApproval();
             }
+            
+            @Override
+            public void ShowMessage(String fsValue) {
+                ShowMessageFX.Okay(_main_screen_controller.getStage(), fsValue, "Notice", "");
+            }
         };
         
         _search_callback = new QuickSearchCallback() {
@@ -768,7 +773,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
             Map<String, Object> params = new HashMap<>();
             params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
             params.put("sClientNm", (String) _trans.getMaster("vClientNm"));
-            params.put("xAddressx", (String) _trans.getMaster("xAddressx"));
+            params.put("xAddressx", _trans.getMaster("xAddressx") != null ? (String) _trans.getMaster("xAddressx") : "");
             params.put("sReferNox", (String) _trans.getMaster("xInvNumbr"));
             params.put("nAmtPaidx", Double.valueOf((String.valueOf(_trans.getMaster("xAmtPaidx")))));
             params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
@@ -788,7 +793,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                 JsonDataSource jrjson = new JsonDataSource(stream); 
 
                 JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
-                                                                    "reports/SP_DR.jasper", params, jrjson);
+                                                                    "reports/SP_DR_new.jasper", params, jrjson);
                 JasperViewer jv = new JasperViewer(_jrprint, false);
                 jv.setVisible(true);
             } catch (JRException | UnsupportedEncodingException  ex) {
