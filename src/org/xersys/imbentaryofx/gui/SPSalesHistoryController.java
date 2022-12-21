@@ -165,6 +165,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         clearFields();
         initButton();
         
+        _index = 2;
         _loaded = true;
     }    
 
@@ -195,16 +196,6 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         
         switch (event.getCode()){
             case ENTER:
-                switch (lsTxt){
-                    case "txtSeeks01":
-                        searchTransaction(txtSeeks01, "a.sTransNox", txtSeeks01.getText().trim(), false);
-                        event.consume();
-                        break;
-                    case "txtSeeks02":
-                        searchTransaction(txtSeeks02, "IFNULL(b.sClientNm, '')", txtSeeks02.getText().trim(), false);
-                        event.consume();
-                        break;
-                }
             case F3:
                 switch (lsTxt){
                     case "txtSeeks01":
@@ -518,6 +509,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
     @FXML
     private void cmbStatus_Click(ActionEvent event) {
         _transtat = cmbStatus.getSelectionModel().getSelectedIndex();
+        txtSeeks02.requestFocus();
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -533,8 +525,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
                     case 2:
                         searchTransaction(txtSeeks02, "IFNULL(b.sClientNm, '')", txtSeeks02.getText().trim(), false);
                         break;
-                }
-                
+                }                
                 break;
             case "btn02": //pay
                 payWithInvoice();
@@ -712,6 +703,9 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);        
         
+        txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtSeeks02.focusedProperty().addListener(txtField_Focus);
+        
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField10.focusedProperty().addListener(txtField_Focus);
@@ -817,6 +811,7 @@ public class SPSalesHistoryController implements Initializable, ControlledScreen
         String lsValue = txtField.getText();
         
         if (lsValue == null) return;
+        
         if(!nv){ //Lost Focus           
             _index = lnIndex;
         } else{ //Got Focus

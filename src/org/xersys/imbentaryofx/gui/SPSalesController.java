@@ -209,6 +209,10 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         searchBranchInventory("sDescript", lsValue, false);
                         event.consume();
                         return;
+                    case "txtField05":
+                        searchClient("a.sClientNm", lsValue, false);
+                        event.consume();
+                        return;
                     case "txtField07":
                         searchSalesman("a.sClientNm", lsValue, false);
                         event.consume();

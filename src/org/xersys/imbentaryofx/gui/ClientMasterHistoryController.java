@@ -204,7 +204,8 @@ public class ClientMasterHistoryController implements Initializable, ControlledS
         String lsTxt = txtField.getId();
         String lsValue = txtField.getText();
                 
-        if (event.getCode() == KeyCode.ENTER){
+        if (event.getCode() == KeyCode.ENTER ||
+            event.getCode() == KeyCode.F3){
             switch (lsTxt){
                 case "txtSeeks01":
                     searchRecord(txtField, "a.sClientID", lsValue, false);

@@ -401,6 +401,11 @@ public class CashieringController implements Initializable, ControlledScreen {
                 JobOrder instance = new JobOrder(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true);
 
                 if (instance.OpenTransaction(_source_number)){
+                    if (Double.valueOf(String.valueOf(instance.getMaster("nPartTotl"))) > 0.00){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to release JO with spareparts to pay.", "Notice", "");
+                        return;
+                    }
+                    
                     if (instance.ReleaseTransaction()){
                         ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction released successfully.", "Notice", "");                    
                         _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
