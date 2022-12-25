@@ -391,9 +391,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
                 break;
             case "btn07":
                 break;
-            case "btn08":
-                break;
-            case "btn09": //deactivate
+            case "btn08": //deactivate
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
                     return;
@@ -416,7 +414,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 
                 break;
-            case "btn10": //activate
+            case "btn09": //activate
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
                     return;
@@ -439,7 +437,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 
                 break;
-            case "btn11": //update
+            case "btn10": //update
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
                     return;
@@ -466,6 +464,14 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         }   
                     }
                 } 
+                break;
+            case "btn11":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
+                    return;
+                }
+                
+                ShowMessageFX.Information(_main_screen_controller.getStage(), "Load history form here!!!", "Notice", "");
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -653,10 +659,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn05.setText("");
         btn06.setText("");
         btn07.setText("");
-        btn08.setText("");
-        btn09.setText("Deactivate");
-        btn10.setText("Activate");
-        btn11.setText("Update");
+        btn08.setText("Deactivate");
+        btn09.setText("Activate");
+        btn10.setText("Update");
+        btn11.setText("Ledger");
         btn12.setText("Close");              
         
         btn01.setVisible(true);
@@ -666,7 +672,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);
-        btn08.setVisible(false);
+        btn08.setVisible(true);
         btn09.setVisible(true);
         btn10.setVisible(true);
         btn11.setVisible(true);
@@ -678,6 +684,7 @@ public class SPMasterController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
+        btn08.setVisible(!lbShow);
         btn09.setVisible(!lbShow);
         btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
