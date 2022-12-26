@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="SPMaster" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="SPMaster" fx:id="AnchorMain" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -56,65 +56,6 @@
                                        </children>
                                     </GridPane>
                                     <Separator layoutX="14.0" layoutY="48.0" prefHeight="0.0" prefWidth="845.0" />
-                                    <GridPane layoutX="78.0" layoutY="88.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="65.0">
-                                       <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="100.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
-                                          <ColumnConstraints />
-                                          <ColumnConstraints />
-                                       </columnConstraints>
-                                       <rowConstraints>
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                       </rowConstraints>
-                                       <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Part No.:" />
-                                          <TextField fx:id="txtField02" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Description:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField03" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brief Desc.:" GridPane.rowIndex="2" />
-                                          <TextField fx:id="txtField04" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Alt. Part No.:" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtField05" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Type:" GridPane.rowIndex="4" />
-                                          <TextField fx:id="txtField10" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Category:" GridPane.rowIndex="5" />
-                                          <TextField fx:id="txtField06" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brand:" GridPane.rowIndex="6" />
-                                          <TextField fx:id="txtField07" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Model:" GridPane.rowIndex="7" />
-                                          <TextField fx:id="txtField08" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" GridPane.rowIndex="8" />
-                                          <TextField fx:id="txtField09" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Cost:" GridPane.rowIndex="9">
-                                             <GridPane.margin>
-                                                <Insets />
-                                             </GridPane.margin>
-                                          </Label>
-                                          <TextField fx:id="txtField11" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="9" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Selling Price:" GridPane.rowIndex="10" />
-                                          <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Status:" GridPane.rowIndex="11" />
-                                          <ComboBox id="cmbOrder" fx:id="cmbInvStat" onAction="#cmbInvStat_Click" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="11" />
-                                          <CheckBox fx:id="chkCombo" mnemonicParsing="false" text="Combo  Inventory" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="8" />
-                                          <CheckBox fx:id="chkSerialized" mnemonicParsing="false" text="Serialized" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="9" />
-                                          <CheckBox fx:id="chkPromo" mnemonicParsing="false" text="With Promo" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="3" GridPane.rowIndex="10" />
-                                          <CheckBox fx:id="chkActive" mnemonicParsing="false" text="Active" GridPane.columnIndex="4" GridPane.rowIndex="11" />
-                                       </children>
-                                    </GridPane>
                                     <GridPane layoutX="291.0" layoutY="40.0" AnchorPane.leftAnchor="450.0" AnchorPane.topAnchor="65.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
@@ -170,6 +111,72 @@
                                           <Label prefHeight="41.0" prefWidth="100.0" text="Float Qty:" GridPane.columnIndex="3" GridPane.rowIndex="7" />
                                           <TextField fx:id="txtField116" disable="true" GridPane.columnIndex="4" GridPane.rowIndex="7" />
                                           <CheckBox fx:id="chkActive1" mnemonicParsing="false" text="Active" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="9" />
+                                       </children>
+                                    </GridPane>
+                                    <GridPane layoutX="14.0" layoutY="65.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
+                                          <ColumnConstraints />
+                                          <ColumnConstraints />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Part No.:" />
+                                          <TextField fx:id="txtField02" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Description:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField03" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brief Desc.:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField04" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Alt. Part No.:" visible="false" GridPane.rowIndex="12" />
+                                          <TextField fx:id="txtField05" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="12" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Type:" GridPane.rowIndex="3" />
+                                          <TextField fx:id="txtField10" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Category:" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField06" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Brand:" GridPane.rowIndex="5" />
+                                          <TextField fx:id="txtField07" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Model:" GridPane.rowIndex="6" />
+                                          <TextField fx:id="txtField08" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Color:" visible="false" GridPane.rowIndex="13" />
+                                          <TextField fx:id="txtField09" promptText="Search" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="13" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Cost:" GridPane.rowIndex="9">
+                                             <GridPane.margin>
+                                                <Insets />
+                                             </GridPane.margin>
+                                          </Label>
+                                          <TextField fx:id="txtField11" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="9" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Selling Price:" GridPane.rowIndex="10" />
+                                          <TextField fx:id="txtField12" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Inv. Status:" GridPane.rowIndex="11" />
+                                          <ComboBox id="cmbOrder" fx:id="cmbInvStat" onAction="#cmbInvStat_Click" prefWidth="150.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="11" />
+                                          <CheckBox fx:id="chkCombo" mnemonicParsing="false" text="Combo  Inventory" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="12" />
+                                          <CheckBox fx:id="chkSerialized" mnemonicParsing="false" text="Serialized" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="13" />
+                                          <CheckBox fx:id="chkPromo" mnemonicParsing="false" text="With Promo" visible="false" GridPane.columnIndex="4" GridPane.columnSpan="3" GridPane.rowIndex="14" />
+                                          <CheckBox fx:id="chkActive" mnemonicParsing="false" text="Active" GridPane.columnIndex="4" GridPane.rowIndex="11" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Size:" GridPane.rowIndex="7" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="UOM:" GridPane.rowIndex="8" />
+                                          <TextField fx:id="txtField13" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
+                                          <TextField fx:id="txtField14" promptText="Search" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8" />
                                        </children>
                                     </GridPane>
                                  </children>

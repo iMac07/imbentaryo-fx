@@ -1,6 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.sql.ResultSet;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
@@ -148,6 +149,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
     private TextField txtSeeks01;
     @FXML
     private TextField txtSeeks02;
+    @FXML
+    private TextField txtField13;
+    @FXML
+    private TextField txtField14;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {     
@@ -471,7 +476,26 @@ public class SPMasterController implements Initializable, ControlledScreen{
                     return;
                 }
                 
-                ShowMessageFX.Information(_main_screen_controller.getStage(), "Load history form here!!!", "Notice", "");
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.SP_INV_HISTORY);
+                if (loJSON != null){
+                    ResultSet loRS =  _trans.getInvMaster().getHistory();
+                    
+                    
+                    SPHistoryController instance = new SPHistoryController();
+                    //instance.setNautilus(_nautilus);
+                    instance.setParentController(_main_screen_controller);
+                    instance.setScreensController(_screens_controller);
+                    instance.setBarCode((String) _trans.getMaster("sBarCodex"));
+                    instance.setDescription((String) _trans.getMaster("sDescript"));
+                    instance.setBegQty((int) _trans.getMaster("nBegQtyxx"));
+                    instance.setCost(Double.valueOf(String.valueOf(_trans.getMaster("nUnitPrce"))));
+                    instance.setSRP(Double.valueOf(String.valueOf(_trans.getMaster("nSelPrce1"))));
+                    instance.setData(loRS);
+                    //instance.setDashboardScreensController(_screens_dashboard_controller);
+
+                    _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                }
+                
                 break;
             case "btn12": //close screen
                 if (_screens_controller.getScreenCount() > 1)
@@ -703,6 +727,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField10.setDisable(!lbShow);
         txtField11.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField12.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField13.setDisable(!lbShow);
+        txtField14.setDisable(!lbShow);
         
         disableInvMasterFields();
         
@@ -764,6 +790,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField10.setOnKeyPressed(this::txtField_KeyPressed);
         txtField11.setOnKeyPressed(this::txtField_KeyPressed);
         txtField12.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField13.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField14.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtField02.focusedProperty().addListener(txtField_Focus);
         txtField03.focusedProperty().addListener(txtField_Focus);
