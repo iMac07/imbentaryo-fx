@@ -43,6 +43,7 @@ public class ScreenInfo {
         SP_SALES,
         SP_SALES_HISTORY,
         SP_INV_MASTER,
+        SP_INV_HISTORY,
         POS_DETAIL_UPDATE,
         PO_DETAIL_UPDATE,
         PO_RECEIVING_DETAIL_UPDATE,
@@ -273,6 +274,10 @@ public class ScreenInfo {
             case SP_INV_MASTER:
                 loJSON.put("resource", RESOURCE_URL + "SPMaster.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "SPMasterController");
+                return loJSON;
+            case SP_INV_HISTORY:
+                loJSON.put("resource", RESOURCE_URL + "SPHistory.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SPHistoryController");
                 return loJSON;
             case PO_DETAIL_UPDATE:
                 loJSON.put("resource", RESOURCE_URL + "PODetail.fxml");

@@ -391,6 +391,7 @@ public class MainScreenController implements Initializable {
         _no_tab.add("InvRequestDetail");
         _no_tab.add("InvTransferDetail");
         _no_tab.add("InvPriceChangeDetail");
+        _no_tab.add("SPHistory");
 //        _no_tab.add("Parameters");
         
 //        //set screens that will not trigger on window tabs
