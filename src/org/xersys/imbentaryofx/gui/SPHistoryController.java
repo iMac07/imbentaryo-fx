@@ -213,6 +213,11 @@ public class SPHistoryController implements Initializable, ControlledScreen {
                                 ""));
                 lnCtr++;
             }
+            
+            if (!table_data.isEmpty()){
+                table.getSelectionModel().select(lnCtr - 2);
+                table.getFocusModel().focus(lnCtr - 2); 
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -227,6 +227,14 @@ public class SPMasterController implements Initializable, ControlledScreen{
                     searchInvType("sDescript", lsValue, false);
                     event.consume();
                     return;
+                case "txtField13":
+                    searchSizes("sSizeName", lsValue, false);
+                    event.consume();
+                    return;
+                case "txtField14":
+                    searchMeasure("sMeasurNm", lsValue, false);
+                    event.consume();
+                    return;
                 case "txtField103":
                     searchInvLocation("sBriefDsc", lsValue, false);
                     event.consume();
@@ -259,6 +267,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField10.setText("");
         txtField11.setText("");
         txtField12.setText("");
+        txtField13.setText("");
+        txtField14.setText("");
         
         txtField103.setText("");
         txtField104.setText("");
@@ -300,6 +310,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
             txtField10.setText((String) _trans.getMaster("xInvTypNm"));
             txtField11.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nUnitPrce"), "#,##0.00"));
             txtField12.setText(StringUtil.NumberFormat((Number) _trans.getMaster("nSelPrce1"), "#,##0.00"));
+            txtField13.setText((String) _trans.getMaster("xSizeName"));
+            txtField14.setText((String) _trans.getMaster("xMeasurNm"));
             
             int lnValue = Integer.parseInt((String) _trans.getMaster("cInvStatx"));
             cmbInvStat.getSelectionModel().select(lnValue);
@@ -588,6 +600,10 @@ public class SPMasterController implements Initializable, ControlledScreen{
                         txtField09.setText((String) foValue); break;
                     case "sInvTypCd":
                         txtField10.setText((String) foValue); break;
+                    case "sSizeIDxx":
+                        txtField13.setText((String) foValue); break;
+                    case "sMeasurID":
+                        txtField14.setText((String) foValue); break;
                     case "nUnitPrce":
                         txtField11.setText(StringUtil.NumberFormat((double) foValue, "#,##0.00")); break;
                     case "nSelPrce1":
@@ -605,7 +621,6 @@ public class SPMasterController implements Initializable, ControlledScreen{
 
             @Override
             public void MasterRetreive(int fnIndex, Object foValue) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
         
@@ -628,6 +643,12 @@ public class SPMasterController implements Initializable, ControlledScreen{
                             }
                         case "txtField10":
                             _trans.setMaster("sInvTypCd", (String) foValue.get("sInvTypCd"));
+                            break;
+                        case "txtField13":
+                            _trans.setMaster("sSizeIDxx", (String) foValue.get("sSizeIDxx"));
+                            break;
+                        case "txtField14":
+                            _trans.setMaster("sMeasurID", (String) foValue.get("sMeasurID"));
                             break;
                         case "txtField07":
                             _trans.setMaster("sBrandCde", (String) foValue.get("sBrandCde"));
@@ -813,6 +834,56 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField107.setOnKeyPressed(this::txtField_KeyPressed);
         
         cmbInvStat.setItems(_inv_status);
+    }
+    
+    private void searchSizes(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchSizes(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+            if (loScreen != null){
+                QuickSearchNeoController instance = new QuickSearchNeoController();
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+
+                instance.setSearchObject(_trans.getSearchSizes());
+                instance.setSearchCallback(_search_callback);
+                instance.setTextField(txtField13);
+
+                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            txtField13.setText("");
+            FXUtil.SetNextFocus(txtField13);
+        }
+    }
+    
+    private void searchMeasure(String fsKey, Object foValue, boolean fbExact){
+        JSONObject loJSON = _trans.searchMeasure(fsKey, foValue, fbExact);
+        
+        if ("success".equals((String) loJSON.get("result"))){            
+            JSONObject loScreen = ScreenInfo.get(ScreenInfo.NAME.QUICK_SEARCH);
+
+            if (loScreen != null){
+                QuickSearchNeoController instance = new QuickSearchNeoController();
+                instance.setNautilus(_nautilus);
+                instance.setParentController(_main_screen_controller);
+                instance.setScreensController(_screens_controller);
+
+                instance.setSearchObject(_trans.getSearchMeasure());
+                instance.setSearchCallback(_search_callback);
+                instance.setTextField(txtField14);
+
+                _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
+            }
+        } else {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), (String) loJSON.get("message"), "Warning", "");
+            txtField14.setText("");
+            FXUtil.SetNextFocus(txtField14);
+        }
     }
     
     private void searchInvType(String fsKey, Object foValue, boolean fbExact){

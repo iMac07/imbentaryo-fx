@@ -1,6 +1,12 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -22,6 +28,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,6 +44,7 @@ import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.inventory.base.InvTransfer;
 
@@ -401,13 +413,15 @@ public class InvTransferHistoryController implements Initializable, ControlledSc
                 break;
             case "btn02": //print
                 if (_trans.CloseTransaction()){
-                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
-                    
                     initGrid();
                     clearFields();
                     
                     _trans.setTranStat(1);
                     searchTransaction("sTransNox", _old_trans, true);
+                    
+                    if (printTransfer()){
+                        ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction printed successfully.", "Success", "");
+                    }
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
@@ -449,49 +463,57 @@ public class InvTransferHistoryController implements Initializable, ControlledSc
                 break;
         }
     }
-    
-    private void payCharge(){
-        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
-            JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT_CHARGE);
-            PaymentChargeController instance = new PaymentChargeController();
+        
+    private boolean printTransfer(){        
+        JSONArray json_arr = new JSONArray();
+        json_arr.clear();
 
-            instance.setNautilus(_nautilus);
-            instance.setParentController(_main_screen_controller);
-            instance.setScreensController(_screens_controller);
-            instance.setDashboardScreensController(_screens_dashboard_controller);
-            instance.setSourceCd("WS");
-            instance.setSourceNo((String) _trans.getMaster("sTransNox"));
+        JSONObject json_obj;
 
-            //close this screen
-            _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-            //load the payment screen
-            _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
-        }  else{
-            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
+        double lnTranTotl = 0.00;
+        for (int lnCtr = 1; lnCtr <= _trans.getItemCount(); lnCtr++){
+            json_obj = new JSONObject();
+
+            if (!"".equals((String) _trans.getDetail(lnCtr, "sStockIDx"))){
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "xBarCodex"));
+                json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "xDescript"));
+                json_obj.put("sField03", "");
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nInvCostx"))));
+                json_arr.add(json_obj); 
+                
+                lnTranTotl += (int) _trans.getDetail(lnCtr, "nQuantity") * Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nInvCostx")));
+            }
         }
+
+        //Create the parameter
+        Map<String, Object> params = new HashMap<>();
+        params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+        params.put("sClientNm", (String) _trans.getMaster("xDestinat"));
+        params.put("xAddressx", _trans.getMaster("xAddressx") != null ? (String) _trans.getMaster("xAddressx") : "");
+        params.put("dTransact", SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+        params.put("sInvoiceT", (String) _trans.getMaster("sTransNox"));
+        params.put("sRemarksx", (String) _trans.getMaster("sRemarksx"));
+        params.put("nTranTotl", lnTranTotl);
+
+        try {
+            InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+            JsonDataSource jrjson = new JsonDataSource(stream); 
+
+            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
+                                                                "reports/SP_Transfer.jasper", params, jrjson);
+            JasperViewer jv = new JasperViewer(_jrprint, false);
+            jv.setVisible(true);
+        } catch (JRException | UnsupportedEncodingException  ex) {
+            ex.printStackTrace();
+            ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+            return false;
+        }
+
+        return true;
     }
     
-    private void payWithInvoice(){
-        if (_trans.getEditMode() == EditMode.READY && "0".equals((String) _trans.getMaster("cTranStat"))){
-                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PAYMENT);
-                PaymentController instance = new PaymentController();
-
-                instance.setNautilus(_nautilus);
-                instance.setParentController(_main_screen_controller);
-                instance.setScreensController(_screens_controller);
-                instance.setDashboardScreensController(_screens_dashboard_controller);
-                instance.setSourceCd("WS");
-                instance.setSourceNo((String) _trans.getMaster("sTransNox"));
-
-                //close this screen
-                _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
-                //load the payment screen
-                _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
-        } else{
-            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded or transaction loaded was already processed.", "Warning", "");
-        }
-    }
-    
+        
     public void keyReleased(KeyEvent event) {
         switch(event.getCode()){
             case F1:
