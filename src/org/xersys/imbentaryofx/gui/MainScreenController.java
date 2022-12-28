@@ -576,6 +576,8 @@ public class MainScreenController implements Initializable {
         Label label = lbl.get("lblOther" + lsButton.substring(8));
         System.out.println(label.getText().toLowerCase());
         switch (label.getText().toLowerCase()){
+            case "maintenance":
+                if (canSwitch()) loadScreen(ScreenInfo.NAME.MAINTENANCE); break;
             case "inv. price change":
                 if (canSwitch()) loadScreen(ScreenInfo.NAME.INV_PRICE_CHANGE); break;
             case "labor":

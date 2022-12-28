@@ -64,7 +64,7 @@
                                           <TextField fx:id="txtSeeks01" promptText="Search: ENTER by barcode / F3 by description" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                        </children>
                                     </GridPane>
-                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="79.0" prefHeight="285.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
+                                    <TableView fx:id="_table" focusTraversable="false" layoutX="10.0" layoutY="79.0" prefHeight="250.0" stylesheets="@../css/Tables.css" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="50.0">
                                       <columns>
                                         <TableColumn prefWidth="30.0" text="No." />
                                         <TableColumn prefWidth="130.0" text="Part Number" />
@@ -78,7 +78,7 @@
                                           <TableColumn prefWidth="77.0" text="Total" />
                                       </columns>
                                     </TableView>
-                                    <GridPane layoutX="10.0" layoutY="374.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="365.0">
+                                    <GridPane layoutX="10.0" layoutY="374.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="310.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="90.0" prefWidth="80.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
@@ -101,24 +101,28 @@
                                           <TextField fx:id="txtField13" editable="false" visible="false" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
-                                    <GridPane layoutX="10.0" layoutY="443.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="435.0">
+                                    <GridPane layoutX="10.0" layoutY="434.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="385.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="90.0" prefWidth="90.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" />
                                        </columnConstraints>
                                        <rowConstraints>
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" />
-                                          <TextField fx:id="txtField05" promptText="Search Client" GridPane.columnIndex="1" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" GridPane.rowIndex="1" />
-                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2" />
-                                          <Label prefHeight="41.0" prefWidth="100.0" text="Salesman:" GridPane.rowIndex="3" />
-                                          <TextField fx:id="txtField07" promptText="Search Salesman" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Date:" />
+                                          <TextField fx:id="txtField03" GridPane.columnIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Client Name:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="txtField05" promptText="Search Client" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Remarks:" GridPane.rowIndex="2" />
+                                          <TextField fx:id="txtField06" alignment="TOP_LEFT" prefHeight="55.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2" />
+                                          <Label prefHeight="41.0" prefWidth="100.0" text="Salesman:" GridPane.rowIndex="4" />
+                                          <TextField fx:id="txtField07" promptText="Search Salesman" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                                        </children>
                                     </GridPane>
                                     <GridPane layoutX="546.0" layoutY="373.0" AnchorPane.leftAnchor="546.0" AnchorPane.topAnchor="365.0">
