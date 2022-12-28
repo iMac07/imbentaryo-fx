@@ -2,6 +2,7 @@ package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -114,6 +115,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
     private Label lblAdvPaym;
     @FXML
     private TextField txtField05;
+    @FXML
+    private TextField txtField03;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -248,6 +251,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
         initGrid();
         
         txtSeeks01.setText("");
+        txtField03.setText("");
+        txtField05.setText("");
         txtField06.setText("");
         txtField07.setText("");
         txtField10.setText("0.00");
@@ -297,6 +302,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     }
     
     private void loadTransaction(){
+        txtField03.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
         txtField05.setText((String) _trans.getMaster("xClientNm"));
         txtField06.setText((String) _trans.getMaster("sRemarksx"));
         txtField07.setText((String) _trans.getMaster("xSalesman"));
@@ -718,6 +724,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
                         loadTransaction();
                         loadDetail();
                         break;
+                    case "dTransact":
+                        txtField03.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
                 }
             }
             
@@ -736,6 +744,8 @@ public class SPSalesController implements Initializable, ControlledScreen{
                     case 7:
                         txtField07.setText((String) foValue);
                         break;
+                    case 3:
+                        txtField03.setText(SQLUtil.dateFormat((Date) foValue, SQLUtil.FORMAT_MEDIUM_DATE)); break;
                 }
             }
 
@@ -878,6 +888,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
+        txtField03.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
@@ -889,6 +900,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
     
     private void initFields(){
         txtSeeks01.setOnKeyPressed(this::txtField_KeyPressed);
+        txtField03.setOnKeyPressed(this::txtField_KeyPressed);
         txtField05.setOnKeyPressed(this::txtField_KeyPressed);
         txtField06.setOnKeyPressed(this::txtField_KeyPressed);
         txtField07.setOnKeyPressed(this::txtField_KeyPressed);
@@ -898,6 +910,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         txtField13.setOnKeyPressed(this::txtField_KeyPressed);
         
         txtSeeks01.focusedProperty().addListener(txtField_Focus);
+        txtField03.focusedProperty().addListener(txtField_Focus);
         txtField05.focusedProperty().addListener(txtField_Focus);
         txtField06.focusedProperty().addListener(txtField_Focus);
         txtField07.focusedProperty().addListener(txtField_Focus);
@@ -1028,6 +1041,14 @@ public class SPSalesController implements Initializable, ControlledScreen{
         if (lsValue == null) return;
         if(!nv){ //Lost Focus           
             switch (lnIndex){
+                case 3:
+                    if (StringUtil.isDate(lsValue, SQLUtil.FORMAT_SHORT_DATE)){
+                        _trans.setMaster("dTransact", SQLUtil.toDate(lsValue, SQLUtil.FORMAT_SHORT_DATE));
+                    } else {
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "Please encode a date with this format " + SQLUtil.FORMAT_SHORT_DATE + ".", "Warning", "");
+                        txtField.requestFocus();
+                    }
+                    break;
                 case 1:
                 case 5:
                 case 7:
@@ -1066,6 +1087,12 @@ public class SPSalesController implements Initializable, ControlledScreen{
             }
             _index = lnIndex;
         } else{ //Got Focus
+            switch (lnIndex){
+                case 3:
+                    txtField.setText(SQLUtil.dateFormat((Date) _trans.getMaster("dTransact"), SQLUtil.FORMAT_SHORT_DATE));
+                    break;
+            }
+            
             _index = lnIndex;
             txtField.selectAll();
         }

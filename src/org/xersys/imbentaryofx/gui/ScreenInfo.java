@@ -88,7 +88,10 @@ public class ScreenInfo {
         COLOR,
         BARANGAY,
         TOWN,
-        PROVINCE
+        PROVINCE,
+        SIZES,
+        MEASURE,
+        MAINTENANCE
     }
     
     public static JSONObject get(NAME foModule){
@@ -410,6 +413,18 @@ public class ScreenInfo {
             case COLOR:
                 loJSON.put("resource", RESOURCE_URL + "Color.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "ColorController");
+                return loJSON;
+            case MAINTENANCE:
+                loJSON.put("resource", RESOURCE_URL + "Maintenance.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "MaintenanceController");
+                return loJSON;
+            case MEASURE:
+                loJSON.put("resource", RESOURCE_URL + "Measure.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "MeasureController");
+                return loJSON;
+            case SIZES:
+                loJSON.put("resource", RESOURCE_URL + "Sizes.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "SizesController");
                 return loJSON;
             case BARANGAY:
                 loJSON.put("resource", RESOURCE_URL + "Barangay.fxml");

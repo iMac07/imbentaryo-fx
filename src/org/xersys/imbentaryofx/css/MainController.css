@@ -23,6 +23,12 @@
     -fx-border-width: 0px 1px 0px 0px;
 }
 
+#OtherButtons{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent; 
+    -fx-border-width: 0px 0px 0px 0px;
+}
+
 #OtherTrans .label{
     -fx-font-size: 12px;
 }

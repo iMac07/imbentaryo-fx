@@ -163,6 +163,7 @@ public class Login {
             po_props.load(new FileInputStream(System.getProperty("sys.default.path.config") + "app-config.properties"));
             
             System.setProperty("store.company.name", po_props.getProperty("store.company.name"));
+            System.setProperty("app.sales.allow.backdate", po_props.getProperty("app.sales.allow.backdate"));
             
             return true;
         } catch (FileNotFoundException ex) {
