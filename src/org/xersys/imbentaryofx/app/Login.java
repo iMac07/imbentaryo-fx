@@ -17,6 +17,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
+import org.xersys.inventory.roq.SPROQProc;
 
 public class Login {
     public static void main (String [] args){
