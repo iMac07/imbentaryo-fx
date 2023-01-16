@@ -8,10 +8,11 @@ import org.xersys.commander.base.Nautilus;
 import org.xersys.commander.base.Property;
 import org.xersys.commander.base.SQLConnection;
 import org.xersys.commander.crypt.CryptFactory;
+import org.xersys.commander.util.CommonUtil;
 import org.xersys.inventory.roq.SPROQProc;
 
 public class ClassifyABC {
-    public static void main (String [] args){
+    public static void main (String [] args){            
         final String PRODUCTID = "Daedalus";
                
         //get database property

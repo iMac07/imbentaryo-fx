@@ -888,7 +888,13 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
-        txtField03.setDisable(lnEditMode != EditMode.ADDNEW);
+        
+        if(System.getProperty("app.sales.allow.backdate").equals("1")){
+            txtField03.setDisable(lnEditMode != EditMode.ADDNEW);
+        } else {
+            txtField03.setDisable(true);
+        }
+        
         txtField05.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField06.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField07.setDisable(lnEditMode != EditMode.ADDNEW);
