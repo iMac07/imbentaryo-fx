@@ -58,14 +58,30 @@ public class CaptureHondaPriceUpdate {
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
             XSSFSheet sheet = wb.getSheetAt(0);     //creating a Sheet object to retrieve object  
             Iterator<Row> itr = sheet.iterator();    //iterating over excel file  
-            
-            ResultSet loRS;
-            InvPriceUpdate loPriceUpdate = new InvPriceUpdate(loNautilus,(String) loNautilus.getBranchConfig("sBranchCd"), false);
-            loPriceUpdate.NewTransaction();
-            loPriceUpdate.setMaster("dEffectve", "2023-01-16");
-            loPriceUpdate.setMaster("sRemarksx", "Honda Price Increase Effective January 16, 2023");
-            
+                        
             int lnRow = 0;
+            String lsSQL = "";
+            String lsTransNox = "";
+            
+            loNautilus.beginTrans();
+            
+            lsTransNox = MiscUtil.getNextCode("Price_Change_Master", "sTransNox", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));
+            lsSQL = "INSERT INTO Price_Change_Master SET" +
+                    "  sTransNox = " + SQLUtil.toSQL(lsTransNox) +
+                    ", sBranchCd = " + SQLUtil.toSQL((String) loNautilus.getBranchConfig("sBranchCd")) +
+                    ", dTransact = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
+                    ", dEffectve = '2023-01-17'" +
+                    ", sReferNox = '0'" +
+                    ", sRemarksx = 'Honda Price Increase Effective January 16, 2023'" +
+                    ", cTranStat = '0'" +
+                    ", sModified = " + SQLUtil.toSQL((String) loNautilus.getUserInfo("sUserIDxx"));
+            
+            if (loNautilus.executeUpdate(lsSQL, "Price_Change_Master", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
+                loNautilus.rollbackTrans();
+                System.err.println(loNautilus.getMessage());
+                System.exit(1);
+            }
+            
             while (itr.hasNext()){  
                 Row row = itr.next();  
                 Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column  
@@ -114,20 +130,29 @@ public class CaptureHondaPriceUpdate {
                     ResultSet loDetail = loNautilus.executeQuery(lsValue);
                     
                     if (loDetail.next()){
-                        System.err.println(lnRow);
-                        loPriceUpdate.setDetail(lnRow, 3, loDetail.getString("sStockIDx"));
-                        loPriceUpdate.setDetail(lnRow, "nUnitPrce", lnUnitPrce);
-                        loPriceUpdate.setDetail(lnRow, "nSelPrce1", lnSelPrice);
+                        lsSQL = "INSERT INTO Price_Change_Detail SET" + 
+                                "  sTransNox = " + SQLUtil.toSQL(lsTransNox) +
+                                ", nEntryNox = " + lnRow +
+                                ", sStockIDx = " + SQLUtil.toSQL(loDetail.getString("sStockIDx")) +
+                                ", nUnitPrce = " + lnUnitPrce +
+                                ", nSelPrce1 = " + lnSelPrice + 
+                                ", nSelPrce2 = 0.00" +
+                                ", nSelPrce3 = 0.00" +
+                                ", nDiscLev1 = 0.00" +
+                                ", nDiscLev2 = 0.00" +
+                                ", nDiscLev3 = 0.00";
+                        
+                        if (loNautilus.executeUpdate(lsSQL, "Price_Change_Detail", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
+                            loNautilus.rollbackTrans();
+                            System.err.println(loNautilus.getMessage());
+                            System.exit(1);
+                        }
                     }
                 }
                 lnRow += 1;
             }
+            loNautilus.commitTrans();
             
-            if (loPriceUpdate.SaveTransaction(true)){
-                System.out.println("Transaction saved successfully.");
-            } else{
-                System.err.println(loPriceUpdate.getMessage());
-            }    
         } catch(Exception e) {  
             e.printStackTrace();  
             loNautilus.rollbackTrans();
