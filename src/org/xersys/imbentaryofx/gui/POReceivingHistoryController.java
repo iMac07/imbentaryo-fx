@@ -503,20 +503,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
             case "btn01": //browse
                 searchTransaction("a.sTransNox", "", false);
                 break;
-            case "btn02": //print
-                if (_trans.getEditMode() != EditMode.READY){
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
-                    return;
-                }
-                
-                if (((String) _trans.getMaster("cTranStat")).equals("3")){
-                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Unable to print cancelled transaction.", "Warning", "");
-                    return;
-                }
-                
-                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was printed successfully.", "Success", "");
-                break;
-            case "btn03": //approve
+            case "btn02": //approve
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
                     return;
@@ -533,7 +520,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn04": //cancel
+            case "btn03": //cancel
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
                     return;
@@ -550,7 +537,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn05": //post
+            case "btn04": //post
                 if (_trans.getEditMode() != EditMode.READY){
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction was loaded.", "Warning", "");
                     return;
@@ -566,6 +553,8 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
                     searchTransaction("a.sTransNox", _old_trans, true);
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                break;
+            case "btn05":
                 break;
             case "btn06":
                 break;
@@ -648,10 +637,10 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn12.setTooltip(new Tooltip("F12"));
         
         btn01.setText("Browse");
-        btn02.setText("Print");
-        btn03.setText("Approve");
-        btn04.setText("Cancel");
-        btn05.setText("Post");
+        btn02.setText("Approvev");
+        btn03.setText("Cancel");
+        btn04.setText("Post");
+        btn05.setText("");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
@@ -663,7 +652,7 @@ public class POReceivingHistoryController implements Initializable, ControlledSc
         btn01.setVisible(true);
         btn02.setVisible(true);
         btn03.setVisible(true);
-        btn04.setVisible(true);
+        btn04.setVisible(false);
         btn05.setVisible(false);
         btn06.setVisible(false);
         btn07.setVisible(false);

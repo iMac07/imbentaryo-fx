@@ -182,7 +182,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/btn-print.png" />
+                                                                  <Image url="@../icons/btn-approve.png" />
                                                                </image></ImageView>
                                                          </graphic>
                                                       </Button>
@@ -194,7 +194,7 @@
                                                          <graphic>
                                                             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                                <image>
-                                                                  <Image url="@../icons/btn-approve.png" />
+                                                                  <Image url="@../icons/btn-disapprove.png" />
                                                                </image>
                                                             </ImageView>
                                                          </graphic></Button>
@@ -202,14 +202,7 @@
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="3">
                                                    <children>
-                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                         <graphic>
-                                                            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                               <image>
-                                                                  <Image url="@../icons/btn-disapprove.png" />
-                                                               </image>
-                                                            </ImageView>
-                                                         </graphic></Button>
+                                                      <Button fx:id="btn04" alignment="BOTTOM_CENTER" contentDisplay="TOP" maxHeight="-Infinity" mnemonicParsing="false" prefHeight="49.0" prefWidth="41.0" text="F4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane GridPane.columnIndex="4">
