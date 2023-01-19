@@ -6,66 +6,40 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-import javafx.application.Application;
-import org.xersys.imbentaryofx.gui.Imbentaryo;
-import org.xersys.commander.base.Nautilus;
-import org.xersys.commander.base.Property;
-import org.xersys.commander.base.SQLConnection;
-import org.xersys.commander.crypt.CryptFactory;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
-public class UpdateTables {
-    public static void main (String [] args){
-        final String PRODUCTID = "Daedalus";
-               
-        //get database property
-        Property loConfig = new Property("db-config.properties", PRODUCTID);
-        if (!loConfig.loadConfig()){
-            System.err.println(loConfig.getMessage());
-            System.exit(1);
-        } else System.out.println("Database configuration was successfully loaded.");
-        
-        //connect to database
-        SQLConnection loConn = new SQLConnection();
-        loConn.setProperty(loConfig);
-        if (loConn.getConnection() == null){
-            System.err.println(loConn.getMessage());
-            System.exit(1);
-        } else
-            System.out.println("Connection was successfully initialized.");        
-        
-        //load application driver
-        Nautilus loNautilus = new Nautilus();
-        
-        loNautilus.setConnection(loConn);
-        loNautilus.setEncryption(CryptFactory.make(CryptFactory.CrypType.AESCrypt));
-        
-        loNautilus.setUserID("000100210001");
-        if (!loNautilus.load(PRODUCTID)){
-            System.err.println(loNautilus.getMessage());
-            System.exit(1);
-        } else
-            System.out.println("Application driver successfully initialized.");
-        
-        String path;
-        if (System.getProperty("os.name").toLowerCase().contains("win")){
-            path = (String) loNautilus.getAppConfig("sApplPath");
-        } else {
-            path = "/srv/icarus/";
+public class Proc {
+    public static boolean loadProperties(){
+        try {
+            Properties po_props = new Properties();
+            po_props.load(new FileInputStream(System.getProperty("sys.default.path.config") + "app-config.properties"));
+            
+            System.setProperty("store.company.name", po_props.getProperty("store.company.name"));
+            
+            System.setProperty("app.path.image", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.image"));
+            System.setProperty("app.path.reports", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.reports"));
+            System.setProperty("app.path.temp", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.temp"));
+            System.setProperty("app.path.purchases", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.purchases"));
+            
+            System.setProperty("app.sales.allow.backdate", po_props.getProperty("app.sales.allow.backdate"));
+            
+            System.setProperty("app.mail.purchases", po_props.getProperty("app.mail.purchases"));
+            System.setProperty("app.mail.cc", po_props.getProperty("app.mail.cc"));
+            System.setProperty("app.mail.bcc", po_props.getProperty("app.mail.bcc"));
+            
+            return true;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            return false;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return false;
         }
-        
-        System.setProperty("sys.default.path.config", path);
-        System.setProperty("store.branch.code", (String) loNautilus.getBranchConfig("sBranchCd"));
-        System.setProperty("store.branch.address", (String) loNautilus.getBranchConfig("sAddressx") + " " + (String) loNautilus.getBranchConfig("xTownName"));
-        
-        loadProperties();
-        updateTables(loNautilus);
-        System.out.println("tapos na po!");
     }
     
-    private static void updateTables(XNautilus foNautilus){
+    public static void updateTables(XNautilus foNautilus){
         String lsSQL;
         ResultSet loMaster, loDetail;
         String lsDate = SQLUtil.dateFormat(foNautilus.getServerDate(), SQLUtil.FORMAT_SHORT_DATE);                
@@ -148,24 +122,6 @@ public class UpdateTables {
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
-        }
-    }
-    
-    private static boolean loadProperties(){
-        try {
-            Properties po_props = new Properties();
-            po_props.load(new FileInputStream(System.getProperty("sys.default.path.config") + "app-config.properties"));
-            
-            System.setProperty("store.company.name", po_props.getProperty("store.company.name"));
-            System.setProperty("app.sales.allow.backdate", po_props.getProperty("app.sales.allow.backdate"));
-            
-            return true;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            return false;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
         }
     }
 }

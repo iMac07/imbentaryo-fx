@@ -31,6 +31,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JsonDataSource;
@@ -48,6 +49,7 @@ import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
+import org.xersys.lib.base.SMTPSender;
 import org.xersys.purchasing.base.PurchaseOrder;
 
 public class PurchaseOrderHistoryController implements Initializable, ControlledScreen{
@@ -492,13 +494,13 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
 
                         _trans.setTranStat(1);
                         searchTransaction("a.sTransNox", _old_trans, true);
-                        printTrans(true);
+                        printTrans(System.getProperty("app.mail.purchases").equals("1"));
                     } else 
                         ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 } else if ("1".equals((String) _trans.getMaster("cTranStat"))){
-                    printTrans(true);
+                    printTrans(System.getProperty("app.mail.purchases").equals("1"));
                 } else if ("2".equals((String) _trans.getMaster("cTranStat"))){
-                    printTrans(true);
+                    printTrans(false);
                 } else {
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction is not yet approved.", "Warning", "");
                 }               
@@ -573,8 +575,8 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
                 json_obj = new JSONObject();
 
                 json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
-                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sDescript") + "(" +
-                                            (String) _trans.getDetail(lnCtr, "sBarCodex") + ")");
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
+                json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));
                 json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
                 json_arr.add(json_obj); 
             }
@@ -593,13 +595,42 @@ public class PurchaseOrderHistoryController implements Initializable, Controlled
             InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
             JsonDataSource jrjson = new JsonDataSource(stream); 
 
-            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("sys.default.path.config") +
-                                                                "reports/SP-PO.jasper", params, jrjson);
+            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("app.path.reports") + "SP-PO.jasper", params, jrjson);
             JasperViewer jv = new JasperViewer(_jrprint, false);
             jv.setVisible(true);
+            
+            if (fbSendMail){
+                if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to email PO to supplier?", "Confirm", null)){
+                    if ("".equals((String) _trans.getMaster("xEmailAdd"))){
+                        ShowMessageFX.Error(_main_screen_controller.getStage(), "Supplier email address is not set.", "Warning", null);
+                    } else {
+                        JasperExportManager.exportReportToPdfFile(_jrprint, System.getProperty("app.path.purchases") + "/" + (String) _trans.getMaster("sTransNox") + ".pdf");
+                    
+                        SMTPSender loSender = new SMTPSender();
+                        loSender.setTitle("Purchase Order: " + (String) _trans.getMaster("sReferNox"));
+                        loSender.setBody("Good day!\n\nPlease see attached file. Thank you.");
+                        loSender.addRecipient((String) _trans.getMaster("xEmailAdd"));
+
+                        if (!System.getProperty("app.mail.cc").isEmpty()){
+                            loSender.addCC(System.getProperty("app.mail.cc"));
+                        }
+                        
+                        if (!System.getProperty("app.mail.bcc").isEmpty()){
+                            loSender.addCC(System.getProperty("app.mail.bcc"));
+                        }
+
+                        loSender.addAttachment(System.getProperty("app.path.purchases") + "/" + (String) _trans.getMaster("sTransNox") + ".pdf");
+
+                        if (loSender.SendEmail())
+                            ShowMessageFX.Information(_main_screen_controller.getStage(), "Email sent successfully.", "Success", null);
+                        else
+                            ShowMessageFX.Error(_main_screen_controller.getStage(), loSender.getMessage(), "Exception", "Error");
+                    }
+                }
+            }
         } catch (JRException | UnsupportedEncodingException  ex) {
             ex.printStackTrace();
-            ShowMessageFX.Error(ex.getMessage(), "Exception", "Warning");
+            ShowMessageFX.Error(_main_screen_controller.getStage(), ex.getMessage(), "Exception", "Error");
         }
     }
     
