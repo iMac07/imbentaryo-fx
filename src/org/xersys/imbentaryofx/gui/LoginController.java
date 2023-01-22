@@ -67,6 +67,8 @@ public class LoginController implements Initializable, ControlledScreen {
         AnchorMain.setLeftAnchor(AnchorMain, 0.0);
         AnchorMain.setRightAnchor(AnchorMain, 0.0);  
         
+        AnchorMain.setOnKeyReleased(this::keyReleased);
+        
         txtField01.setOnKeyPressed(this::txtField_KeyPressed);
         txtField02.setOnKeyPressed(this::txtField_KeyPressed);
         
@@ -155,11 +157,10 @@ public class LoginController implements Initializable, ControlledScreen {
         btn12.setVisible(true);
     }
     
-    private void cmdButton_Click(ActionEvent event) {
-        String lsButton = ((Button) event.getSource()).getId();
-        
-        switch (lsButton){
+    private void doEvent(String fsValue){
+        switch (fsValue.toLowerCase()){
             case "btn01": //login
+            case "f1":
                 logUser();
                 break;
             case "btn02":
@@ -171,7 +172,9 @@ public class LoginController implements Initializable, ControlledScreen {
             case "btn08":
             case "btn10":
             case "btn11":
+                break;
             case "btn12": //close screen
+            case "f12":
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
@@ -180,6 +183,14 @@ public class LoginController implements Initializable, ControlledScreen {
                 }
                 break;
         }
+    }
+    
+    private void cmdButton_Click(ActionEvent event) {
+        doEvent(((Button) event.getSource()).getId());
+    }
+    
+    private void keyReleased(KeyEvent event) {
+        doEvent(event.getCode().toString());
     }
     
     private void logUser(){

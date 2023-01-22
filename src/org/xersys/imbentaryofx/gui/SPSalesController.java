@@ -126,6 +126,9 @@ public class SPSalesController implements Initializable, ControlledScreen{
         AnchorMain.setLeftAnchor(AnchorMain, 0.0);
         AnchorMain.setRightAnchor(AnchorMain, 0.0);   
         
+        //set function keys active
+        AnchorMain.setOnKeyReleased(this::keyReleased);
+        
         if (_nautilus  == null) {
             System.err.println("Application driver is not set.");
             System.exit(1);
@@ -428,7 +431,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         index02.setText("Part Number"); 
         index02.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index02"));
         index02.prefWidthProperty().set(130);
-        
+            
         index03.setText("Description"); 
         index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
         index03.prefWidthProperty().set(200);
@@ -548,12 +551,10 @@ public class SPSalesController implements Initializable, ControlledScreen{
         }
     }
     
-    private void cmdButton_Click(ActionEvent event) {
-        String lsButton = ((Button) event.getSource()).getId();
-        System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
-        
-        switch (lsButton){
+    private void doEvent(String fsValue){
+        switch (fsValue.toLowerCase()){
             case "btn01": //new
+            case "f1":
                 _loaded = false;
                 
                 createNew("");
@@ -561,11 +562,12 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 clearFields();
                 loadTransaction();
                 
-               cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
+                cmbOrders.getSelectionModel().select(_trans.TempTransactions().size() - 1);  
                
-               _loaded = true;
+                _loaded = true;
                 break;
             case "btn02": //clear
+            case "f2":
                 if (_trans.DeleteTempTransaction(_trans.TempTransactions().get(cmbOrders.getSelectionModel().getSelectedIndex()))){
                     _loaded = false;
                     
@@ -584,19 +586,17 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn03": //search
+            case "f3":
                 switch (_index){
                     case 1:
                         searchBranchInventory("sDescript", txtSeeks01.getText().trim(), false);
-                        event.consume();
                         return;
                     case 7:
                         searchSalesman("a.sClientNm", txtField07.getText().trim(), false);
-                        event.consume();
-                        return;
                 }
-                
                 break;
             case "btn04": //pay
+            case "f4":
                 if (_trans.SaveTransaction(true)){
                     ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction saved successfully.", "Success", "");
                     
@@ -615,16 +615,22 @@ public class SPSalesController implements Initializable, ControlledScreen{
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
             case "btn05":
+            case "f5":
                 break;
             case "btn06":
+            case "f6":
                 break;
             case "btn07":
+            case "f7":
                 break;
             case "btn08":
+            case "f8":
                 break;
             case "btn09"://parts inquiry
+            case "f9":
                 break;
             case "btn10"://parts catalogue
+            case "f10":
                 JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.PARTS_CATALOGUE);
 
                 if (loJSON != null){
@@ -639,9 +645,11 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 }
                 break;
             case "btn11": //history
+            case "f11":
                 loadScreen(ScreenInfo.NAME.SP_SALES_HISTORY);
                 break;
             case "btn12": //close screen
+            case "f12":
                 if (_screens_controller.getScreenCount() > 1)
                     _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
                 else{
@@ -651,35 +659,13 @@ public class SPSalesController implements Initializable, ControlledScreen{
                 break;
         }
     }
+                 
+    private void cmdButton_Click(ActionEvent event) {
+        doEvent(((Button) event.getSource()).getId());
+    }
     
-    public void keyReleased(KeyEvent event) {
-        switch(event.getCode()){
-            case F1:
-                break;
-            case F2: 
-                break;
-            case F3:
-                break;
-            case F4:
-                break;
-            case F5: 
-                break;
-            case F6:
-                break;
-            case F7:
-                break;
-            case F8: 
-                break;
-            case F9:
-                break;
-            case F10:
-                break;
-            case F11:
-                break;
-            case F12: 
-                break;
-
-        }
+    private void keyReleased(KeyEvent event) {
+        doEvent(event.getCode().toString());
     }
     
     private void initListener(){
@@ -864,7 +850,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
-        btn09.setText("Inquiry");
+        btn09.setText("Inquiry"); //hidden for a while
         btn10.setText("Catalogue");
         btn11.setText("History");
         btn12.setText("Close");
@@ -877,7 +863,7 @@ public class SPSalesController implements Initializable, ControlledScreen{
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
-        btn09.setVisible(true);
+        btn09.setVisible(false);
         btn10.setVisible(true);
         btn11.setVisible(true);
         btn12.setVisible(true);
