@@ -345,8 +345,8 @@ public class SPMasterController implements Initializable, ControlledScreen{
         txtField108.setText(String.valueOf(_trans.getInvMaster().getMaster("nQtyOnHnd")));
         txtField109.setText(String.valueOf(_trans.getInvMaster().getMaster("nMinLevel")));
         txtField110.setText(String.valueOf(_trans.getInvMaster().getMaster("nMaxLevel")));
-        txtField111.setText(StringUtil.NumberFormat((Number) _trans.getInvMaster().getMaster("nAvgMonSl"), "#,##0.00"));
-        txtField112.setText(StringUtil.NumberFormat((Number) _trans.getInvMaster().getMaster("nAvgMonSl"), "#,##0.00"));
+        txtField111.setText(String.valueOf(_trans.getInvMaster().getMaster("nAvgMonSl")));
+        txtField112.setText(StringUtil.NumberFormat((Number) _trans.getInvMaster().getMaster("nAvgCostx"), "#,##0.00"));
         txtField113.setText(String.valueOf(_trans.getInvMaster().getMaster("cClassify")));
         txtField114.setText(String.valueOf(_trans.getInvMaster().getMaster("nBackOrdr")));
         txtField115.setText(String.valueOf(_trans.getInvMaster().getMaster("nResvOrdr")));
