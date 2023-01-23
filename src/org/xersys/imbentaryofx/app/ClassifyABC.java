@@ -9,12 +9,18 @@ import org.xersys.commander.base.Property;
 import org.xersys.commander.base.SQLConnection;
 import org.xersys.commander.crypt.CryptFactory;
 import org.xersys.commander.util.CommonUtil;
+import org.xersys.commander.util.MiscUtil;
 import org.xersys.inventory.roq.SPROQProc;
 
 public class ClassifyABC {
-    public static void main (String [] args){            
-        final String PRODUCTID = "Daedalus";
-               
+    public static void main (String [] args){              
+        final String PRODUCTID = "Daedalus";       
+        
+        if (args.length != 2){
+            System.err.println("Invalid parameters detected.");
+            System.exit(1);
+        }
+        
         //get database property
         Property loConfig = new Property("db-config.properties", PRODUCTID);
         if (!loConfig.loadConfig()){
@@ -59,7 +65,9 @@ public class ClassifyABC {
 
         //test classify
         SPROQProc loClassify = new SPROQProc(loNautilus, System.getProperty("store.branch.code"));
-        loClassify.ClassifyABC(2022, 12);
+        if (!loClassify.ClassifyABC(Integer.parseInt(args[0]), Integer.parseInt(args[1]))){
+            System.err.println(loClassify.getMessage());
+        };
     }
     
     private static boolean loadProperties(){
