@@ -173,10 +173,9 @@ public class ReportsController implements Initializable, ControlledScreen{
         
         if (loPrint == null){
             ShowMessageFX.Warning(_main_screen_controller.getStage(), loReport.getMessage(), "Warning", "");
-            return;
+        } else {
+            showReport(loPrint);
         }
-        
-        showReport(loPrint);
     }
     
     private void showReport(JasperPrint foPrint){

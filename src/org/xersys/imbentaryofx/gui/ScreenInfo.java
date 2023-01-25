@@ -91,13 +91,18 @@ public class ScreenInfo {
         PROVINCE,
         SIZES,
         MEASURE,
-        MAINTENANCE
+        MAINTENANCE,
+        ABC_CLASSIFY
     }
     
     public static JSONObject get(NAME foModule){
         JSONObject loJSON = new JSONObject();
         
         switch (foModule){
+            case ABC_CLASSIFY:
+                loJSON.put("resource", RESOURCE_URL + "ABCClassify.fxml");
+                loJSON.put("controller", CONTROLLER_URL + "ABCClassifyController");
+                return loJSON;
             case INV_PRICE_CHANGE_HISTORY:
                 loJSON.put("resource", RESOURCE_URL + "InvPriceChangeHistory.fxml");
                 loJSON.put("controller", CONTROLLER_URL + "InvPriceChangeHistoryController");

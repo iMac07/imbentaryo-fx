@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane id="ReportCriteria" fx:id="AnchorMain" prefWidth="300.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="ReportCriteria" fx:id="AnchorMain" prefWidth="300.0" stylesheets="@../css/ChildTransaction.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <StackPane prefHeight="500.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -58,9 +58,9 @@
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="127.0" text="Presentation:" GridPane.columnSpan="2" />
                                           <RadioButton mnemonicParsing="false" text="Detailed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <RadioButton mnemonicParsing="false" text="Global" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <RadioButton mnemonicParsing="false" text="Global" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <RadioButton mnemonicParsing="false" text="Summarized" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                          <RadioButton mnemonicParsing="false" text="Chart" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                          <RadioButton mnemonicParsing="false" text="Chart" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
                                  </children>
