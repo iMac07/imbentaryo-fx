@@ -386,6 +386,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 instance.setOnHand(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQtyOnHnd"))));
                 instance.setQtyOrder(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQuantity"))));
                 instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
+                instance.setHistory(_trans.getHistory((String) _trans.getDetail(_detail_row, "sStockIDx")));
                 
                 _screens_controller.loadScreen((String) loScreen.get("resource"), (ControlledScreen) instance);
             }

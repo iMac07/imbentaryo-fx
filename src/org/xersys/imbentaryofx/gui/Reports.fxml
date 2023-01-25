@@ -67,9 +67,9 @@
                                        <children>
                                           <Label prefHeight="30.0" prefWidth="127.0" text="Presentation:" GridPane.columnSpan="2" />
                                           <RadioButton fx:id="rad01" mnemonicParsing="false" text="Detailed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <RadioButton fx:id="rad03" mnemonicParsing="false" text="Global" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <RadioButton fx:id="rad03" mnemonicParsing="false" text="Global" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <RadioButton fx:id="rad02" mnemonicParsing="false" text="Summarized" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                          <RadioButton fx:id="rad04" mnemonicParsing="false" text="Chart" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                          <RadioButton fx:id="rad04" mnemonicParsing="false" text="Chart" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
                                  </children>

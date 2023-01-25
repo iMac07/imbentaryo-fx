@@ -4,18 +4,26 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.xersys.imbentaryofx.listener.DetailUpdateCallback;
 import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.util.StringUtil;
 
@@ -32,6 +40,9 @@ public class PODetailController implements Initializable, ControlledScreen  {
     private int _order;
     private int _on_hand;
     private double _srp;
+    private JSONArray _history;
+    
+    private ObservableList<TableModel> _table_data = FXCollections.observableArrayList();
     
     @FXML
     private AnchorPane AnchorMain;
@@ -75,6 +86,8 @@ public class PODetailController implements Initializable, ControlledScreen  {
     private TextField txtDetail06;
     @FXML
     private Label lblTotal;
+    @FXML
+    private TableView _table;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -86,6 +99,7 @@ public class PODetailController implements Initializable, ControlledScreen  {
         
         initButton();
         initFields();
+        initGrid();
         
         _loaded = true;
     }    
@@ -138,6 +152,94 @@ public class PODetailController implements Initializable, ControlledScreen  {
     
     public void setSellingPrice(double fnValue){
         _srp = fnValue;
+    }
+    
+    public void setHistory(JSONArray foValue){
+        _history = foValue;
+    }
+    
+    private void initGrid(){
+        TableColumn index01 = new TableColumn("");
+        TableColumn index02 = new TableColumn("");
+        TableColumn index03 = new TableColumn("");
+        TableColumn index04 = new TableColumn("");
+        TableColumn index05 = new TableColumn("");
+        
+        index01.setSortable(false); index01.setResizable(false); index01.setStyle( "-fx-alignment: CENTER;");
+        index02.setSortable(false); index02.setResizable(false); index02.setStyle( "-fx-alignment: CENTER;");
+        index03.setSortable(false); index03.setResizable(false); index03.setStyle( "-fx-alignment: CENTER;");
+        index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
+        index05.setSortable(false); index04.setResizable(false); index05.setStyle( "-fx-alignment: CENTER;");
+        
+        _table.getColumns().clear();
+        
+        index01.setText("MONTH"); 
+        index01.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index01"));
+        index01.prefWidthProperty().set(99);
+        
+        index02.setText("CLASS"); 
+        index02.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index02"));
+        index02.prefWidthProperty().set(99);
+        
+        index03.setText("AMC"); 
+        index03.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index03"));
+        index03.prefWidthProperty().set(99);
+        
+        index04.setText("MIN LVL"); 
+        index04.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index04"));
+        index04.prefWidthProperty().set(99);
+        
+        index05.setText("MAX LVL"); 
+        index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
+        index05.prefWidthProperty().set(99);
+        
+        _table.getColumns().add(index01);
+        _table.getColumns().add(index02);
+        _table.getColumns().add(index03);
+        _table.getColumns().add(index04);
+        _table.getColumns().add(index05);
+        
+        _table.setItems(_table_data);
+        
+        JSONObject loJSON;
+        for(int lnCtr = 1; lnCtr <= 6; lnCtr++){  
+            if (lnCtr <= _history.size()){
+                loJSON = (JSONObject) _history.get(lnCtr - 1);
+                
+                _table_data.add(new TableModel(
+                            CommonUtil.getMonth(Integer.parseInt(String.valueOf(loJSON.get("sPeriodxx")).substring(4))).toUpperCase(), 
+                            (String) loJSON.get("cClassify"),
+                            String.valueOf(loJSON.get("nAvgMonSl")),
+                            String.valueOf(loJSON.get("nMinLevel")),
+                            String.valueOf(loJSON.get("nMaxLevel")),
+                            "",
+                            "",
+                            "",
+                            "",
+                            ""));
+            } else {
+                _table_data.add(new TableModel(String.valueOf(lnCtr + 1), 
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            ""));
+            }
+            
+            
+            
+            
+            
+        }
+        
+        if (!_table_data.isEmpty()){
+            _table.getSelectionModel().select(0);
+            _table.getFocusModel().focus(0); 
+        }
     }
     
     private void initButton(){
