@@ -1,6 +1,8 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -11,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -19,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,7 +32,9 @@ import org.xersys.commander.contants.EditMode;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.iSearch;
+import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
+import org.xersys.inventory.roq.SPROQProc;
 
 public class ABCClassifyController implements Initializable, ControlledScreen {
     @FXML
@@ -61,6 +67,10 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
     private Button btn12;
     @FXML
     private TableView table;
+    @FXML
+    private GridPane gridRemarks;
+    @FXML
+    private Label lblRemarks;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {       
@@ -72,11 +82,13 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
 
         initButton();
         initGrid();
-        //loadDetail();
+        
+        _trans = new SPROQProc(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"));
     }    
     
     @Override
     public void setNautilus(XNautilus foValue) {
+        _nautilus = foValue;
     }
 
     @Override
@@ -147,6 +159,53 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         btn12.setVisible(true);
     }
     
+    private void loadLedger(){
+        ResultSet loRS = _trans.getLastClassify();
+        
+        if (loRS == null){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+            return;
+        }
+        
+        gridRemarks.setVisible(true);
+        
+        _data.clear();
+        
+        try {
+            int lnCtr = 0;
+            while (loRS.next()){
+                if (lnCtr == 0){
+                    lblRemarks.setText(loRS.getString("sPeriodxx"));
+                }
+                
+                _data.add(new TableModel(String.valueOf(lnCtr + 1), 
+                    loRS.getString("sBarCodex"),
+                    loRS.getString("sDescript"), 
+                    loRS.getString("sBrandNme"), 
+                    loRS.getString("cClassify"),
+                    String.valueOf(loRS.getInt("nAvgMonSl")),
+                    String.valueOf(loRS.getInt("nMinLevel")),
+                    String.valueOf(loRS.getInt("nMaxLevel")),
+                    String.valueOf(loRS.getInt("nQtyOnHnd")),
+                    StringUtil.NumberFormat(loRS.getDouble("nSelPrce1"), "#,##0.00"),
+                    StringUtil.NumberFormat(loRS.getDouble("nUnitPrce"), "#,##0.00"),
+                    "",
+                    "",
+                    "",
+                    ""));
+                lnCtr += 1;
+            }
+            
+            if (!_data.isEmpty()){
+                table.getSelectionModel().select(0);
+                table.getFocusModel().focus(0);        
+            }
+        } catch (SQLException e) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), e.getMessage(), "Warning", "");
+            e.printStackTrace();
+        }        
+    }
+    
     private void initGrid(){
         TableColumn index01 = new TableColumn("");
         TableColumn index02 = new TableColumn("");
@@ -212,11 +271,11 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         
         index10.setText("SRP"); 
         index10.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index10"));
-        index10.prefWidthProperty().set(75);
+        index10.prefWidthProperty().set(70);
         
         index11.setText("COST"); 
         index11.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index11"));
-        index11.prefWidthProperty().set(75);
+        index11.prefWidthProperty().set(70);
         
         table.getColumns().add(index01);
         table.getColumns().add(index02);
@@ -231,6 +290,8 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         table.getColumns().add(index11);
         
         table.setItems(_data);
+        
+        gridRemarks.setVisible(false);
     }
     
     private void cmdButton_Click(ActionEvent event) {
@@ -240,11 +301,17 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         JSONObject loJSON;
         
         switch (lsButton){
-            case "btn01": //load
+            case "btn01"://classify
+                if (!_trans.ClassifyABC()){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
+                } else {
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "ABC Classification was successfully completed.", "Notice", "");
+                };
                 break;
-            case "btn02": //export
+            case "btn02"://load
+                loadLedger();
                 break;
-            case "btn03":
+            case "btn03"://export
                 break;
             case "btn04":
                 break;
@@ -260,15 +327,15 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
                 break;
             case "btn10":
                 break;
-            case "btn11": //add record
-                loJSON = new JSONObject();
-                loJSON.put("result", "success");
-                loJSON.put("payload", null);
+            case "btn11":
                 break;
-            case "btn12": //close screen
-                loJSON = new JSONObject();
-                loJSON.put("result", "error");
-                loJSON.put("message", "No record to load.");
+            case "btn12":
+                if (_screens_controller.getScreenCount() > 1)
+                    _screens_controller.unloadScreen(_screens_controller.getCurrentScreenIndex());
+                else{
+                    if (ShowMessageFX.YesNo(_main_screen_controller.getStage(), "Do you want to exit the application?", "Please confirm", ""))
+                        System.exit(0);
+                }
                 break;
         }
     }
@@ -276,6 +343,10 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
     private MainScreenController _main_screen_controller;
     private ScreensController _screens_controller;
     private QuickSearchCallback _search_callback;
+    
+    private SPROQProc _trans;
+    private boolean _loaded = false;
+    private XNautilus _nautilus;
     
     private ObservableList<TableModel> _data = FXCollections.observableArrayList();
 }
