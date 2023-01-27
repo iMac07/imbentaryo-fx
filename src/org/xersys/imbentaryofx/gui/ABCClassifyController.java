@@ -1,5 +1,8 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +27,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -32,6 +39,7 @@ import org.xersys.commander.contants.EditMode;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.iSearch;
+import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.inventory.roq.SPROQProc;
@@ -159,6 +167,53 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         btn12.setVisible(true);
     }
     
+    private boolean exportABC(){
+        ResultSet loRS = _trans.getLastClassify();
+        
+        if (MiscUtil.RecordCount(loRS) <= 0){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record to export.", "Warning", "");
+            return false;
+        }
+        
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.temp") + "/template/PO.xlsx"));
+            Sheet sheet = workbook.getSheetAt(0);
+            int lnRow = sheet.getLastRowNum() + 1;
+            
+            while (loRS.next()){
+                Row row = sheet.createRow(lnRow++);
+                Cell cell = row.createCell(0);
+                cell.setCellValue(loRS.getString("sBarCodex"));
+                cell = row.createCell(1);
+                cell.setCellValue(loRS.getString("sDescript"));
+                cell = row.createCell(2);
+                cell.setCellValue(loRS.getString("sBrandNme"));
+                cell = row.createCell(3);
+                cell.setCellValue(loRS.getString("cClassify"));
+                cell = row.createCell(4);
+                cell.setCellValue(loRS.getInt("nAvgMonSl"));
+                cell = row.createCell(5);
+                cell.setCellValue(loRS.getInt("nMinLevel"));
+                cell = row.createCell(6);
+                cell.setCellValue(loRS.getInt("nMaxLevel"));
+                cell = row.createCell(7);
+                cell.setCellValue(loRS.getInt("nQtyOnHnd"));
+                cell = row.createCell(8);
+                cell.setCellValue(loRS.getDouble("nUnitPrce"));
+                cell = row.createCell(9);
+                cell.setCellValue((int) 0);
+            }
+            
+            FileOutputStream out = new FileOutputStream(System.getProperty("app.path.temp") + "/export/PO.xlsx");
+            workbook.write(out);
+            out.close();
+        } catch (IOException | SQLException e) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), e.getMessage(), "Warning", "");
+            return false;
+        }
+        
+        return true;
+    }
     private void loadLedger(){
         ResultSet loRS = _trans.getLastClassify();
         
@@ -312,6 +367,9 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
                 loadLedger();
                 break;
             case "btn03"://export
+                if (exportABC()){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "Records export success.", "Warning", "");
+                }
                 break;
             case "btn04":
                 break;
