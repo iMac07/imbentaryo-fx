@@ -22,12 +22,18 @@ public class Proc {
             System.setProperty("app.path.reports", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.reports"));
             System.setProperty("app.path.temp", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.temp"));
             System.setProperty("app.path.purchases", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.purchases"));
+            System.setProperty("app.path.templates", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.templates"));
+            System.setProperty("app.path.export", System.getProperty("sys.default.path.config") + po_props.getProperty("app.path.export"));            
             
             System.setProperty("app.sales.allow.backdate", po_props.getProperty("app.sales.allow.backdate"));
             
             System.setProperty("app.mail.purchases", po_props.getProperty("app.mail.purchases"));
             System.setProperty("app.mail.cc", po_props.getProperty("app.mail.cc"));
             System.setProperty("app.mail.bcc", po_props.getProperty("app.mail.bcc"));
+            
+            System.setProperty("app.abc.export", po_props.getProperty("app.abc.export"));
+            System.setProperty("app.po.import", po_props.getProperty("app.po.import"));
+            System.setProperty("app.po.import.cost", po_props.getProperty("app.po.import.cost"));
             
             return true;
         } catch (FileNotFoundException ex) {

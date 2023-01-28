@@ -68,8 +68,9 @@ public class ImportABC {
         
         Proc.loadProperties();
         PurchaseOrder loPurchase = new PurchaseOrder(loNautilus, "0001", false);
+        loPurchase.setSaveToDisk(true);
         try {
-            File file = new File(System.getProperty("app.path.temp") + "/export/PO.xlsx");   //creating a new file instance  
+            File file = new File(System.getProperty("app.path.export") + System.getProperty("app.abc.export"));   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -85,6 +86,7 @@ public class ImportABC {
                     if (lnRow > 0){
                         int lnCtr = 0;
                         int lnQuantity = 0;
+                        double lnUnitPrce = 0.00;
                         String lsBarCodex = "";
 
                         while (cellIterator.hasNext()){  
@@ -98,8 +100,11 @@ public class ImportABC {
                                         lsBarCodex = String.valueOf(cell.getNumericCellValue());
                                     }
                                     break;
+                                case 8:
+                                    lnUnitPrce = (double) cell.getNumericCellValue();
+                                    break;
                                 case 9:
-                                    lnQuantity = (int)cell.getNumericCellValue();
+                                    lnQuantity = (int) cell.getNumericCellValue();
                                     break;
                             }
                             lnCtr ++;
@@ -108,7 +113,12 @@ public class ImportABC {
                         ResultSet loRS = loNautilus.executeQuery("SELECT sStockIDx FROM Inventory WHERE sBarCodex = " + SQLUtil.toSQL(lsBarCodex));
 
                         if (loRS.next()){
-                            loPurchase.setMaster("sStockIDx", loRS.getString("sStockIDx"));
+                            loPurchase.setDetail(loPurchase.getItemCount() - 1, "sStockIDx", loRS.getString("sStockIDx"));
+                            loPurchase.setDetail(loPurchase.getItemCount() - 1, "nQuantity", lnQuantity);
+                            
+                            if (System.getProperty("app.po.import.cost").equals("1")){
+                                loPurchase.setDetail(loPurchase.getItemCount() - 1, "nUnitPrce", lnUnitPrce);
+                            }
                         }
                     }
                     lnRow ++;
