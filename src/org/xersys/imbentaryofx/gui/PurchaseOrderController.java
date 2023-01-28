@@ -1,7 +1,13 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -24,6 +30,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -593,7 +603,10 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 } else 
                     ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
                 break;
-            case "btn05":
+            case "btn05": //import from file
+                if (importFromFile()){
+                    ShowMessageFX.Information(_main_screen_controller.getStage(), "File contents successfully imported.", "Success", "");
+                }
                 break;
             case "btn06":
                 break;
@@ -619,6 +632,81 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 }
                 break;
         }
+    }
+    
+    private boolean importFromFile(){
+        if (!String.valueOf(_trans.getDetail(0, "sStockIDx")).isEmpty()){
+            ShowMessageFX.Warning(_main_screen_controller.getStage(),
+                                    "Importing is only allowed on empty detail transactions.\n" +
+                                    "Please create a separate transaction and retry importing.",
+                                    "Warning", "");
+            return false;
+        }
+        
+        try {
+            File file = new File(System.getProperty("app.path.export") + System.getProperty("app.abc.export"));   //creating a new file instance  
+            FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
+            
+            XSSFWorkbook wb = new XSSFWorkbook(fis);   
+            XSSFSheet sheet = wb.getSheetAt(0);     //creating a Sheet object to retrieve object  
+            Iterator<Row> itr = sheet.iterator(); 
+            
+            if (_trans.NewTransaction()){
+                int lnRow = 0;                
+                while (itr.hasNext()){  
+                    Row row = itr.next();  
+                    Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column  
+
+                    if (lnRow > 0){
+                        int lnCtr = 0;
+                        int lnQuantity = 0;
+                        double lnUnitPrce = 0.00;
+                        String lsBarCodex = "";
+
+                        while (cellIterator.hasNext()){  
+                            Cell cell = cellIterator.next();  
+
+                            switch(lnCtr){
+                                case 0:
+                                    try {
+                                        lsBarCodex = cell.getStringCellValue().trim();
+                                    } catch (Exception e) {
+                                        lsBarCodex = String.valueOf(cell.getNumericCellValue());
+                                    }
+                                    break;
+                                case 8:
+                                    lnUnitPrce = (double) cell.getNumericCellValue();
+                                    break;
+                                case 9:
+                                    lnQuantity = (int) cell.getNumericCellValue();
+                                    break;
+                            }
+                            lnCtr ++;
+                        }
+                        
+                        ResultSet loRS = _nautilus.executeQuery("SELECT sStockIDx FROM Inventory WHERE sBarCodex = " + SQLUtil.toSQL(lsBarCodex));
+
+                        if (loRS.next()){
+                            _trans.setDetail(_trans.getItemCount() - 1, "sStockIDx", loRS.getString("sStockIDx"));
+                            _trans.setDetail(_trans.getItemCount() - 1, "nQuantity", lnQuantity);
+                            
+                            if (System.getProperty("app.po.import.cost").equals("1")){
+                                _trans.setDetail(_trans.getItemCount() - 1, "nUnitPrce", lnUnitPrce);
+                            }
+                        }
+                    }
+                    lnRow ++;
+                }
+            }
+            
+            wb.close();
+        } catch (IOException | SQLException e) {
+            ShowMessageFX.Warning(_main_screen_controller.getStage(), e.getMessage(), "Warning", "");
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
     }
     
     public void keyReleased(KeyEvent event) {
@@ -841,7 +929,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn02.setText("Clear");
         btn03.setText("Search");
         btn04.setText("Save");
-        btn05.setText("");
+        btn05.setText("Import");
         btn06.setText("");
         btn07.setText("");
         btn08.setText("");
@@ -854,7 +942,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn02.setVisible(true);
         btn03.setVisible(true);
         btn04.setVisible(true);
-        btn05.setVisible(false);
+        btn05.setVisible(true);
         btn06.setVisible(false);
         btn07.setVisible(false);
         btn08.setVisible(false);
@@ -867,6 +955,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         btn02.setVisible(lnEditMode == EditMode.ADDNEW);
         btn03.setVisible(lnEditMode == EditMode.ADDNEW);
         btn04.setVisible(lnEditMode == EditMode.ADDNEW);
+        btn05.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtField05.setDisable(true);

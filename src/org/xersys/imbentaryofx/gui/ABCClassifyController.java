@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,11 +16,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -31,17 +25,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.xersys.commander.contants.EditMode;
 import org.xersys.imbentaryofx.listener.QuickSearchCallback;
 import org.xersys.commander.iface.XNautilus;
-import org.xersys.commander.iface.iSearch;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.StringUtil;
-import org.xersys.imbentaryofx.listener.FormClosingCallback;
 import org.xersys.inventory.roq.SPROQProc;
 
 public class ABCClassifyController implements Initializable, ControlledScreen {
@@ -176,7 +164,7 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         }
         
         try {
-            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.temp") + "/template/PO.xlsx"));
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.templates") + System.getProperty("app.abc.export")));
             Sheet sheet = workbook.getSheetAt(0);
             int lnRow = sheet.getLastRowNum() + 1;
             
@@ -204,7 +192,7 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
                 cell.setCellValue((int) 0);
             }
             
-            FileOutputStream out = new FileOutputStream(System.getProperty("app.path.temp") + "/export/PO.xlsx");
+            FileOutputStream out = new FileOutputStream(System.getProperty("app.path.export") + System.getProperty("app.abc.export"));
             workbook.write(out);
             out.close();
         } catch (IOException | SQLException e) {
