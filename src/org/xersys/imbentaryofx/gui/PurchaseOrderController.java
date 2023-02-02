@@ -392,7 +392,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                 instance.setDetailRow(_detail_row);
                 instance.setPartNumber((String) _trans.getDetail(_detail_row, "sBarCodex"));
                 instance.setDescription((String) _trans.getDetail(_detail_row, "sDescript"));
-                instance.setOtherInfo(0);
+                instance.setOtherInfo(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nRecOrder"))));
                 instance.setOnHand(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQtyOnHnd"))));
                 instance.setQtyOrder(Integer.parseInt(String.valueOf(_trans.getDetail(_detail_row, "nQuantity"))));
                 instance.setSellingPrice((double) _trans.getDetail(_detail_row, "nUnitPrce"));
@@ -644,7 +644,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         }
         
         try {
-            File file = new File(System.getProperty("app.path.export") + System.getProperty("app.abc.export"));   //creating a new file instance  
+            File file = new File(System.getProperty("app.path.export") + System.getProperty("app.po.import"));   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             
             XSSFWorkbook wb = new XSSFWorkbook(fis);   

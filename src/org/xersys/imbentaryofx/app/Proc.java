@@ -31,6 +31,7 @@ public class Proc {
             System.setProperty("app.mail.cc", po_props.getProperty("app.mail.cc"));
             System.setProperty("app.mail.bcc", po_props.getProperty("app.mail.bcc"));
             
+            System.setProperty("app.abc.template", po_props.getProperty("app.abc.template"));
             System.setProperty("app.abc.export", po_props.getProperty("app.abc.export"));
             System.setProperty("app.po.import", po_props.getProperty("app.po.import"));
             System.setProperty("app.po.import.cost", po_props.getProperty("app.po.import.cost"));
