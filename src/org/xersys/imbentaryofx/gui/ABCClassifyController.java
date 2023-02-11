@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -164,7 +165,7 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         }
         
         try {
-            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.templates") + System.getProperty("app.abc.export")));
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.templates") + System.getProperty("app.abc.template")));
             Sheet sheet = workbook.getSheetAt(0);
             int lnRow = sheet.getLastRowNum() + 1;
             
@@ -188,13 +189,76 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
                 cell.setCellValue(loRS.getInt("nQtyOnHnd"));
                 cell = row.createCell(8);
                 cell.setCellValue(loRS.getDouble("nUnitPrce"));
+                
                 cell = row.createCell(9);
-                cell.setCellValue((int) 0);
+                if (loRS.getInt("nRecOrder")  <= 0){
+                    cell.setCellValue((int) 0);
+                } else{
+                    cell.setCellValue(loRS.getInt("nRecOrder"));
+                }
             }
             
             FileOutputStream out = new FileOutputStream(System.getProperty("app.path.export") + System.getProperty("app.abc.export"));
             workbook.write(out);
             out.close();
+            
+            ArrayList<String> loArr = new ArrayList<>();
+            loRS.first();
+            while(loRS.next()){
+                if (loArr.isEmpty()){
+                    loArr.add(loRS.getString("sBrandNme"));
+                } else {
+                    boolean lbExist = false;
+                    for (int lnCtr = 0; lnCtr <= loArr.size()-1; lnCtr++){
+                        if (loArr.get(lnCtr).equals(loRS.getString("sBrandNme"))){
+                            lbExist = true;
+                        }
+                    }
+                    if (!lbExist) loArr.add(loRS.getString("sBrandNme"));
+                }
+            }
+            
+            for (int lnCtr = 0; lnCtr <= loArr.size()-1; lnCtr++){
+                workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.templates") + System.getProperty("app.abc.template")));
+                sheet = workbook.getSheetAt(0);
+                lnRow = sheet.getLastRowNum() + 1;
+            
+                loRS.first();
+                while (loRS.next()){
+                    if (loRS.getString("sBrandNme").equals(loArr.get(lnCtr))){
+                        Row row = sheet.createRow(lnRow++);
+                        Cell cell = row.createCell(0);
+                        cell.setCellValue(loRS.getString("sBarCodex"));
+                        cell = row.createCell(1);
+                        cell.setCellValue(loRS.getString("sDescript"));
+                        cell = row.createCell(2);
+                        cell.setCellValue(loRS.getString("sBrandNme"));
+                        cell = row.createCell(3);
+                        cell.setCellValue(loRS.getString("cClassify"));
+                        cell = row.createCell(4);
+                        cell.setCellValue(loRS.getInt("nAvgMonSl"));
+                        cell = row.createCell(5);
+                        cell.setCellValue(loRS.getInt("nMinLevel"));
+                        cell = row.createCell(6);
+                        cell.setCellValue(loRS.getInt("nMaxLevel"));
+                        cell = row.createCell(7);
+                        cell.setCellValue(loRS.getInt("nQtyOnHnd"));
+                        cell = row.createCell(8);
+                        cell.setCellValue(loRS.getDouble("nUnitPrce"));
+                        
+                        cell = row.createCell(9);
+                        if (loRS.getInt("nRecOrder")  <= 0){
+                            cell.setCellValue((int) 0);
+                        } else{
+                            cell.setCellValue(loRS.getInt("nRecOrder"));
+                        }
+                    }
+                }
+                
+                out = new FileOutputStream(System.getProperty("app.path.export") + loArr.get(lnCtr) + ".xlsx");
+                workbook.write(out);
+                out.close();
+            }
         } catch (IOException | SQLException e) {
             ShowMessageFX.Warning(_main_screen_controller.getStage(), e.getMessage(), "Warning", "");
             return false;
@@ -202,6 +266,7 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
         
         return true;
     }
+    
     private void loadLedger(){
         ResultSet loRS = _trans.getLastClassify();
         

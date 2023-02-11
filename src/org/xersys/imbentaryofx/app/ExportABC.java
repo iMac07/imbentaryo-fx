@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Properties;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -62,13 +63,13 @@ public class ExportABC {
         System.setProperty("store.branch.code", (String) loNautilus.getBranchConfig("sBranchCd"));
         System.setProperty("store.branch.address", (String) loNautilus.getBranchConfig("sAddressx") + " " + (String) loNautilus.getBranchConfig("xTownName"));
         
-        loadProperties();
+        Proc.loadProperties();
 
         //test classify
         SPROQProc loClassify = new SPROQProc(loNautilus, System.getProperty("store.branch.code"));
         ResultSet loRS = loClassify.getLastClassify();
         
-        try {
+        try {            
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.temp") + "/template/PO.xlsx"));
             Sheet sheet = workbook.getSheetAt(0);
             int lnRow = sheet.getLastRowNum() + 1;
@@ -97,10 +98,64 @@ public class ExportABC {
                 cell.setCellValue((int) 0);
             }
             
-            FileOutputStream out = new FileOutputStream("D:/icarus/temp/template/PO-New.xlsx");
+            FileOutputStream out = new FileOutputStream("D:/icarus/temp/export/PO-New.xlsx");
             workbook.write(out);
             out.close();
+            
+            ArrayList<String> loArr = new ArrayList<>();
+            loRS.first();
+            while(loRS.next()){
+                if (loArr.isEmpty()){
+                    loArr.add(loRS.getString("sBrandNme"));
+                } else {
+                    boolean lbExist = false;
+                    for (int lnCtr = 0; lnCtr <= loArr.size()-1; lnCtr++){
+                        if (loArr.get(lnCtr).equals(loRS.getString("sBrandNme"))){
+                            lbExist = true;
+                        }
+                    }
+                    if (!lbExist) loArr.add(loRS.getString("sBrandNme"));
+                }
+            }
+            
+            for (int lnCtr = 0; lnCtr <= loArr.size()-1; lnCtr++){
+                workbook = new XSSFWorkbook(new FileInputStream(System.getProperty("app.path.temp") + "/template/PO.xlsx"));
+                sheet = workbook.getSheetAt(0);
+                lnRow = sheet.getLastRowNum() + 1;
+                
+                loRS.first();
+                while (loRS.next()){
+                    if (loRS.getString("sBrandNme").equals(loArr.get(lnCtr))){
+                        Row row = sheet.createRow(lnRow++);
+                        Cell cell = row.createCell(0);
+                        cell.setCellValue(loRS.getString("sBarCodex"));
+                        cell = row.createCell(1);
+                        cell.setCellValue(loRS.getString("sDescript"));
+                        cell = row.createCell(2);
+                        cell.setCellValue(loRS.getString("sBrandNme"));
+                        cell = row.createCell(3);
+                        cell.setCellValue(loRS.getString("cClassify"));
+                        cell = row.createCell(4);
+                        cell.setCellValue(loRS.getInt("nAvgMonSl"));
+                        cell = row.createCell(5);
+                        cell.setCellValue(loRS.getInt("nMinLevel"));
+                        cell = row.createCell(6);
+                        cell.setCellValue(loRS.getInt("nMaxLevel"));
+                        cell = row.createCell(7);
+                        cell.setCellValue(loRS.getInt("nQtyOnHnd"));
+                        cell = row.createCell(8);
+                        cell.setCellValue(loRS.getDouble("nUnitPrce"));
+                        cell = row.createCell(9);
+                        cell.setCellValue((int) 0);
+                    }
+                }
+                
+                out = new FileOutputStream("D:/icarus/temp/export/" + loArr.get(lnCtr) + ".xlsx");
+                workbook.write(out);
+                out.close();
+            }
         } catch (IOException | SQLException e) {
+            e.printStackTrace();
         }
     }
     

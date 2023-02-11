@@ -1,6 +1,6 @@
 #Sun Jun 27 14:15:51 SGT 2021
 Daedalus-DBDriver=MySQL
-Daedalus-ClientID=MOTO_0004
+Daedalus-ClientID=MOTO_0001
 Daedalus-ServerName=localhost
 Daedalus-MainServer=localhost
 Daedalus-Database=7673B6F4276F97AC51F90B0748BC718D
@@ -11,7 +11,7 @@ Daedalus-Password=A4EAFB9AEFF6CFDCE4EFC201686F4B3A
 Daedalus-Port=3306
 
 Icarus-DBDriver=MySQL
-Icarus-ClientID=MOTO_0004
+Icarus-ClientID=MOTO_0001
 Icarus-ServerName=localhost
 Icarus-MainServer=localhost
 Icarus-Database=7673B6F4276F97AC51F90B0748BC718D
