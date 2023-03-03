@@ -16,7 +16,7 @@ import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.inventory.base.InvPriceUpdate;
 
-public class CaptureHondaPriceUpdate {
+public class CaptureUpdateCost {
     public static void main(String [] args){
         final String BRANDCODE = "HONDA";
         final String PRODUCTID = "Daedalus";
@@ -52,7 +52,7 @@ public class CaptureHondaPriceUpdate {
         
         
         try  {  
-            File file = new File("D:/icarus/temp/Price Update Template.xlsx");   //creating a new file instance  
+            File file = new File("D:/icarus/temp/lingunan-COST.xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -72,7 +72,7 @@ public class CaptureHondaPriceUpdate {
                     ", dTransact = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
                     ", dEffectve = '2023-02-11'" +
                     ", sReferNox = '0'" +
-                    ", sRemarksx = 'mixed'" +
+                    ", sRemarksx = ''" +
                     ", cTranStat = '0'" +
                     ", sModified = " + SQLUtil.toSQL((String) loNautilus.getUserInfo("sUserIDxx"));
             
@@ -115,10 +115,10 @@ public class CaptureHondaPriceUpdate {
                                 }
                                 
                                 break;
-                            case 2:
+                            case 6:
                                 lnSelPrice = cell.getNumericCellValue();
                                 break;
-                            case 3:
+                            case 7:
                                 lnUnitPrce = cell.getNumericCellValue();
                                 break;
                         }
@@ -134,13 +134,21 @@ public class CaptureHondaPriceUpdate {
                                 "  sTransNox = " + SQLUtil.toSQL(lsTransNox) +
                                 ", nEntryNox = " + lnRow +
                                 ", sStockIDx = " + SQLUtil.toSQL(loDetail.getString("sStockIDx")) +
-                                ", nUnitPrce = " + lnUnitPrce +
-                                ", nSelPrce1 = " + lnSelPrice + 
                                 ", nSelPrce2 = 0.00" +
                                 ", nSelPrce3 = 0.00" +
                                 ", nDiscLev1 = 0.00" +
                                 ", nDiscLev2 = 0.00" +
                                 ", nDiscLev3 = 0.00";
+                        if (lnUnitPrce > 0) {
+                            lsSQL += ", nUnitPrce = " + lnUnitPrce;
+                        } else {
+                            lsSQL += ", nUnitPrce = " + loDetail.getDouble("nUnitPrce");
+                        }
+                        if (lnSelPrice > 0) {
+                            lsSQL += ", nSelPrce1 = " + lnSelPrice;
+                        }else {
+                            lsSQL += ", nSelPrce1 = " + loDetail.getDouble("nSelPrce1");
+                        }
                         
                         if (loNautilus.executeUpdate(lsSQL, "Price_Change_Detail", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
                             loNautilus.rollbackTrans();

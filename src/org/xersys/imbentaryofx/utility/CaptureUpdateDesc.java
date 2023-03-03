@@ -16,7 +16,7 @@ import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.inventory.base.InvPriceUpdate;
 
-public class CaptureHondaPriceUpdate {
+public class CaptureUpdateDesc {
     public static void main(String [] args){
         final String BRANDCODE = "HONDA";
         final String PRODUCTID = "Daedalus";
@@ -52,7 +52,7 @@ public class CaptureHondaPriceUpdate {
         
         
         try  {  
-            File file = new File("D:/icarus/temp/Price Update Template.xlsx");   //creating a new file instance  
+            File file = new File("D:/icarus/temp/lingunan-UPDATED.xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -65,36 +65,16 @@ public class CaptureHondaPriceUpdate {
             
             loNautilus.beginTrans();
             
-            lsTransNox = MiscUtil.getNextCode("Price_Change_Master", "sTransNox", true, loNautilus.getConnection().getConnection(), (String) loNautilus.getBranchConfig("sBranchCd"));
-            lsSQL = "INSERT INTO Price_Change_Master SET" +
-                    "  sTransNox = " + SQLUtil.toSQL(lsTransNox) +
-                    ", sBranchCd = " + SQLUtil.toSQL((String) loNautilus.getBranchConfig("sBranchCd")) +
-                    ", dTransact = " + SQLUtil.toSQL(loNautilus.getServerDate()) +
-                    ", dEffectve = '2023-02-11'" +
-                    ", sReferNox = '0'" +
-                    ", sRemarksx = 'mixed'" +
-                    ", cTranStat = '0'" +
-                    ", sModified = " + SQLUtil.toSQL((String) loNautilus.getUserInfo("sUserIDxx"));
-            
-            if (loNautilus.executeUpdate(lsSQL, "Price_Change_Master", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
-                loNautilus.rollbackTrans();
-                System.err.println(loNautilus.getMessage());
-                System.exit(1);
-            }
-            
             while (itr.hasNext()){  
                 Row row = itr.next();  
                 Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column  
                 
                 if (lnRow > 0){                    
-                    int lnCtr = 0;
-                    String lsValue;
-                    String lsDescript = "";
+                    int lnCtr = 0;                    
                     String lsBarCodex = "";
-                    String lsStockIDx = "";
-                    double lnUnitPrce = 0.00;
-                    double lnSelPrice = 0.00;
-                    int lnQtyOnHnd = 0;
+                    String lsBrand = "";
+                    String lsNewBCode = "";
+                    String lsNewDescx = "";
                     
                     while (cellIterator.hasNext()){  
                         Cell cell = cellIterator.next();  
@@ -107,46 +87,65 @@ public class CaptureHondaPriceUpdate {
                                     lsBarCodex = String.valueOf(cell.getNumericCellValue()).replace(".0", "");
                                 }
                                 break;
-                            case 1:
+                            case 10:
                                 try {
-                                    lsDescript = cell.getStringCellValue().trim();
+                                    lsBrand = cell.getStringCellValue().trim();
                                 } catch (Exception e) {
-                                    lsDescript = String.valueOf(cell.getNumericCellValue()).replace(".0", "");
+                                    lsBrand = String.valueOf(cell.getNumericCellValue()).replace(".0", "");
                                 }
                                 
                                 break;
-                            case 2:
-                                lnSelPrice = cell.getNumericCellValue();
+                            case 8:
+                                try {
+                                    lsNewBCode = cell.getStringCellValue().trim();
+                                } catch (Exception e) {
+                                    lsNewBCode = String.valueOf(cell.getNumericCellValue()).replace(".0", "");
+                                }
                                 break;
-                            case 3:
-                                lnUnitPrce = cell.getNumericCellValue();
+                            case 9:
+                                try {
+                                    lsNewDescx = cell.getStringCellValue().trim();
+                                } catch (Exception e) {
+                                    lsNewDescx = String.valueOf(cell.getNumericCellValue()).replace(".0", "");
+                                }
                                 break;
                         }
-                        
                         lnCtr ++;
-                    }  
+                    } 
                     
-                    lsValue = "SELECT * FROM Inventory WHERE sBarCodex = " + SQLUtil.toSQL(lsBarCodex);
-                    ResultSet loDetail = loNautilus.executeQuery(lsValue);
+                    if (!lsBrand.equals("-")){
+                        lsSQL = "SELECT * FROM Brand" +
+                                " WHERE sDescript = " + SQLUtil.toSQL(lsBrand) +
+                                    " AND sInvTypCd = 'SP'";
+                        ResultSet loRS = loNautilus.executeQuery(lsSQL);
+
+                        if (loRS.next())
+                            lsBrand = loRS.getString("sBrandCde");
+                        else
+                            lsBrand = "";
+                    } else lsBrand = "";
                     
-                    if (loDetail.next()){
-                        lsSQL = "INSERT INTO Price_Change_Detail SET" + 
-                                "  sTransNox = " + SQLUtil.toSQL(lsTransNox) +
-                                ", nEntryNox = " + lnRow +
-                                ", sStockIDx = " + SQLUtil.toSQL(loDetail.getString("sStockIDx")) +
-                                ", nUnitPrce = " + lnUnitPrce +
-                                ", nSelPrce1 = " + lnSelPrice + 
-                                ", nSelPrce2 = 0.00" +
-                                ", nSelPrce3 = 0.00" +
-                                ", nDiscLev1 = 0.00" +
-                                ", nDiscLev2 = 0.00" +
-                                ", nDiscLev3 = 0.00";
-                        
-                        if (loNautilus.executeUpdate(lsSQL, "Price_Change_Detail", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
-                            loNautilus.rollbackTrans();
-                            System.err.println(loNautilus.getMessage());
-                            System.exit(1);
-                        }
+                    lsSQL = "UPDATE Inventory SET";
+                    if (!lsBrand.equals("")){
+                        lsSQL += "  sBrandCde = " + SQLUtil.toSQL(lsBrand);
+                    } else {
+                        lsSQL += "  sBrandCde = sBrandCde";
+                    }
+                    
+                    if (!lsNewBCode.equals("-")){
+                        lsSQL += ", sBarCodex = " + SQLUtil.toSQL(lsNewBCode);
+                    }
+                    
+                    if (!lsNewDescx.equals("-")){
+                        lsSQL += ", sDescript = " + SQLUtil.toSQL(lsNewDescx);
+                    }
+                    
+                    lsSQL += " WHERE sBarCodex = " + SQLUtil.toSQL(lsBarCodex);
+                    
+                    if (loNautilus.executeUpdate(lsSQL, "Inventory", (String) loNautilus.getBranchConfig("sBranchCd"), "") <= 0){
+                        System.err.println(loNautilus.getMessage());
+                        loNautilus.rollbackTrans();
+                        System.exit(1);
                     }
                 }
                 lnRow += 1;
