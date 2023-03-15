@@ -1,6 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.sql.ResultSet;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -24,6 +25,7 @@ import org.xersys.commander.util.FXUtil;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.LRecordMas;
 import org.xersys.commander.util.CommonUtil;
+import org.xersys.commander.util.MiscUtil;
 import org.xersys.inventory.base.MCSerial;
 //import org.xersys.parameters.base.MCSerial;
 
@@ -236,6 +238,32 @@ public class MCSerialController implements Initializable, ControlledScreen{
             case "btn09":
                 loadScreen(ScreenInfo.NAME.MODEL); break;
             case "btn10":
+                if (_trans.getEditMode() != EditMode.READY){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No record was loaded.", "Warning", "");
+                    return;
+                }
+                
+                JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.SERVICE_HISTORY);
+                
+                if (loJSON != null){
+                    ResultSet loRS =  _trans.getJOHistory();
+                    
+                    if (loRS == null){
+                        ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction history for this motorcycle.", "Notice", "");
+                        return;
+                    }
+                                        
+                    ServiceHistoryController instance = new ServiceHistoryController();
+                    //instance.setNautilus(_nautilus);
+                    instance.setParentController(_main_screen_controller);
+                    instance.setScreensController(_screens_controller);
+                    instance.setEngineNo((String) _trans.getMaster("sSerial01"));
+                    instance.setFrameNo((String) _trans.getMaster("sSerial02"));
+                    instance.setService((int) MiscUtil.RecordCount(loRS));
+                    instance.setData(loRS);
+
+                    _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                }
                 break;
             case "btn11":
                 if (!_trans.UpdateRecord()){
@@ -401,7 +429,7 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn07.setText("");
         btn08.setText("Brand");
         btn09.setText("Model");
-        btn10.setText("QR");
+        btn10.setText("History");
         btn11.setText("Update");
         btn12.setText("Close");              
         
@@ -424,8 +452,9 @@ public class MCSerialController implements Initializable, ControlledScreen{
         btn02.setVisible(lbShow);
         btn03.setVisible(lbShow);
         btn04.setVisible(lbShow);
-        btn09.setVisible(!lbShow);
+        btn07.setVisible(!lbShow);
         btn08.setVisible(!lbShow);
+        btn09.setVisible(!lbShow);
         btn10.setVisible(!lbShow);
         btn11.setVisible(!lbShow);
         

@@ -1,6 +1,7 @@
 package org.xersys.imbentaryofx.gui;
 
 import java.net.URL;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -38,10 +39,12 @@ import org.xersys.commander.iface.LOthTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.DataCallback;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
+import org.xersys.inventory.base.MCSerial;
 import org.xersys.sales.base.JobOrder;
 
 public class JobOrderController implements Initializable, ControlledScreen{
@@ -145,8 +148,9 @@ public class JobOrderController implements Initializable, ControlledScreen{
     private Label lblStartTime;
     @FXML
     private Label lblEndTime;
-    @FXML
     private TextField txtSeeks03;
+    @FXML
+    private Button btnChild01;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {        
@@ -1022,6 +1026,43 @@ public class JobOrderController implements Initializable, ControlledScreen{
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
         
         switch (lsButton){
+            case "btnChild01":
+                if (_trans.getEditMode() != EditMode.ADDNEW){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "Invalid edit mode detected.", "Warning", "");
+                    return;
+                }
+                
+                if ("".equals((String) _trans.getMaster("sSerialID"))){
+                    ShowMessageFX.Warning(_main_screen_controller.getStage(), "No motorcycle loaded.", "Notice", "");
+                    return;
+                }
+                
+                MCSerial loSerial = new MCSerial(_nautilus, (String) _nautilus.getBranchConfig("sBranchCd"), true);
+                
+                if (loSerial.OpenRecord((String) _trans.getMaster("sSerialID"))){
+                    JSONObject loJSON = ScreenInfo.get(ScreenInfo.NAME.SERVICE_HISTORY);
+                
+                    if (loJSON != null){
+                        ResultSet loRS =  loSerial.getJOHistory();
+
+                        if (loRS == null){
+                            ShowMessageFX.Warning(_main_screen_controller.getStage(), "No transaction history for this motorcycle.", "Notice", "");
+                            return;
+                        }
+
+                        ServiceHistoryController instance = new ServiceHistoryController();
+                        //instance.setNautilus(_nautilus);
+                        instance.setParentController(_main_screen_controller);
+                        instance.setScreensController(_screens_controller);
+                        instance.setEngineNo((String) loSerial.getMaster("sSerial01"));
+                        instance.setFrameNo((String) loSerial.getMaster("sSerial02"));
+                        instance.setService((int) MiscUtil.RecordCount(loRS));
+                        instance.setData(loRS);
+
+                        _screens_controller.loadScreen((String) loJSON.get("resource"), (ControlledScreen) instance);
+                    }
+                }                
+                break;
             case "btn01": //new
                 _loaded = false;
                 
@@ -1481,6 +1522,8 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn11.setOnAction(this::cmdButton_Click);
         btn12.setOnAction(this::cmdButton_Click);
         
+        btnChild01.setOnAction(this::cmdButton_Click);
+        
         btn01.setTooltip(new Tooltip("F1"));
         btn02.setTooltip(new Tooltip("F2"));
         btn03.setTooltip(new Tooltip("F3"));
@@ -1493,6 +1536,8 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn10.setTooltip(new Tooltip("F10"));
         btn11.setTooltip(new Tooltip("F11"));
         btn12.setTooltip(new Tooltip("F12"));
+        
+        btnChild01.setTooltip(new Tooltip("JO History"));
         
         btn01.setText("New");
         btn02.setText("Clear");
@@ -1527,6 +1572,8 @@ public class JobOrderController implements Initializable, ControlledScreen{
         btn05.setVisible(lnEditMode == EditMode.ADDNEW);
         btn06.setVisible(lnEditMode == EditMode.ADDNEW);
         btn08.setVisible(lnEditMode == EditMode.ADDNEW);
+        
+        btnChild01.setVisible(lnEditMode == EditMode.ADDNEW);
         
         txtSeeks01.setDisable(lnEditMode != EditMode.ADDNEW);
         txtSeeks02.setDisable(lnEditMode != EditMode.ADDNEW);
