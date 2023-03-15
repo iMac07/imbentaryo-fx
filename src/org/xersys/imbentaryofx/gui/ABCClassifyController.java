@@ -270,6 +270,7 @@ public class ABCClassifyController implements Initializable, ControlledScreen {
     private void loadLedger(){
         ResultSet loRS = _trans.getLastClassify();
         
+        
         if (loRS == null){
             ShowMessageFX.Warning(_main_screen_controller.getStage(), _trans.getMessage(), "Warning", "");
             return;

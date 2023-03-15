@@ -297,9 +297,9 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
                         (String) _trans.getDetail(lnCtr, "sDescript"), 
                         String.valueOf(_trans.getDetail(lnCtr, "nQtyOnHnd")),
                         StringUtil.NumberFormat(lnUnitPrce, "#,##0.00"),
+                        String.valueOf(_trans.getDetail(lnCtr, "nRecOrder")),
                         String.valueOf(lnQuantity),
                         StringUtil.NumberFormat(lnTranTotl, "#,##0.00"),
-                        "",
                         "",
                         ""));
         }
@@ -323,6 +323,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         TableColumn index05 = new TableColumn("");
         TableColumn index06 = new TableColumn("");
         TableColumn index07 = new TableColumn("");
+        TableColumn index08 = new TableColumn("");
         
         index01.setSortable(false); index01.setResizable(false);
         index02.setSortable(false); index02.setResizable(false);
@@ -330,7 +331,8 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         index04.setSortable(false); index04.setResizable(false); index04.setStyle( "-fx-alignment: CENTER;");
         index05.setSortable(false); index05.setResizable(false); index05.setStyle( "-fx-alignment: CENTER-RIGHT;");
         index06.setSortable(false); index06.setResizable(false); index06.setStyle( "-fx-alignment: CENTER;");
-        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER-RIGHT;");
+        index07.setSortable(false); index07.setResizable(false); index07.setStyle( "-fx-alignment: CENTER;");
+        index08.setSortable(false); index08.setResizable(false); index08.setStyle( "-fx-alignment: CENTER-RIGHT;");
         
         _table.getColumns().clear();        
         
@@ -354,13 +356,17 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         index05.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index05"));
         index05.prefWidthProperty().set(80);
         
-        index06.setText("Order"); 
+        index06.setText("ROQ"); 
         index06.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index06"));
         index06.prefWidthProperty().set(60);
         
-        index07.setText("Total"); 
+        index07.setText("Order"); 
         index07.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index07"));
-        index07.prefWidthProperty().set(85);
+        index07.prefWidthProperty().set(60);
+        
+        index08.setText("Total"); 
+        index08.setCellValueFactory(new PropertyValueFactory<TableModel,String>("index08"));
+        index08.prefWidthProperty().set(85);
         
         _table.getColumns().add(index01);
         _table.getColumns().add(index02);
@@ -369,6 +375,7 @@ public class PurchaseOrderController implements Initializable, ControlledScreen{
         _table.getColumns().add(index05);
         _table.getColumns().add(index06);
         _table.getColumns().add(index07);
+        _table.getColumns().add(index08);
         
         _table.setItems(_table_data);
         _table.setOnMouseClicked(this::tableClicked);
