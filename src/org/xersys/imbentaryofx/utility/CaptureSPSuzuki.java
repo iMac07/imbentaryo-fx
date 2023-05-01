@@ -52,7 +52,7 @@ public class CaptureSPSuzuki {
         
         
         try  {  
-            File file = new File("F:\\xurpas\\SUZUKI UPDATED PRICELIST FEB 2022.xlsx");   //creating a new file instance  
+            File file = new File("d:/icarus/temp/Suzuki 2023.xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
