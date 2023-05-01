@@ -52,7 +52,7 @@ public class CaptureSPYamaha {
         
         
         try  {  
-            File file = new File("F:\\xurpas\\Yamaha Pricelist 2022.xlsx");   //creating a new file instance  
+            File file = new File("d:/icarus/temp/YAMAHA Pricelist FEB 6, 2023 (3S).xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -85,7 +85,7 @@ public class CaptureSPYamaha {
                                 lsBarCodex = cell.getStringCellValue().trim();
                                 break;
                             case 1:
-                                lsBarCodey = cell.getStringCellValue().trim();
+                                //lsBarCodey = cell.getStringCellValue().trim();
                                 break;
                             case 2:
                                 lsSupersed = cell.getStringCellValue().trim();
