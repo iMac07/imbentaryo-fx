@@ -1,6 +1,11 @@
 package org.xersys.imbentaryofx.gui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyBooleanPropertyBase;
 import javafx.beans.value.ChangeListener;
@@ -22,6 +27,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,8 +45,10 @@ import org.xersys.commander.iface.LMasDetTrans;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.FXUtil;
+import org.xersys.commander.util.SQLUtil;
 import org.xersys.commander.util.StringUtil;
 import org.xersys.imbentaryofx.listener.FormClosingCallback;
+import org.xersys.lib.base.SMTPSender;
 import org.xersys.purchasing.base.POReturn;
 
 public class POReturnHistoryController implements Initializable, ControlledScreen{
@@ -391,6 +404,48 @@ public class POReturnHistoryController implements Initializable, ControlledScree
         }
     }
 
+    private boolean printTrans(){
+        try {
+            JSONArray json_arr = new JSONArray();
+            json_arr.clear();
+
+            JSONObject json_obj;
+
+            for (int lnCtr = 0; lnCtr <= _trans.getItemCount()-1; lnCtr++){
+                json_obj = new JSONObject();
+
+                json_obj.put("nField01", (int) _trans.getDetail(lnCtr, "nQuantity"));
+                json_obj.put("sField01", (String) _trans.getDetail(lnCtr, "sBarCodex"));
+                json_obj.put("sField02", (String) _trans.getDetail(lnCtr, "sDescript"));
+                json_obj.put("lField01", Double.valueOf(String.valueOf(_trans.getDetail(lnCtr, "nUnitPrce"))));
+                json_arr.add(json_obj); 
+            }
+
+            //Create the parameter
+            Map<String, Object> params = new HashMap<>();
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));
+            params.put("sCompnyNm", System.getProperty("store.company.name"));  
+            params.put("sBranchNm", (String) _nautilus.getBranchConfig("sCompnyNm"));
+            params.put("sAddressx", (String) _nautilus.getBranchConfig("sAddressx") + ", " + (String) _nautilus.getBranchConfig("xTownName"));      
+            
+            params.put("sSupplier", (String) _trans.getMaster("sClientNm"));
+            params.put("dTransact", SQLUtil.dateFormat(_trans.getMaster("dTransact"), SQLUtil.FORMAT_MEDIUM_DATE));
+            params.put("sRemarksx", (String) _trans.getMaster("sRemarksx"));
+
+            InputStream stream = new ByteArrayInputStream(json_arr.toJSONString().getBytes("UTF-8"));
+            JsonDataSource jrjson = new JsonDataSource(stream); 
+
+            JasperPrint _jrprint = JasperFillManager.fillReport(System.getProperty("app.path.reports") + "SP-Return.jasper", params, jrjson);
+            JasperViewer jv = new JasperViewer(_jrprint, false);
+            jv.setVisible(true);
+        } catch (JRException | UnsupportedEncodingException  ex) {
+            ex.printStackTrace();
+            ShowMessageFX.Error(_main_screen_controller.getStage(), ex.getMessage(), "Exception", "Error");
+        }
+        
+        return true;
+    }
+    
     private void cmdButton_Click(ActionEvent event) {
         String lsButton = ((Button) event.getSource()).getId();
         System.out.println(this.getClass().getSimpleName() + " " + lsButton + " was clicked.");
@@ -410,7 +465,8 @@ public class POReturnHistoryController implements Initializable, ControlledScree
                     return;
                 }
                 
-                ShowMessageFX.Information(_main_screen_controller.getStage(), "Transaction was printed successfully.", "Success", "");
+                printTrans();
+                
                 break;
             case "btn03":
                 if (_trans.getEditMode() != EditMode.READY){
