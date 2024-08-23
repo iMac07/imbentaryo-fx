@@ -16,9 +16,9 @@ import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
-public class CaptureSPHonda {
+public class CaptureSPEastway {
     public static void main(String [] args){
-        final String BRANDCODE = "HONDA";
+        final String BRANDCODE = "EASTWAY";
         final String PRODUCTID = "Daedalus";
         
         //get database property
@@ -52,7 +52,7 @@ public class CaptureSPHonda {
         
         
         try  {  
-            File file = new File("d:/icarus/temp/Honda Price Increase Effective January 16, 2023 - Sub Dealer Copy.xlsx");   //creating a new file instance  
+            File file = new File("d:/icarus/temp/Eastway.xlsx");   //creating a new file instance  
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file  
             //creating Workbook instance that refers to .xlsx file  
             XSSFWorkbook wb = new XSSFWorkbook(fis);   
@@ -72,7 +72,6 @@ public class CaptureSPHonda {
                     String lsAltBarCd = "";
                     String lsSupersed = "";
                     String lsDescript = "";
-                    String lsOrderTyp = "";
                     double lnUnitPrce = 0.00;
                     double lnSelPrice = 0.00;
 
@@ -86,13 +85,13 @@ public class CaptureSPHonda {
                             case 1:
                                 lsDescript = cell.getStringCellValue().trim();
                                 break;
-                            case 3:
+                            case 2:
                                 lsAltBarCd = cell.getStringCellValue().trim();
                                 if (lsAltBarCd.length() == 1)
                                     if (lsAltBarCd.equals("-"))
                                         lsAltBarCd = "";
                                 break;
-                            case 2:
+                            case 3:
                                 lsSupersed = cell.getStringCellValue().trim();
                                 if (lsSupersed.length() == 1)
                                     if (lsSupersed.equals("-"))
@@ -104,16 +103,6 @@ public class CaptureSPHonda {
                             case 5:
                                 lnUnitPrce = cell.getNumericCellValue();
                                 break;
-                            case 6:
-                                lsOrderTyp = cell.getStringCellValue().trim();
-                                
-                                switch (lsOrderTyp.toLowerCase()) {
-                                    case "campaign":
-                                        lsOrderTyp = "1";
-                                        break;
-                                    default:
-                                        lsOrderTyp = "0";
-                                }
                         }
                         lnCtr ++;
                     }  
@@ -144,8 +133,7 @@ public class CaptureSPHonda {
                         lsValue = "UPDATE Inventory SET" +
                                         lsValue +
                                     " WHERE sStockIDx = " + SQLUtil.toSQL(loRS.getString("sStockIDx"));
-                           
-                        System.out.println(lsValue);
+                        System.out.println(lsValue);   
                         if (loNautilus.executeUpdate(lsValue) <= 0) {
                             System.err.println(loNautilus.getMessage());
                             loNautilus.rollbackTrans();
@@ -164,7 +152,6 @@ public class CaptureSPHonda {
                                     ", sModelCde = ''" +
                                     ", sColorCde = ''" +
                                     ", sInvTypCd = 'SP'" +
-                                    ", cOrderTyp = " + SQLUtil.toSQL(lsOrderTyp) +
                                     ", nUnitPrce = " + lnUnitPrce * 100 / 100 +
                                     ", nSelPrce1 = " + lnSelPrice * 100 / 100 +
                                     ", cComboInv = '0'" +
@@ -174,7 +161,6 @@ public class CaptureSPHonda {
                                     ", sSupersed = " + SQLUtil.toSQL(lsSupersed) +
                                     ", cRecdStat = '1'" +
                                     ", dModified = " + SQLUtil.toSQL(loNautilus.getServerDate());
-
                         System.out.println(lsValue);
                         if (loNautilus.executeUpdate(lsValue) <= 0) {
                             System.err.println(loNautilus.getMessage());
